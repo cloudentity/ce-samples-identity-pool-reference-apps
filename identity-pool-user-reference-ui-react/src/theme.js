@@ -1,6 +1,6 @@
-import { createTheme } from '@material-ui/core/styles'
+import { createTheme, adaptV4Theme } from '@mui/material/styles';
 
-export const theme = createTheme({
+export const theme = createTheme(adaptV4Theme({
   custom: {
     heading6: {
       fontWeight: 'bold',
@@ -53,4 +53,4 @@ export const theme = createTheme({
       },
     },
   },
-});
+}));

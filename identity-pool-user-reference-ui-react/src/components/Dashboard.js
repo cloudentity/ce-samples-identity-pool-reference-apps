@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
+import makeStyles from '@mui/styles/makeStyles';
+import Grid from '@mui/material/Grid';
 import IdentityPools from './IdentityPools';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';

@@ -27,12 +27,6 @@ export default function FormFooter({
           style={{ marginRight: 14 }}
           sx={{
             width: cancelButtonWidth,
-            color: '#36C6AF',
-            border: '1px solid #36C6AF',
-            '&:hover': {
-              background: 'rgb(244, 250, 252)',
-              border: '1px solid #36C6AF',
-            }
           }}
         >
           {cancelText || 'Cancel'}
@@ -48,10 +42,7 @@ export default function FormFooter({
           onClick={() => form.handleSubmit(onSubmit)()}
           sx={{
             width: submitButtonWidth,
-            background: '#36C6AF',
-            '&:hover': {
-              background: '#36C6AF'
-            }
+            color: '#fff',
           }}
         >
           {progress && <CircularProgress size={18} style={{ color: 'gray', marginRight: 12 }} />}

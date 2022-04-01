@@ -64,13 +64,6 @@ export default function AutocompleteField({
                       </>
                     ),
                   }}
-                  sx={{
-                    '& .MuiOutlinedInput-root.Mui-focused': {
-                      '& > fieldset': {
-                        borderColor: '#36C6AF'
-                      }
-                    }
-                  }}
                 />
               )}
               filterSelectedOptions

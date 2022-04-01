@@ -1,8 +1,8 @@
 import { Navigate } from 'react-router-dom';
-import {makeStyles} from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import makeStyles from '@mui/styles/makeStyles';
+import Card from '@mui/material/Card';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import PageContent from './common/PageContent';
 import PageToolbar from './common/PageToolbar';
 

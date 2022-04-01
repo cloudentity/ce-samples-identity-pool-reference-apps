@@ -31,11 +31,6 @@ export default function CheckBox({
               }}
               disabled={props.disabled}
               {...checkBoxProps}
-              sx={{
-                '&.Mui-checked': {
-                  color: '#36C6AF'
-                }
-              }}
             />
           );
 

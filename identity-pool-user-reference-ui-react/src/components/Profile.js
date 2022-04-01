@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import ReactJson from 'react-json-view';
-import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
-import Typography from '@material-ui/core/Typography';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import Typography from '@mui/material/Typography';
 import SelfUpdateIdentityPoolUser from './SelfUpdateIdentityPoolUser';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';

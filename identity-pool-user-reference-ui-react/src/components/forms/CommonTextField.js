@@ -46,13 +46,6 @@ export default function CommonTextField({
           error={activeError}
           variant="outlined"
           style={{width: width || 500}}
-          sx={{
-            '& .MuiOutlinedInput-root.Mui-focused': {
-              '& > fieldset': {
-                borderColor: '#36C6AF'
-              }
-            }
-          }}
           {...props}
         />
         <FormHelperText id={`${inputID}-helper-text`} error={activeError}>

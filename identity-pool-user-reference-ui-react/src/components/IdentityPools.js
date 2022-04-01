@@ -1,8 +1,8 @@
 import {useState, useEffect} from 'react';
 import IdentityPoolsTable, {mapPoolsToData} from './IdentityPoolsTable';
 import CreateIdentityPoolDialog from './CreateIdentityPool';
-import Button from '@material-ui/core/Button';
-import {makeStyles} from '@material-ui/core/styles';
+import Button from '@mui/material/Button';
+import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
 import Progress from './Progress';

@@ -1,13 +1,13 @@
-import Toolbar from '@material-ui/core/Toolbar';
-import AppBar from '@material-ui/core/AppBar';
-import MenuIcon from '@material-ui/icons/Menu';
-import IconButton from '@material-ui/core/IconButton';
-import Tab from '@material-ui/core/Tab';
-import Hidden from '@material-ui/core/Hidden';
-import Tabs from '@material-ui/core/Tabs';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import Toolbar from '@mui/material/Toolbar';
+import AppBar from '@mui/material/AppBar';
+import MenuIcon from '@mui/icons-material/Menu';
+import IconButton from '@mui/material/IconButton';
+import Tab from '@mui/material/Tab';
+import Hidden from '@mui/material/Hidden';
+import Tabs from '@mui/material/Tabs';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import makeStyles from '@mui/styles/makeStyles';
 
 // Uncomment and change the line below to point to your own logo image
 // import logoImage from '../../assets/logo-example.svg';
@@ -97,11 +97,11 @@ export default function PageToolbar({
         {mode === 'main' && (
           <>
             <Hidden mdUp>
-              <IconButton edge="start" color="inherit" aria-label="menu">
+              <IconButton edge="start" color="inherit" aria-label="menu" size="large">
                 <MenuIcon />
               </IconButton>
             </Hidden>
-            <Hidden smDown>
+            <Hidden mdDown>
               <Tabs
                 value={tab || 'admin'}
                 indicatorColor="primary"

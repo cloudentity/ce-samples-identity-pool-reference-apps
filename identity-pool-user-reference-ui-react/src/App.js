@@ -3,8 +3,8 @@ import {
   Routes,
   Route
 } from 'react-router-dom';
-import { ThemeProvider } from '@material-ui/core';
-import { StylesProvider } from '@material-ui/core/styles';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material';
+import StylesProvider from '@mui/styles/StylesProvider';
 import { theme } from './theme';
 import Unauthorized from './components/Unauthorized';
 import Authorized from './components/Authorized';
@@ -34,20 +34,22 @@ function App() {
 
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <StylesProvider injectFirst>
-          <div>
-            <BrowserRouter>
-              <Routes>
-                <Route index element={<Unauthorized className="App" auth={authenticated} handleLogin={authorize} />} />
-                <Route path="authorized" element={<Authorized auth={authenticated} handleLogout={clearAuth} />} />
-              </Routes>
-            </BrowserRouter>
-          </div>
-        </StylesProvider>
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <StylesProvider injectFirst>
+            <div>
+              <BrowserRouter>
+                <Routes>
+                  <Route index element={<Unauthorized className="App" auth={authenticated} handleLogin={authorize} />} />
+                  <Route path="authorized" element={<Authorized auth={authenticated} handleLogout={clearAuth} />} />
+                </Routes>
+              </BrowserRouter>
+            </div>
+          </StylesProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </>
   );
-}
+};
 
 export default App;
