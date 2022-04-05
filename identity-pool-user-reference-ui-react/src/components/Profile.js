@@ -175,13 +175,13 @@ const Profile = ({auth, handleLogout}) => {
           )}
         </div>
         <div style={{marginTop: 20}}>
-          <Typography>{`The contents of your OAuth ID token:`}</Typography>
-        </div>
-        <ReactJson style={{marginTop: 20}} src={idTokenData} />
-        <div style={{marginTop: 20}}>
-          <Typography>{`The contents of your OAuth Access token:`}</Typography>
+          <Typography>The contents of your OAuth Access token:</Typography>
         </div>
         <ReactJson style={{marginTop: 20}} src={accessTokenData} />
+        <div style={{marginTop: 20}}>
+          <Typography>The contents of your OAuth ID token:</Typography>
+        </div>
+        <ReactJson style={{marginTop: 20}} src={idTokenData} />
       </Card>
       <SelfUpdateIdentityPoolUser
         open={updateProfileDialogOpen}

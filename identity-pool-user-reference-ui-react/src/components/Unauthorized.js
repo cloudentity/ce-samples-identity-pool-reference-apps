@@ -54,7 +54,7 @@ const Unauthorized = ({className, auth, handleLogin}) => {
               <div className={classes.subContainer}>
                 <div className={`${classes.subContainer} ${classes.textColor}`}>
                   <Typography variant="h5" component="h2">Welcome!</Typography>
-                  <Typography>Log in to manage your profile.</Typography>
+                  <Typography>Log in to manage your account.</Typography>
                 </div>
                 <Button color="primary" onClick={handleLogin} className={classes.loginButton}>
                   Continue
