@@ -82,6 +82,7 @@ export default function PageToolbar({
       position="fixed"
       color="inherit"
       variant="outlined"
+      elevation={0}
       className={classes.appBar}
     >
       <Toolbar className={classes.toolBar}>

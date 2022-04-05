@@ -28,6 +28,10 @@ export const validators = {
     ({ label, min = 1 }) =>
     v =>
       v?.trim().length >= min || `${label} minimum length is ${min} characters`,
+  minLengthIfExists:
+    ({ label, min = 1 }) =>
+    v =>
+      !v || v?.trim().length >= min || `${label} minimum length is ${min} characters`,
   maxLength:
     ({ label, max = 255 }) =>
     v =>
