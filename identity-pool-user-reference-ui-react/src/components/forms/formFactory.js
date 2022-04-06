@@ -21,9 +21,7 @@ export const useFormFactory = ({
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      form.reset(data);
-    }, 500);
+    form.reset(data);
   }, [formIsActive]);
 
   const createRequiredField = ({validate = {}, ...props}) => (
