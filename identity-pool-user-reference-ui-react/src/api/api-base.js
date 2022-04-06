@@ -45,7 +45,7 @@ const http = (request, origin, baseUrl) => ({
 export default http(superagent, window.location.origin, '/api');
 
 export const base = http(superagent, window.location.origin, '/api');
-export const acpBase = http(superagent, 'https://localhost:8443', '');
+export const acpBase = http(superagent, `https://${authConfig.domain}`, '');
 export const nodeAppBase = http(superagent, 'http://localhost:5002', '/api');
 
 export const baseWithCustomBaseUrl = (baseUrl, origin = window.location.origin) => http(superagent, origin, baseUrl);
