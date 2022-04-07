@@ -14,11 +14,11 @@ export default function EditUserDialog ({open, poolId, userId, userData, handleC
 
   const formFactory = useFormFactory({
     id: 'create-user',
-    data: {
+    data: open ? {
       firstName: userData.firstName,
       lastName: userData.lastName,
       name: userData.fullName,
-    },
+    } : {},
     formIsActive: open
   });
 

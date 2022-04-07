@@ -11,7 +11,6 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
-import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import UserDetails from './UserDetails';
 // import {stringToHex} from './analytics.utils';
@@ -139,11 +138,20 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-export default function UsersTable({data, poolId, refreshData, handleRefreshList, style = {}}) {
+export default function UsersTable({
+  data,
+  poolId,
+  selectedUser,
+  setSelectedUser,
+  userData,
+  isUserDataLoading,
+  refreshData,
+  handleRefreshList,
+  style = {}
+}) {
   const classes = useStyles();
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('id');
-  const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [dense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -171,7 +179,7 @@ export default function UsersTable({data, poolId, refreshData, handleRefreshList
           name: data.name
         }
       };
-      api.updateUser(poolId, selected[0], payload)
+      api.updateUser(poolId, selectedUser[0], payload)
       .then(() => {
         setUpdateUserDialogOpen(false);
         handleRefreshList();
@@ -188,10 +196,10 @@ export default function UsersTable({data, poolId, refreshData, handleRefreshList
       setDeleteUserDialogOpen(false);
     }
     if (action === 'confirm') {
-      api.deleteUser(poolId, selected[0])
+      api.deleteUser(poolId, selectedUser[0])
       .then(() => {
         setDeleteUserDialogOpen(false);
-        setSelected([]);
+        setSelectedUser([]);
         handleRefreshList();
       })
       .catch((err) => {
@@ -203,7 +211,7 @@ export default function UsersTable({data, poolId, refreshData, handleRefreshList
 
   const handleCloseDrawer = () => {
     console.log('closing drawer')
-    setSelected([]);
+    setSelectedUser([]);
   }
 
   useEffect(() => {
@@ -226,18 +234,18 @@ export default function UsersTable({data, poolId, refreshData, handleRefreshList
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelecteds = data.map((n) => n.id);
-      setSelected(newSelecteds);
+      setSelectedUser(newSelecteds);
       return;
     }
-    setSelected([]);
+    setSelectedUser([]);
   };
 
   const handleSelectUser = (id) => {
-    if (selected.length) {
-      setSelected([]);
+    if (selectedUser.length) {
+      setSelectedUser([]);
       return;
     }
-    setSelected([id]);
+    setSelectedUser([id]);
   }
 
   const handleChangePage = (event, newPage) => {
@@ -249,7 +257,7 @@ export default function UsersTable({data, poolId, refreshData, handleRefreshList
     setPage(0);
   };
 
-  const isSelected = (id) => selected.indexOf(id) !== -1;
+  const isSelected = (id) => selectedUser.indexOf(id) !== -1;
 
   return (
     <div className={classes.root} id="analytics-table-root" style={style}>
@@ -263,7 +271,7 @@ export default function UsersTable({data, poolId, refreshData, handleRefreshList
           >
             <EnhancedTableHead
               classes={classes}
-              numSelected={selected.length}
+              numSelected={selectedUser.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
@@ -320,13 +328,15 @@ export default function UsersTable({data, poolId, refreshData, handleRefreshList
         />
       </Paper>
       <Drawer
-        open={!!selected.length}
+        open={!!selectedUser.length}
         anchor="right"
         onClose={handleCloseDrawer}
       >
         <UserDetails
+          isLoading={isUserDataLoading}
           poolId={poolId}
-          userId={selected[0]}
+          userId={selectedUser[0]}
+          userData={userData}
           refreshData={refreshData}
           updateUserDialogOpen={updateUserDialogOpen}
           handleOpenEditUserDialog={handleOpenEditUserDialog}

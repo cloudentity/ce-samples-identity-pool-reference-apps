@@ -10,7 +10,6 @@ import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
 import Progress from './Progress';
-import authConfig from '../authConfig';
 
 const useStyles = makeStyles((theme) => ({
   selectPoolInput: {
@@ -43,12 +42,41 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function UsersWithSelectedPool ({pool, refreshList, handleRefreshList}) {
+export default function Users () {
+  const classes = useStyles();
+
+  const [currentPool, setCurrentPool] = useState('');
+  const [selectedUser, setSelectedUser] = useState([]);
+  const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
+  const [refreshList, initRefreshList] = useState(false);
+
+  const handleSelectPool = (event) => {
+    setCurrentPool(event.target.value);
+  };
+
+// LOAD POOLS
+  const {
+    isLoading: fetchIdentityPoolsProgress,
+    error: fetchIdentityPoolsError,
+    data: identityPoolsRes
+  } = useQuery('fetchIdentityPools', api.fetchIdentityPools, {
+    refetchOnWindowFocus: false,
+    retry: false,
+    onSuccess: identityPoolsRes => {
+      console.log('identity pools response', identityPoolsRes);
+    }
+  });
+
+  const identityPools = identityPoolsRes?.pools || [];
+  const isPoolListLoading = fetchIdentityPoolsProgress;
+
+// LOAD USERS
   const {
     isLoading: fetchUsersInPoolProgress,
     error: fetchUsersInPoolError,
     data: usersInPoolRes
-  } = useQuery(['fetchUsersInPool', pool, refreshList], () => api.fetchUsers(pool), {
+  } = useQuery(['fetchUsersInPool', currentPool, refreshList], () => api.fetchUsers(currentPool), {
+    enabled: !!currentPool,
     refetchOnWindowFocus: false,
     retry: false,
     onSuccess: usersInPoolRes => {
@@ -57,38 +85,26 @@ function UsersWithSelectedPool ({pool, refreshList, handleRefreshList}) {
   });
 
   const users = usersInPoolRes?.users || [];
-
   const tableData = users.map(mapUsersToData);
+  const isUserListLoading = fetchUsersInPoolProgress;
 
-  const isLoading = fetchUsersInPoolProgress;
+// LOAD USER DETAILS
+  const {
+    isLoading: fetchUserDetailsProgress,
+    error: fetchUserDetailsError,
+    data: userDetailsRes
+  } = useQuery(['fetchUserDetails', refreshList], () => api.fetchUserDetails(currentPool, selectedUser[0]), {
+    enabled: !!currentPool && !!selectedUser[0],
+    refetchOnWindowFocus: false,
+    retry: false,
+    onSuccess: userDetailsRes => {
+      console.log('user details response', userDetailsRes);
+    }
+  });
 
-  if (isLoading) {
-    return <Progress/>;
-  }
+  const isUserDataLoading = fetchUserDetailsProgress;
 
-  return (
-    <UsersTable
-      data={tableData}
-      poolId={pool}
-      refreshData={refreshList}
-      handleRefreshList={handleRefreshList}
-      style={{marginTop: 24, height: 'calc(100% - 332px - 24px'}}
-    />
-  );
-};
-
-export default function Users () {
-  const classes = useStyles();
-
-  const [currentPool, setCurrentPool] = useState('');
-  const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
-  const [refreshList, initRefreshList] = useState(false);
-
-  const handleSelectPool = (event) => {
-    setCurrentPool(event.target.value);
-  };
-
-  const handleChangeCreateUserDialogState = (action, data) => {
+  const handleCloseCreateUserDialog = (action, data) => {
     if (action === 'cancel') {
       setCreateUserDialogOpen(false);
     }
@@ -116,29 +132,7 @@ export default function Users () {
     }
   };
 
-  const {
-    isLoading: fetchIdentityPoolsProgress,
-    error: fetchIdentityPoolsError,
-    data: identityPoolsRes
-  } = useQuery('fetchIdentityPools', api.fetchIdentityPools, {
-    refetchOnWindowFocus: false,
-    retry: false,
-    onSuccess: identityPoolsRes => {
-      console.log('identity pools response', identityPoolsRes);
-    }
-  });
-
-  const identityPools = identityPoolsRes?.pools || [];
-
-  const isLoading = fetchIdentityPoolsProgress;
-
-  useEffect(() => {
-    if (createUserDialogOpen === false) {
-      console.log('dialog closed');
-    }
-  }, [createUserDialogOpen]);
-
-  if (isLoading) {
+  if (isPoolListLoading) {
     return <Progress/>;
   }
 
@@ -166,14 +160,30 @@ export default function Users () {
         )}
       </div>
       {currentPool ? (
-        <UsersWithSelectedPool pool={currentPool} refreshList={refreshList} handleRefreshList={() => initRefreshList(!refreshList)} />
+        <>
+          {isUserListLoading ? (
+            <Progress/>
+          ) : (
+            <UsersTable
+              data={tableData}
+              poolId={currentPool}
+              selectedUser={selectedUser}
+              setSelectedUser={u => setSelectedUser(u)}
+              userData={userDetailsRes}
+              isUserDataLoading={isUserDataLoading}
+              refreshData={refreshList}
+              handleRefreshList={() => initRefreshList(!refreshList)}
+              style={{marginTop: 24, height: 'calc(100% - 332px - 24px'}}
+            />
+          )}
+        </>
       ) : (
         <div style={{marginTop: 80, textAlign: 'center'}}>Select an Identity Pool to see its users list</div>
       )}
       <CreateUserDialog
         open={createUserDialogOpen}
         poolId={currentPool}
-        handleClose={handleChangeCreateUserDialogState}
+        handleClose={handleCloseCreateUserDialog}
         classes={classes}
       />
     </>

@@ -1,4 +1,3 @@
-import {useState, useEffect} from 'react';
 import EditUserDialog from './EditUser';
 import DeleteUserConfirmDialog from './DeleteUserConfirm';
 import Button from '@mui/material/Button';
@@ -13,7 +12,6 @@ import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
 import Progress from './Progress';
-import authConfig from '../authConfig';
 
 const useStyles = makeStyles((theme) => ({
   userDetailsHeader: {
@@ -49,8 +47,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function UserDetails ({
+  isLoading,
   poolId,
   userId,
+  userData,
   refreshData,
   updateUserDialogOpen,
   handleOpenEditUserDialog,
@@ -62,73 +62,52 @@ export default function UserDetails ({
 }) {
   const classes = useStyles();
 
-  const {
-    isLoading: fetchUserDetailsProgress,
-    error: fetchUserDetailsError,
-    data: userDetailsRes
-  } = useQuery(['fetchUserDetails', refreshData], () => api.fetchUserDetails(poolId, userId), {
-    enabled: !!userId,
-    refetchOnWindowFocus: false,
-    retry: false,
-    onSuccess: userDetailsRes => {
-      console.log('user details response', userDetailsRes);
-    }
-  });
-
-  const isLoading = fetchUserDetailsProgress;
-
   const missingInfoPlaceholder = 'N/A';
 
-  const userDetails = userDetailsRes ? [
+  const userDetails = userData ? [
     {
       displayName: 'First Name',
-      value: userDetailsRes.payload?.given_name || missingInfoPlaceholder
+      value: userData.payload?.given_name || missingInfoPlaceholder
     },
     {
       displayName: 'Last Name',
-      value: userDetailsRes.payload?.family_name || missingInfoPlaceholder
+      value: userData.payload?.family_name || missingInfoPlaceholder
     },
     {
       displayName: 'Full Name',
-      value: userDetailsRes.payload?.name || missingInfoPlaceholder
+      value: userData.payload?.name || missingInfoPlaceholder
     },
     {
       displayName: 'ID',
-      value: userDetailsRes.id || missingInfoPlaceholder
+      value: userData.id || missingInfoPlaceholder
     },
     {
       displayName: 'Identifiers',
-      value: (userDetailsRes.identifiers || []).map(i => i.identifier).join(', ') || 'no identifiers'
+      value: (userData.identifiers || []).map(i => i.identifier).join(', ') || 'no identifiers'
     },
     {
       displayName: 'Status',
-      value: userDetailsRes.status || missingInfoPlaceholder
+      value: userData.status || missingInfoPlaceholder
     },
     {
       displayName: 'Tenant ID',
-      value: userDetailsRes.tenant_id || missingInfoPlaceholder
+      value: userData.tenant_id || missingInfoPlaceholder
     },
     {
       displayName: 'Created',
-      value: userDetailsRes.created_at || missingInfoPlaceholder
+      value: userData.created_at || missingInfoPlaceholder
     },
     {
       displayName: 'Last modified',
-      value: userDetailsRes.updated_at || missingInfoPlaceholder
+      value: userData.updated_at || missingInfoPlaceholder
     }
   ] : [];
 
   const editableUserDetails = {
-    firstName: userDetailsRes?.payload?.given_name || '',
-    lastName: userDetailsRes?.payload?.family_name || '',
-    fullName: userDetailsRes?.payload?.name || ''
+    firstName: userData?.payload?.given_name || '',
+    lastName: userData?.payload?.family_name || '',
+    fullName: userData?.payload?.name || ''
   };
-
-  // useEffect(() => {
-  //   if (editUserDialogOpen === false) {
-  //     console.log('dialog closed');
-  //   }
-  // }, [editUserDialogOpen]);
 
   if (isLoading) {
     return <Progress/>;
