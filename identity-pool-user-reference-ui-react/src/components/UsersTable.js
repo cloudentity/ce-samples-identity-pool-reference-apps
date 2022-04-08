@@ -15,6 +15,7 @@ import Paper from '@mui/material/Paper';
 import UserDetails from './UserDetails';
 // import {stringToHex} from './analytics.utils';
 import { api } from '../api/api';
+import { omit, pickBy } from 'ramda';
 
 export const mapUsersToData = user => createData (
   user.id,
@@ -141,6 +142,7 @@ const useStyles = makeStyles((theme) =>
 export default function UsersTable({
   data,
   poolId,
+  payloadSchema,
   selectedUser,
   setSelectedUser,
   userData,
@@ -171,12 +173,12 @@ export default function UsersTable({
       setUpdateUserDialogOpen(false);
     }
     if (action === 'confirm') {
-      console.log('data', data)
       const payload = {
         payload: {
           given_name: data.firstName,
           family_name: data.lastName,
-          name: data.name
+          name: data.fullName,
+          ...pickBy(f => !!f, omit(['firstName', 'lastName', 'name'], data))
         }
       };
       api.updateUser(poolId, selectedUser[0], payload)
@@ -210,7 +212,6 @@ export default function UsersTable({
   };
 
   const handleCloseDrawer = () => {
-    console.log('closing drawer')
     setSelectedUser([]);
   }
 
@@ -335,6 +336,7 @@ export default function UsersTable({
         <UserDetails
           isLoading={isUserDataLoading}
           poolId={poolId}
+          payloadSchema={payloadSchema}
           userId={selectedUser[0]}
           userData={userData}
           refreshData={refreshData}

@@ -11,6 +11,8 @@ import Typography from '@mui/material/Typography';
 import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
+import { processPayloadSchema } from './Users';
+import { omit } from 'ramda';
 import Progress from './Progress';
 
 const useStyles = makeStyles((theme) => ({
@@ -49,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
 export default function UserDetails ({
   isLoading,
   poolId,
+  payloadSchema,
   userId,
   userData,
   refreshData,
@@ -103,10 +106,20 @@ export default function UserDetails ({
     }
   ] : [];
 
+  const customDisplayUserData = userData ? processPayloadSchema(payloadSchema).map(f => ({
+    displayName: f.description && f.description.length > 1 && `${f.description[0].toUpperCase()}${f.description.substring(1)}`,
+    value: (userData.payload && userData.payload[f.id]) || ''
+  })) : [];
+
+  const customEditableUserData = userData && processPayloadSchema(payloadSchema)
+    .map(f => ({ [f.id]: (userData.payload && userData.payload[f.id]) || '' }))
+    .reduce((o, i) => ({...o, ...i}), {});
+
   const editableUserDetails = {
     firstName: userData?.payload?.given_name || '',
     lastName: userData?.payload?.family_name || '',
-    fullName: userData?.payload?.name || ''
+    fullName: userData?.payload?.name || '',
+    ...customEditableUserData
   };
 
   if (isLoading) {
@@ -132,6 +145,23 @@ export default function UserDetails ({
             </div>
           </div>
         ))}
+        {!!customDisplayUserData.length && (
+          <>
+            <div style={{fontWeight: 700, marginTop: 20, marginBottom: 10, textDecoration: 'underline'}}>
+              Custom attributes:
+            </div>
+            {customDisplayUserData.map((d, i) => (
+              <div key={i} className={classes.userDetailsItem}>
+                <div className={classes.userDetailsItemKey}>
+                  {d.displayName + ':'}
+                </div>
+                <div className={classes.userDetailsItemValue}>
+                  {d.value}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
       <div className={classes.editUserButtonContainer}>
         <Button
@@ -164,6 +194,7 @@ export default function UserDetails ({
         <EditUserDialog
           open={updateUserDialogOpen}
           handleClose={handleCloseUpdateUserDialog}
+          payloadSchema={payloadSchema}
           userData={editableUserDetails}
           classes={classes}
         />

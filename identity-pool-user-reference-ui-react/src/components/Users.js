@@ -9,6 +9,7 @@ import Select from '@mui/material/Select';
 import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
+import { omit } from 'ramda';
 import Progress from './Progress';
 
 const useStyles = makeStyles((theme) => ({
@@ -41,6 +42,22 @@ const useStyles = makeStyles((theme) => ({
 
   }
 }));
+
+export const processPayloadSchema = (schema) => {
+  const nonSystemSchemaProps = omit(['given_name', 'family_name', 'name'], schema.properties || {});
+  const reqdFields = schema.required || [];
+  let finalFields = [];
+  for (const prop in nonSystemSchemaProps) {
+    finalFields.push({
+      ...nonSystemSchemaProps[prop],
+      ...{
+        id: prop,
+        required: reqdFields.indexOf(prop) > -1
+      }
+    });
+  }
+  return finalFields;
+};
 
 export default function Users () {
   const classes = useStyles();
@@ -104,12 +121,29 @@ export default function Users () {
 
   const isUserDataLoading = fetchUserDetailsProgress;
 
+// LOAD USERS PAYLOAD SCHEMA BY SELECTED POOL
+  const currentPayloadSchemaId = identityPools.find(p => p.id === currentPool)?.payload_schema_id;
+
+  const {
+    isLoading: fetchPayloadSchemaProgress,
+    error: fetchPayloadSchemaError,
+    data: payloadSchemaRes
+  } = useQuery(['fetchPayloadSchema', currentPool], () => api.fetchSchema(currentPayloadSchemaId), {
+    enabled: !!currentPayloadSchemaId,
+    refetchOnWindowFocus: false,
+    retry: false,
+    onSuccess: payloadSchemaRes => {
+      console.log('payload schema response', payloadSchemaRes);
+    }
+  });
+
+  const payloadSchema = payloadSchemaRes?.schema || {};
+
   const handleCloseCreateUserDialog = (action, data) => {
     if (action === 'cancel') {
       setCreateUserDialogOpen(false);
     }
     if (action === 'confirm') {
-      console.log('data', data)
       const payload = {
         credentials: data.password ? [{type: 'password', password: data.password}] : [],
         identifiers: [{identifier: data.email, type: 'email'}],
@@ -167,6 +201,7 @@ export default function Users () {
             <UsersTable
               data={tableData}
               poolId={currentPool}
+              payloadSchema={payloadSchema}
               selectedUser={selectedUser}
               setSelectedUser={u => setSelectedUser(u)}
               userData={userDetailsRes}
@@ -183,6 +218,7 @@ export default function Users () {
       <CreateUserDialog
         open={createUserDialogOpen}
         poolId={currentPool}
+        payloadSchema={payloadSchema}
         handleClose={handleCloseCreateUserDialog}
         classes={classes}
       />

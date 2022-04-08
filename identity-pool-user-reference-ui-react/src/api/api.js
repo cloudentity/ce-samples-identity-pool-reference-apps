@@ -13,6 +13,7 @@ export const api = {
   createUser: (poolId, body) => base.post({url: `${identityAdminApiBase}/pools/${poolId}/users`, body}),
   updateUser: (poolId, userId, body) => base.put({url: `${identityAdminApiBase}/pools/${poolId}/users/${userId}`, body}),
   deleteUser: (poolId, userId) => base.delete({url: `${identityAdminApiBase}/pools/${poolId}/users/${userId}`}),
+  fetchSchema: (schemaId) => base.get({url: `${identityAdminApiBase}/schemas/${schemaId}`}),
   selfFetchProfile: () => acpBase.get({url: `${identitySelfApiBase}/me`}),
   selfUpdateProfile: (body) => acpBase.put({url: `${identitySelfApiBase}/me`, body}),
   fetchProfile: () => nodeAppBase.get({url: '/profile'}),
