@@ -114,6 +114,19 @@ const Profile = ({auth, handleLogout}) => {
 
   const missingInfoPlaceholder = 'N/A';
 
+  const processCustomAttributes = (payload) => {
+    let finalCustomFields = [];
+    for (const prop in payload) {
+      if (['given_name', 'family_name', 'name', 'fullName'].indexOf(prop) === -1) {
+        finalCustomFields.push({
+          displayName: `${prop[0].toUpperCase()}${prop.substring(1)}`.split('_').join(' '),
+          value: payload[prop]
+        });
+      }
+    }
+    return finalCustomFields;
+  }
+
   const profile = profileRes ? [
     {
       displayName: 'First Name',
@@ -134,7 +147,8 @@ const Profile = ({auth, handleLogout}) => {
     {
       displayName: 'Identifiers',
       value: (profileRes.identifiers || []).map(i => i.identifier).join(', ') || 'no identifiers'
-    }
+    },
+    ...processCustomAttributes(profileRes.payload || [])
   ] : [];
 
   const isLoading = fetchProfileProgress;
