@@ -4,6 +4,7 @@ import {validators} from './validation';
 import CommonTextField from './CommonTextField';
 import AutocompleteField from './AutocompleteField';
 import CheckBox from './CheckBox';
+import SelectField from './SelectField';
 import FormFooter from './FormFooter';
 
 export const useFormFactory = ({
@@ -59,6 +60,23 @@ export const useFormFactory = ({
     <CheckBox id={id} form={form} {...props} disabled={progress || props.disabled} />
   );
 
+  const createSelect = props => (
+    <SelectField id={id} form={form} {...props} disabled={progress || props.disabled} />
+  );
+
+  const createRequiredSelect = ({ validate = {}, ...props }: any) => (
+    <SelectField
+      validate={{
+        required: `${props.label} is required`,
+        validate,
+      }}
+      id={id}
+      form={form}
+      {...props}
+      disabled={progress || props.disabled}
+    />
+  );
+
   const createFormFooter = (props) => (
     <FormFooter
       id={id}
@@ -77,6 +95,8 @@ export const useFormFactory = ({
     createField,
     createAutocompleteField,
     createCheckBox,
+    createSelect,
+    createRequiredSelect,
     createFormFooter
   };
 };

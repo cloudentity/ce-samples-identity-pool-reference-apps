@@ -9,7 +9,7 @@ import Select from '@mui/material/Select';
 import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
-import { omit } from 'ramda';
+import { pickBy, omit } from 'ramda';
 import Progress from './Progress';
 
 const useStyles = makeStyles((theme) => ({
@@ -150,7 +150,8 @@ export default function Users () {
         payload: {
           given_name: data.firstName,
           family_name: data.lastName,
-          name: `${data.firstName} ${data.lastName}`
+          name: `${data.firstName} ${data.lastName}`,
+          ...pickBy(f => !!f, omit(['firstName', 'lastName', 'name'], data))
         },
         status: data.password ? 'active' : 'new'
       };

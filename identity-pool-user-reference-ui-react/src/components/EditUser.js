@@ -71,21 +71,47 @@ export default function EditUserDialog ({open, poolId, payloadSchema, userId, us
                 <>
                   {f.required ? (
                     <>
-                      {formFactory.createRequiredField({
-                        key: i,
-                        name: f.id,
-                        label: label,
-                        validate: {},
-                      })}
+                      {f.enum && f.enum.length ? (
+                        <>
+                          {formFactory.createRequiredSelect({
+                            key: i,
+                            name: f.id,
+                            label: label,
+                            options: f.enum
+                          })}
+                        </>
+                      ) : (
+                        <>
+                          {formFactory.createRequiredField({
+                            key: i,
+                            name: f.id,
+                            label: label,
+                            validate: {},
+                          })}
+                        </>
+                      )}
                     </>
                   ) : (
                     <>
-                      {formFactory.createField({
-                        key: i,
-                        name: f.id,
-                        label: label,
-                        validate: {},
-                      })}
+                      {f.enum && f.enum.length ? (
+                        <>
+                          {formFactory.createSelect({
+                            key: i,
+                            name: f.id,
+                            label: label,
+                            options: f.enum
+                          })}
+                        </>
+                      ) : (
+                        <>
+                          {formFactory.createField({
+                            key: i,
+                            name: f.id,
+                            label: label,
+                            validate: {},
+                          })}
+                        </>
+                      )}
                     </>
                   )}
                 </>
