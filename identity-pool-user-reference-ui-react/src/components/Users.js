@@ -44,8 +44,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const processPayloadSchema = (schema) => {
-  const nonSystemSchemaProps = omit(['given_name', 'family_name', 'name'], schema.properties || {});
-  const reqdFields = schema.required || [];
+  const nonSystemSchemaProps = omit(['given_name', 'family_name', 'name'], schema?.properties || {});
+  const reqdFields = schema?.required || [];
   let finalFields = [];
   for (const prop in nonSystemSchemaProps) {
     finalFields.push({
@@ -151,7 +151,7 @@ export default function Users () {
           given_name: data.firstName,
           family_name: data.lastName,
           name: `${data.firstName} ${data.lastName}`,
-          ...pickBy(f => !!f, omit(['firstName', 'lastName', 'name'], data))
+          ...pickBy(f => !!f, omit(['firstName', 'lastName', 'name', 'email', 'password'], data))
         },
         status: data.password ? 'active' : 'new'
       };

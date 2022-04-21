@@ -115,7 +115,7 @@ app.get(apiPrefix + '/user/schema', (req, res) => {
           message: 'The application was unable to process the response from identity pool server'
         });
       } else {
-        res.send(processUserPayloadSchema(bodyJson.schema));
+        res.send(JSON.stringify(processUserPayloadSchema(bodyJson.schema)));
       }
     });
   });

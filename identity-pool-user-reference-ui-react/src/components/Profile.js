@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import SelfUpdateIdentityPoolUser from './SelfUpdateIdentityPoolUser';
+import { pickBy } from 'ramda';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
 
@@ -82,13 +83,25 @@ const Profile = ({auth, handleLogout}) => {
     }
   });
 
+  const {
+    isLoading: fetchProfileSchemaProgress,
+    error: fetchProfileSchemaError,
+    data: profileSchemaRes
+  } = useQuery(['fetchProfileSchema', refreshProfile], api.fetchProfileSchema, {
+    refetchOnWindowFocus: false,
+    retry: false,
+    onSuccess: profileSchemaRes => {
+      console.log('profile schema response', profileSchemaRes);
+    }
+  });
+
   const handleCloseUpdateProfileDialog = (action, data) => {
     if (action === 'cancel') {
       setUpdateProfileDialogOpen(false);
     }
     if (action === 'confirm') {
       console.log('data', data)
-      api.selfUpdateProfile({payload: data})
+      api.selfUpdateProfile({payload: pickBy(f => !!f, data)})
       .then(() => {
         setUpdateProfileDialogOpen(false);
         initRefreshProfile(!refreshProfile);
@@ -114,18 +127,21 @@ const Profile = ({auth, handleLogout}) => {
 
   const missingInfoPlaceholder = 'N/A';
 
-  const processCustomAttributes = (payload) => {
-    let finalCustomFields = [];
-    for (const prop in payload) {
-      if (['given_name', 'family_name', 'name', 'fullName'].indexOf(prop) === -1) {
-        finalCustomFields.push({
-          displayName: `${prop[0].toUpperCase()}${prop.substring(1)}`.split('_').join(' '),
-          value: payload[prop]
-        });
+  const processCustomAttributes = (schema, payload) => {
+    return schema.map(attr => ({
+      displayName: attr.description && attr.description.length > 1 && `${attr.description[0].toUpperCase()}${attr.description.substring(1)}`,
+      value: payload[attr.id] || ''
+    }));
+  };
+
+  const prepareUpdateProfileCustomAttributes = (schema, payload) => {
+    return schema.reduce((acc, attr) => {
+      if (payload[attr.id]) {
+        return {...acc, ...{[attr.id]: payload[attr.id]}};
       }
-    }
-    return finalCustomFields;
-  }
+      return acc;
+    }, {});
+  };
 
   const profile = profileRes ? [
     {
@@ -148,10 +164,10 @@ const Profile = ({auth, handleLogout}) => {
       displayName: 'Identifiers',
       value: (profileRes.identifiers || []).map(i => i.identifier).join(', ') || 'no identifiers'
     },
-    ...processCustomAttributes(profileRes.payload || [])
+    ...processCustomAttributes(profileSchemaRes || [], profileRes.payload || [])
   ] : [];
 
-  const isLoading = fetchProfileProgress;
+  const isLoading = fetchProfileProgress || fetchProfileSchemaProgress;
 
   const idToken = window.localStorage.getItem(authConfig.idTokenName);
   const idTokenData = idToken ? jwt_decode(idToken) : {};
@@ -159,7 +175,7 @@ const Profile = ({auth, handleLogout}) => {
   const accessToken = window.localStorage.getItem(authConfig.accessTokenName);
   const accessTokenData = accessToken ? jwt_decode(accessToken) : {};
 
-  console.log(idTokenData, idTokenData);
+  // console.log(idTokenData, idTokenData);
 
   return (
     <div className={classes.root}>
@@ -197,16 +213,20 @@ const Profile = ({auth, handleLogout}) => {
         </div>
         <ReactJson style={{marginTop: 20}} src={idTokenData} />
       </Card>
-      <SelfUpdateIdentityPoolUser
-        open={updateProfileDialogOpen}
-        handleClose={handleCloseUpdateProfileDialog}
-        profileData={{
-          given_name: profileRes?.payload?.given_name || '',
-          family_name: profileRes?.payload?.family_name || '',
-          name: profileRes?.payload?.name || ''
-        }}
-        classes={classes}
-      />
+      {!isLoading && (
+        <SelfUpdateIdentityPoolUser
+          open={updateProfileDialogOpen}
+          handleClose={handleCloseUpdateProfileDialog}
+          customFields={profileSchemaRes}
+          profileData={{
+            given_name: profileRes?.payload?.given_name || '',
+            family_name: profileRes?.payload?.family_name || '',
+            name: profileRes?.payload?.name || '',
+            ...prepareUpdateProfileCustomAttributes(profileSchemaRes || [], profileRes?.payload || [])
+          }}
+          classes={classes}
+        />
+      )}
     </div>
   );
 };

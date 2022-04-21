@@ -17,5 +17,6 @@ export const api = {
   selfFetchProfile: () => acpBase.get({url: `${identitySelfApiBase}/me`}),
   selfUpdateProfile: (body) => acpBase.put({url: `${identitySelfApiBase}/me`, body}),
   fetchProfile: () => nodeAppBase.get({url: '/profile'}),
+  fetchProfileSchema: () => nodeAppBase.get({url: '/user/schema'}),
   userinfo: () => acpBase.get({url: `/${authConfig.tenantId}/${authConfig.authorizationServerId}/userinfo`})
 };
