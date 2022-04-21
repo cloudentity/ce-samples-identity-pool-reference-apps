@@ -53,7 +53,7 @@ export default function SelfUpdateIdentityPoolUser ({open, handleClose, customFi
           validate: {},
         })}
 
-        {!!customFields.length && (
+        {customFields && !!customFields.length && (
           <>
             <div style={{fontWeight: 700, marginTop: 30, marginBottom: 20, textDecoration: 'underline'}}>
               Custom attributes:

@@ -88,6 +88,7 @@ const Profile = ({auth, handleLogout}) => {
     error: fetchProfileSchemaError,
     data: profileSchemaRes
   } = useQuery(['fetchProfileSchema', refreshProfile], api.fetchProfileSchema, {
+    enabled: authConfig.nodeJsBackendEnabled,
     refetchOnWindowFocus: false,
     retry: false,
     onSuccess: profileSchemaRes => {
