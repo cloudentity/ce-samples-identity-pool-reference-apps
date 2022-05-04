@@ -1,5 +1,34 @@
 ## Quickstart and customization guide for React Identity Pools reference UI
 
+This app is intended to demonstrate a basic admin and self service UI that is wired up to an ACP Identity Pool.
+
+**ACP setup:**
+
+For this reference app to work, you must have access to an ACP tenant with administrative privileges, and with the Identity Pools feature flag enabled.
+
+To set up an Identity Pool as an IDP:
+
+- Log into you ACP tenant as an admin. If you are not in the workspace management view already, go the workspaces menu and select "View all workspaces"
+- Click on "Identity Pools" in the left-hand navigation
+- Click on "Create Pool"
+- OPTIONAL: After your pool is created, you may click on the "Schemas" tab and create a custom schema. To use it in your pool, select the pool, go to the "Advanced" tab, and under "Payload schema," select the schema you have created, then click "Save"
+- Navigate to the dashboard of the workspace where you wish to use your pool as an IDP
+- In the left-hand navigation, select "Identity Data" > "Identity Providers"
+- Click on "Create Identity," and click "No thanks" when the IDP discovery prompt is shown
+- Your pool should be shown as an option in "User Pools." Select it, and click "Next"
+- Enter a name for your Identity Pool IDP, and click "Save"
+- Now your Identity Pool IDP should be shown as an IDP option on the login page for that tenant/workspace.
+
+To set up an ACP OAuth application to use with the reference UI:
+
+- Make sure you are working in the same workspace where you set up your Identity Pools IDP.
+- On the workspace dashboard, in the left-hand navigation, select "Applications" > "Clients"
+- Click on "Create Application"
+- Give the application a name, and select "Single Page" as the application type
+- Under "Redirect URI," click on "Setup a redirect URI for your application"
+- Enter `http://localhost:3000/` and click "Save"
+- Have the "Client ID" value handy for the reference app setup
+
 **Minimum requirements:**
 
 - NodeJS 16.x
@@ -107,3 +136,39 @@ Then in the same file, in the JSX section, find the following block and follow t
   <Typography variant="h5" component="h1">Identity Pools Demo</Typography>
 </div>
 ```
+
+**To set up the Node.js backend server**
+
+The reference UI app has additional functionality available via a Node.js backend app that is able to make admin requests to the Identity Pool service and return information to the reference UI app, without the UI having access to the admin credentials. This allows, for example, a non admin user to have visibility of the custom schema attributes they are able to edit in their profile data.
+
+This Node.js backend service feature is optional, but without it, user self-service features will be limited.
+
+To set up an ACP OAuth application to use with the Node.js backend:
+
+- Make sure you are working in the "Admin" or "System" workspace, regardless of which workspace you are using for your Identity Pools IDP
+- On the workspace dashboard, in the left-hand navigation, select "Applications" > "Clients"
+- Click on "Create Application"
+- Give the application a name, and select "Server Web" as the application type
+- Under the "OAuth" tab, add `client_credentials` to "Grant Types," and set "Token Endpoint Authentication Method" to "Client Secret Basic"
+- Under the "Overview" tab, copy the "Client ID" and "Client Secret" and add them to `identity-pool-reference-ui-services-nodejs/.env` in the values for `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET`
+- Navigate to the Identity Pools management page ("View all Workspaces" > "Identity Pools")
+- Click on the pool you will be using for the self-service app, copy the param in the URL in your browser that corresponds to the pool ID (`/pools/{poolId}/configuration`), and in `identity-pool-reference-ui-services-nodejs/.env`, add that value for `IDENTITY_POOL_ID`
+- Return to the main Identity Pools management page, and go to the "Schemas" tab
+- Click on the schema you will be using for the self-service app, copy the param in the URL in your browser that corresponds to the schema ID (`/schemas/{schemaId}/schema`), and in `identity-pool-reference-ui-services-nodejs/.env`, add that value for `USER_SCHEMA_ID`
+
+After following the instructions above, install and run the app:
+
+```bash
+# Make sure you are in the correct app directory
+cd identity-pool-reference-ui-services-nodejs
+
+npm install
+```
+
+Start the dev server:
+
+```bash
+npm start
+```
+
+By default, the Node.js backend services app runs at http://localhost:5002.
