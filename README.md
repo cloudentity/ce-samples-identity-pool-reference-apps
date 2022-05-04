@@ -8,7 +8,7 @@ For this reference app to work, you must have access to an ACP tenant with admin
 
 To set up an Identity Pool as an IDP:
 
-- Log into you ACP tenant as an admin. If you are not in the workspace management view already, go the workspaces menu and select "View all workspaces"
+- Log into your ACP tenant as an admin. If you are not in the workspace management view already, go the workspaces menu and select "View all workspaces"
 - Click on "Identity Pools" in the left-hand navigation
 - Click on "Create Pool"
 - OPTIONAL: After your pool is created, you may click on the "Schemas" tab and create a custom schema. To use it in your pool, select the pool, go to the "Advanced" tab, and under "Payload schema," select the schema you have created, then click "Save"
@@ -21,15 +21,15 @@ To set up an Identity Pool as an IDP:
 
 To set up an ACP OAuth application to use with the reference UI:
 
-- Make sure you are working in the same workspace where you set up your Identity Pools IDP.
+- Make sure you are in the same workspace where you set up your Identity Pools IDP
 - On the workspace dashboard, in the left-hand navigation, select "Applications" > "Clients"
 - Click on "Create Application"
 - Give the application a name, and select "Single Page" as the application type
 - Under "Redirect URI," click on "Setup a redirect URI for your application"
 - Enter `http://localhost:3000/` and click "Save"
-- Have the "Client ID" value handy for the reference app setup
+- Have the "Client ID" value handy for the Reference UI app setup
 
-**Minimum requirements:**
+**Minimum requirements for running the Reference UI app:**
 
 - NodeJS 16.x
 - NPM 8.x
@@ -172,3 +172,5 @@ npm start
 ```
 
 By default, the Node.js backend services app runs at http://localhost:5002.
+
+With both the Refernce UI app and the Node.js backend services app running, you will have access to the full functionality of the self-service features when using an Identity Pool with a custom user attributes schema.
