@@ -15,7 +15,7 @@ const Authorized = ({auth, handleLogout}) => {
   const idToken = window.localStorage.getItem(authConfig.idTokenName);
   const idTokenData = idToken ? jwt_decode(idToken) : {};
 
-  const [currentTab, setCurrentTab] = useState('admin');
+  const [currentTab, setCurrentTab] = useState('profile');
 
   const handleTabChange = (id) => {
     setCurrentTab(id);

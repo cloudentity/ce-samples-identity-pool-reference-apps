@@ -25,13 +25,26 @@ const useStyles = makeStyles((theme) => ({
   },
   profileCard: {
     margin: '30px 0',
-    padding: '30px 50px',
-    width: 'calc(100vw - 300px)',
+    padding: '10px 20px',
+    width: 'calc(100vw - 80px)',
+    [theme.breakpoints.up('sm')]: {
+      padding: '30px 50px',
+      width: 'calc(100vw - 300px)',
+    }
   },
   profileInfoContainer: {
     background: '#eefeef',
-    width: 400,
-    padding: 15
+    width: 260,
+    padding: 15,
+    fontSize: '.8em',
+    [theme.breakpoints.up('sm')]: {
+      width: 300,
+      fontSize: '.9em',
+    },
+    [theme.breakpoints.up('md')]: {
+      width: 400,
+      fontSize: '1em',
+    }
   },
   profileInfoItem: {
     display: 'flex',
@@ -53,8 +66,16 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   dialogRootStyles: {
-    padding: 40,
-    minWidth: 300
+    padding: 16,
+    minWidth: 270,
+    [theme.breakpoints.up('sm')]: {
+      padding: 40,
+      minWidth: 300,
+    },
+    [theme.breakpoints.up('md')]: {
+      padding: 40,
+      minWidth: 500,
+    }
   },
   dialogConfirmButton: {
     color: '#fff',
@@ -62,6 +83,25 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       color: theme.palette.primary.main,
     },
+  },
+  formInput: {
+    [theme.breakpoints.up('sm')]: {
+      width: 450,
+    },
+    [theme.breakpoints.up('md')]: {
+      width: 500,
+    }
+  },
+  actionButtonsContainer: {
+    [theme.breakpoints.down('sm')]: {
+      width: '100%'
+    }
+  },
+  actionButtons: {
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 15,
+      width: '100%'
+    }
   }
 }));
 

@@ -43,7 +43,7 @@ export default function CommonTextField({
       {!hideLabel && (
         <InputLabel id={`${inputID}-label`} style={{marginBottom: 10}}>{label}</InputLabel>
       )}
-      <FormControl>
+      <FormControl fullWidth>
         <TextField
           id={`${inputID}-input`}
           name={name}
@@ -55,7 +55,7 @@ export default function CommonTextField({
           {...(defaultValue ? {defaultValue} : {})}
           error={activeError}
           variant="outlined"
-          style={{width: width || 500}}
+          style={width ? {width: width} : {}}
           InputProps={{
             endAdornment: (
               <InputAdornment

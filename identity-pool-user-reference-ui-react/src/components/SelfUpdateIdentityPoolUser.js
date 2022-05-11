@@ -1,5 +1,4 @@
 import {useState} from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
@@ -119,6 +118,8 @@ export default function SelfUpdateIdentityPoolUser ({open, handleClose, customFi
             onCancel: () => handleClose('cancel'),
             onSubmit: processSubmit,
             submitText: 'Update',
+            formFooterContainerClass: classes.actionButtonsContainer,
+            className: classes.actionButtons
           })}
         </div>
       </div>

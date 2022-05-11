@@ -5,11 +5,14 @@
       tenantId: 'default', // If using ACP SaaS, this is generally in the subdomain of your ACP SaaS URL
       authorizationServerId: 'admin', // This is generally the name of the workspace you created the OAuth application in.
       clientId: 'admin', // Find this value by viewing the details of your OAuth application
+      // authorizationServerId: 'login-demo', // This is generally the name of the workspace you created the OAuth application in.
+      // clientId: 'login-demo', // Find this value by viewing the details of your OAuth application
       redirectUri: 'http://localhost:3000/',
       scopes: ['profile', 'email', 'openid'], // 'revoke_tokens' scope must be present for 'logout' action to revoke token! Without it, token will only be deleted from browser's local storage.
       accessTokenName: 'identity_demo_access_token', // optional; defaults to '{tenantId}_{authorizationServerId}_access_token'
       idTokenName: 'identity_demo_id_token', // optional; defaults to '{tenantId}_{authorizationServerId}_id_token'
-      nodeJsBackendEnabled: true
+      nodeJsBackendEnabled: true,
+      // customLoginEnabled: true
   };
 
  export default authConfig;

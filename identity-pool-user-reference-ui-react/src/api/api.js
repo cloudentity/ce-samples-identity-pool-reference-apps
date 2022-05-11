@@ -1,4 +1,4 @@
-import {base, acpBase, nodeAppBase} from './api-base';
+import {base, acpBase, nodeAppBase, authAppBase} from './api-base';
 import authConfig from '../authConfig';
 const identityAdminApiBase = `/identity/${authConfig.tenantId}/${authConfig.authorizationServerId}`;
 const identitySelfApiBase = `/${authConfig.tenantId}/${authConfig.authorizationServerId}/identity/self`;
@@ -18,5 +18,6 @@ export const api = {
   selfUpdateProfile: (body) => acpBase.put({url: `${identitySelfApiBase}/me`, body}),
   fetchProfile: () => nodeAppBase.get({url: '/profile'}),
   fetchProfileSchema: () => nodeAppBase.get({url: '/user/schema'}),
+  identifierPasswordLogin: (body) => authAppBase.post({url: 'identifierpassword', body}),
   userinfo: () => acpBase.get({url: `/${authConfig.tenantId}/${authConfig.authorizationServerId}/userinfo`})
 };

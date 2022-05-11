@@ -39,7 +39,6 @@ export default function SelectField({
           render={() => (
             <Select
               id={id}
-              fullWidth
               onChange={e => {
                 if (typeof onChange === 'function') {
                   onChange(e.target.value);

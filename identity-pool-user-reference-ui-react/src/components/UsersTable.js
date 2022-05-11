@@ -120,6 +120,15 @@ const useStyles = makeStyles((theme) =>
     table: {
       //minWidth: 750,
     },
+    tableContainer: {
+      [theme.breakpoints.down('md')]: {
+        marginTop: 70,
+        width: 'calc(100vw - 60px)'
+      },
+      // [theme.breakpoints.down('md')]: {
+      //   width: 'calc(100vw - 80px)'
+      // },
+    },
     visuallyHidden: {
       border: 0,
       clip: 'rect(0 0 0 0)',
@@ -261,14 +270,17 @@ export default function UsersTable({
   const isSelected = (id) => selectedUser.indexOf(id) !== -1;
 
   return (
-    <div className={classes.root} id="analytics-table-root" style={style}>
+    <div className={classes.root} id="users-table-root" style={style}>
       <Paper className={classes.paper}>
-        <TableContainer>
+        <TableContainer className={classes.tableContainer}>
           <Table
             className={classes.table}
             aria-labelledby="tableTitle"
             size={dense ? 'small' : 'medium'}
             aria-label="enhanced table"
+            sx={{
+              width: 'max-content'
+            }}
           >
             <EnhancedTableHead
               classes={classes}

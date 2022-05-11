@@ -41,6 +41,7 @@ function App() {
               <BrowserRouter>
                 <Routes>
                   <Route index element={<Unauthorized className="App" auth={authenticated} handleLogin={authorize} />} />
+                  <Route path="login" element={<Unauthorized role="login" className="App" auth={authenticated} handleLogin={authorize} />} />
                   <Route path="authorized" element={<Authorized auth={authenticated} handleLogout={clearAuth} />} />
                 </Routes>
               </BrowserRouter>
