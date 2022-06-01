@@ -18,6 +18,7 @@ export const api = {
   selfUpdateProfile: (body) => acpBase.put({url: `${identitySelfApiBase}/me`, body}),
   fetchProfile: () => nodeAppBase.get({url: '/self/profile'}),
   updateProfile: (body) => nodeAppBase.put({url: '/self/profile', body}),
+  changePassword: (body) => nodeAppBase.post({url: '/self/changepassword', body}),
   fetchProfileSchema: () => nodeAppBase.get({url: '/user/schema'}),
   identifierPasswordLogin: (body) => authAppBase.post({url: 'identifierpassword', body}),
   userinfo: () => acpBase.get({url: `/${authConfig.tenantId}/${authConfig.authorizationServerId}/userinfo`})

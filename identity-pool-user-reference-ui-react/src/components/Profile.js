@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import SelfUpdateIdentityPoolUser from './SelfUpdateIdentityPoolUser';
+import SelfChangePassword from './SelfChangePassword';
 import { pickBy } from 'ramda';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
@@ -61,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
     color: '#fff',
     background: theme.palette.primary.main,
     padding: '10px 20px',
+    marginLeft: 15,
     '&:hover': {
       color: theme.palette.primary.main,
     },
@@ -109,6 +111,7 @@ const Profile = ({auth, handleLogout}) => {
   const classes = useStyles();
 
   const [updateProfileDialogOpen, setUpdateProfileDialogOpen] = useState(false);
+  const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
   const [refreshProfile, initRefreshProfile] = useState(false);
 
   const {
@@ -145,6 +148,24 @@ const Profile = ({auth, handleLogout}) => {
       api.updateProfile({payload: pickBy(f => !!f, data)})
       .then(() => {
         setUpdateProfileDialogOpen(false);
+        initRefreshProfile(!refreshProfile);
+      })
+      .catch((err) => {
+        console.log('API error', err);
+        window.alert('There was an error. Please try again.');
+      });
+    }
+  };
+
+  const handleCloseChangePasswordDialog = (action, data) => {
+    if (action === 'cancel') {
+      setChangePasswordDialogOpen(false);
+    }
+    if (action === 'confirm') {
+      console.log('data', data)
+      api.changePassword(data)
+      .then(() => {
+        setChangePasswordDialogOpen(false);
         initRefreshProfile(!refreshProfile);
       })
       .catch((err) => {
@@ -223,9 +244,14 @@ const Profile = ({auth, handleLogout}) => {
       <Card className={classes.profileCard}>
         <div className={classes.profileHeader}>
           <Typography variant="h5" component="h2">{profileRes?.payload?.name || ''}</Typography>
-          <Button color="primary" onClick={() => setUpdateProfileDialogOpen(true)} className={classes.updateProfileButton}>
-            Update Profile
-          </Button>
+          <div>
+            <Button color="primary" onClick={() => setUpdateProfileDialogOpen(true)} className={classes.updateProfileButton}>
+              Update Profile
+            </Button>
+            <Button color="primary" onClick={() => setChangePasswordDialogOpen(true)} className={classes.updateProfileButton}>
+              Change Password
+            </Button>
+          </div>
         </div>
         <div className={classes.profileInfoContainer}>
           {isLoading ? (
@@ -255,18 +281,25 @@ const Profile = ({auth, handleLogout}) => {
         <ReactJson style={{marginTop: 20}} src={idTokenData} />
       </Card>
       {!isLoading && (
-        <SelfUpdateIdentityPoolUser
-          open={updateProfileDialogOpen}
-          handleClose={handleCloseUpdateProfileDialog}
-          customFields={profileSchemaRes}
-          profileData={{
-            given_name: profileRes?.payload?.given_name || '',
-            family_name: profileRes?.payload?.family_name || '',
-            name: profileRes?.payload?.name || '',
-            ...prepareUpdateProfileCustomAttributes(profileSchemaRes || [], profileRes?.payload || [])
-          }}
-          classes={classes}
-        />
+        <>
+          <SelfUpdateIdentityPoolUser
+            open={updateProfileDialogOpen}
+            handleClose={handleCloseUpdateProfileDialog}
+            customFields={profileSchemaRes}
+            profileData={{
+              given_name: profileRes?.payload?.given_name || '',
+              family_name: profileRes?.payload?.family_name || '',
+              name: profileRes?.payload?.name || '',
+              ...prepareUpdateProfileCustomAttributes(profileSchemaRes || [], profileRes?.payload || [])
+            }}
+            classes={classes}
+          />
+          <SelfChangePassword
+            open={changePasswordDialogOpen}
+            handleClose={handleCloseChangePasswordDialog}
+            classes={classes}
+          />
+        </>
       )}
     </div>
   );

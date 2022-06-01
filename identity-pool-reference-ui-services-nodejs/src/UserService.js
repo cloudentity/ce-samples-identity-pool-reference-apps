@@ -2,6 +2,7 @@
 
 const R = require('ramda');
 const AcpApiService = require('./AcpApiService');
+const ErrorService = require('./ErrorService');
 const ipUserUuidKey = process.env.IDENTITY_POOL_USER_UUID_KEY;
 
 class UserService {
@@ -11,13 +12,7 @@ class UserService {
       .then(getUserRes => {
         return Promise.resolve(this._processUserDataRes(getUserRes?.data));
       })
-      .catch(err => {
-        return Promise.reject({
-          status_code: err.status_code || 500,
-          error: err.error || 'internal server error',
-          details: err.details || 'an unexpected error occured'
-        });
-      });
+      .catch(err => ErrorService.handleAcpApiError(err));
   }
 
   updateUser (systemToken, userId, data) {
@@ -25,13 +20,15 @@ class UserService {
       .then(updateUserRes => {
         return Promise.resolve(this._processUserDataRes(updateUserRes?.data));
       })
-      .catch(err => {
-        return Promise.reject({
-          status_code: err.status_code || 500,
-          error: err.error || 'internal server error',
-          details: err.details || 'an unexpected error occured'
-        });
-      });
+      .catch(err => ErrorService.handleAcpApiError(err));
+  }
+
+  changeUserPassword (systemToken, userId, data) {
+    return AcpApiService.changeUserPassword(systemToken, userId, data)
+      .then(changePasswordRes => {
+        return Promise.resolve(changePasswordRes?.data);
+      })
+      .catch(err => ErrorService.handleAcpApiError(err));
   }
 
   _processUserDataRes (userRes) {

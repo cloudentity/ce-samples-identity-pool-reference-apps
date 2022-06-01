@@ -3,6 +3,7 @@
 const R = require('ramda');
 const jwt_decode = require('jwt-decode');
 const AcpApiService = require('./AcpApiService');
+const ErrorService = require('./ErrorService');
 const ipUserUuidKey = process.env.IDENTITY_POOL_USER_UUID_KEY;
 
 class TokenService {
@@ -57,13 +58,7 @@ class TokenService {
           details: `expected access token parameter with key '${ipUserUuidKey}'`
         });
       })
-      .catch(err => {
-        return Promise.reject({
-          status_code: err.status_code || 500,
-          error: err.error || 'internal server error',
-          details: err.details || 'an unexpected error occured'
-        });
-      });
+      .catch(err => ErrorService.handleAcpApiError(err));
   }
 }
 

@@ -9,6 +9,7 @@ require('dotenv').config();
 const { ClientCredentials } = require('simple-oauth2');
 const TokenService = require('./TokenService');
 const UserService = require('./UserService');
+const ErrorService = require('./ErrorService');
 
 const app = express();
 app.use(express.json());
@@ -23,6 +24,7 @@ const acpApiPrefix = `/api/identity/${process.env.ACP_TENANT_ID}/${process.env.A
 const ipUserUuidKey = process.env.IDENTITY_POOL_USER_UUID_KEY;
 
 let currentAdminAccessToken;
+let currentSystemAccessToken;
 let currentUserAccessToken;
 
 const acpAdminConfig = {
@@ -33,6 +35,17 @@ const acpAdminConfig = {
   auth: {
     tokenHost: process.env.ADMIN_OAUTH_TOKEN_HOST,
     tokenPath: process.env.ADMIN_OAUTH_TOKEN_PATH
+  }
+};
+
+const acpSystemConfig = {
+  client: {
+    id: process.env.SYSTEM_OAUTH_CLIENT_ID,
+    secret: process.env.SYSTEM_OAUTH_CLIENT_SECRET
+  },
+  auth: {
+    tokenHost: process.env.SYSTEM_OAUTH_TOKEN_HOST,
+    tokenPath: process.env.SYSTEM_OAUTH_TOKEN_PATH
   }
 };
 
@@ -47,7 +60,7 @@ const acpUserConfig = {
   }
 };
 
-// Admin server OAuth application, for performing actions on behalf of non-admin client
+// Admin server OAuth application, for performing profile actions on behalf of non-admin client
 async function setServerAdminAccessToken () {
   const client = new ClientCredentials(acpAdminConfig);
 
@@ -60,6 +73,22 @@ async function setServerAdminAccessToken () {
     currentAdminAccessToken = accessToken?.token?.access_token || null;
   } catch (error) {
     console.log('Server Admin Access Token error:', error.message);
+  }
+};
+
+// System server OAuth application, for performing credentials-related actions on behalf of non-admin client
+async function setServerSystemAccessToken () {
+  const client = new ClientCredentials(acpSystemConfig);
+
+  const tokenParams = {
+    scope: '',
+  };
+
+  try {
+    const accessToken = await client.getToken(tokenParams);
+    currentSystemAccessToken = accessToken?.token?.access_token || null;
+  } catch (error) {
+    console.log('Server System Access Token error:', error.message);
   }
 };
 
@@ -81,6 +110,7 @@ async function setServerUserAccessToken () {
 
 // Set access tokens when server starts
 setServerAdminAccessToken();
+setServerSystemAccessToken();
 setServerUserAccessToken();
 
 // Refresh access token about 3 min before it expires
@@ -92,6 +122,12 @@ const checkServerAuth = setInterval(() => {
       setServerAdminAccessToken();
     }
   }
+  if (currentSystemAccessToken) {
+    const decodedSystemToken = jwt_decode(currentAdminAccessToken);
+    if (decodedSystemToken.exp && expiresWithinSeconds(decodedSystemToken.exp, 180)) {
+      setServerSystemAccessToken();
+    }
+  }
   if (currentUserAccessToken) {
     const decodedUserToken = jwt_decode(currentUserAccessToken);
     if (decodedUserToken.exp && expiresWithinSeconds(decodedUserToken.exp, 180)) {
@@ -100,22 +136,8 @@ const checkServerAuth = setInterval(() => {
   }
 }, 60000);
 
-const handleApiError = (err, res) => {
-  if (!res || typeof res.send !== 'function') {
-    throw new Error('Could send response because res.send is not a function!');
-  }
-
-  res.status(err.status_code || 500);
-  res.send(JSON.stringify({
-    status_code: err.status_code || 500,
-    error: err.error || '',
-    details: err.details
-  }));
-};
-
 app.get(apiPrefix + '/user/schema', (req, res) => {
   const userAccessTokenData = TokenService.decodeAccessToken(req);
-  // console.log(userAccessTokenData);
 
   const getSchemaOptions = {
     method: 'GET',
@@ -177,15 +199,14 @@ app.get(apiPrefix + '/self/profile', (req, res) => {
       UserService.getUser(currentAdminAccessToken, validateTokenRes[ipUserUuidKey])
         .then(getUserRes => {
           res.status(200);
-          res.send(JSON.stringify(getUserRes))
+          res.send(JSON.stringify(getUserRes));
         })
         .catch(err => {
-          console.log('An error occurred');
-          handleApiError(err, res);
+          ErrorService.sendErrorResponse(err, res);
         });
     })
     .catch(err => {
-      handleApiError(err, res);
+      ErrorService.sendErrorResponse(err, res);
     });
 });
 
@@ -197,15 +218,33 @@ app.put(apiPrefix + '/self/profile', (req, res) => {
       UserService.updateUser(currentAdminAccessToken, validateTokenRes[ipUserUuidKey], req.body)
         .then(updateUserRes => {
           res.status(200);
-          res.send(JSON.stringify(updateUserRes))
+          res.send(JSON.stringify(updateUserRes));
         })
         .catch(err => {
-          console.log('An error occurred');
-          handleApiError(err, res);
+          ErrorService.sendErrorResponse(err, res);
         });
     })
     .catch(err => {
-      handleApiError(err, res);
+      ErrorService.sendErrorResponse(err, res);
+    });
+});
+
+app.post(apiPrefix + '/self/changepassword', (req, res) => {
+  const requiredScopes = ['profile'];
+
+  TokenService.validateClientAccessToken(req, currentUserAccessToken, requiredScopes)
+    .then(validateTokenRes => {
+      UserService.changeUserPassword(currentSystemAccessToken, validateTokenRes[ipUserUuidKey], req.body)
+        .then(changePasswordRes => {
+          res.status(200);
+          res.send(JSON.stringify(changePasswordRes));
+        })
+        .catch(err => {
+          ErrorService.sendErrorResponse(err, res);
+        });
+    })
+    .catch(err => {
+      ErrorService.sendErrorResponse(err, res);
     });
 });
 
