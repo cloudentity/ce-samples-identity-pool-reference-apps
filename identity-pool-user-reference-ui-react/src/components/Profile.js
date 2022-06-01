@@ -115,7 +115,7 @@ const Profile = ({auth, handleLogout}) => {
     isLoading: fetchProfileProgress,
     error: fetchProfileError,
     data: profileRes
-  } = useQuery(['fetchProfile', refreshProfile], api.selfFetchProfile, {
+  } = useQuery(['fetchProfile', refreshProfile], api.fetchProfile, {
     refetchOnWindowFocus: false,
     retry: false,
     onSuccess: profileRes => {
@@ -142,7 +142,7 @@ const Profile = ({auth, handleLogout}) => {
     }
     if (action === 'confirm') {
       console.log('data', data)
-      api.selfUpdateProfile({payload: pickBy(f => !!f, data)})
+      api.updateProfile({payload: pickBy(f => !!f, data)})
       .then(() => {
         setUpdateProfileDialogOpen(false);
         initRefreshProfile(!refreshProfile);

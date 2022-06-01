@@ -5,9 +5,14 @@ const jwt_decode = require('jwt-decode');
 const R = require('ramda');
 const https = require('https');
 
-const app = express();
-
 require('dotenv').config();
+const { ClientCredentials } = require('simple-oauth2');
+const TokenService = require('./TokenService');
+const UserService = require('./UserService');
+
+const app = express();
+app.use(express.json());
+
 const port = process.env.PORT || 5002;
 
 app.use(cors());
@@ -15,24 +20,36 @@ app.use(morgan('combined'));
 
 const apiPrefix = '/api';
 const acpApiPrefix = `/api/identity/${process.env.ACP_TENANT_ID}/${process.env.ACP_AUTHORIZATION_SERVER_ID}`
+const ipUserUuidKey = process.env.IDENTITY_POOL_USER_UUID_KEY;
 
-let currentAccessToken;
+let currentAdminAccessToken;
+let currentUserAccessToken;
 
-const acpConfig = {
+const acpAdminConfig = {
   client: {
-    id: process.env.OAUTH_CLIENT_ID,
-    secret: process.env.OAUTH_CLIENT_SECRET
+    id: process.env.ADMIN_OAUTH_CLIENT_ID,
+    secret: process.env.ADMIN_OAUTH_CLIENT_SECRET
   },
   auth: {
-    tokenHost: process.env.OAUTH_TOKEN_HOST,
-    tokenPath: process.env.OAUTH_TOKEN_PATH
+    tokenHost: process.env.ADMIN_OAUTH_TOKEN_HOST,
+    tokenPath: process.env.ADMIN_OAUTH_TOKEN_PATH
   }
 };
 
-const { ClientCredentials, ResourceOwnerPassword, AuthorizationCode } = require('simple-oauth2');
+const acpUserConfig = {
+  client: {
+    id: process.env.USER_OAUTH_CLIENT_ID,
+    secret: process.env.USER_OAUTH_CLIENT_SECRET
+  },
+  auth: {
+    tokenHost: process.env.USER_OAUTH_TOKEN_HOST,
+    tokenPath: process.env.USER_OAUTH_TOKEN_PATH
+  }
+};
 
-async function setServerAccessToken () {
-  const client = new ClientCredentials(acpConfig);
+// Admin server OAuth application, for performing actions on behalf of non-admin client
+async function setServerAdminAccessToken () {
+  const client = new ClientCredentials(acpAdminConfig);
 
   const tokenParams = {
     scope: '',
@@ -40,35 +57,64 @@ async function setServerAccessToken () {
 
   try {
     const accessToken = await client.getToken(tokenParams);
-    currentAccessToken = accessToken?.token?.access_token || null;
+    currentAdminAccessToken = accessToken?.token?.access_token || null;
   } catch (error) {
-    console.log('Access Token error', error.message);
+    console.log('Server Admin Access Token error:', error.message);
   }
 };
 
-// Set access token when server starts
-setServerAccessToken();
+// Non-admin server OAuth application in same workspace as frontend OAuth application, for introspect token flow
+async function setServerUserAccessToken () {
+  const client = new ClientCredentials(acpUserConfig);
+
+  const tokenParams = {
+    scope: 'introspect_tokens',
+  };
+
+  try {
+    const accessToken = await client.getToken(tokenParams);
+    currentUserAccessToken = accessToken?.token?.access_token || null;
+  } catch (error) {
+    console.log('Server User Access Token error:', error.message);
+  }
+};
+
+// Set access tokens when server starts
+setServerAdminAccessToken();
+setServerUserAccessToken();
 
 // Refresh access token about 3 min before it expires
-const checkAuth = setInterval(() => {
-  if (currentAccessToken) {
-    const decodedToken = jwt_decode(currentAccessToken);
-    if (decodedToken.exp && decodedToken.exp - Math.floor(Date.now()/1000) < 180) {
-      setServerAccessToken();
+const expiresWithinSeconds = (exp, seconds) => exp - Math.floor(Date.now()/1000) < seconds;
+const checkServerAuth = setInterval(() => {
+  if (currentAdminAccessToken) {
+    const decodedAdminToken = jwt_decode(currentAdminAccessToken);
+    if (decodedAdminToken.exp && expiresWithinSeconds(decodedAdminToken.exp, 180)) {
+      setServerAdminAccessToken();
+    }
+  }
+  if (currentUserAccessToken) {
+    const decodedUserToken = jwt_decode(currentUserAccessToken);
+    if (decodedUserToken.exp && expiresWithinSeconds(decodedUserToken.exp, 180)) {
+      setServerUserAccessToken();
     }
   }
 }, 60000);
 
-function decodeAccessToken (req) {
-  if (req) {
-    const userAccessTokenRaw = req.headers?.authorization?.split(' ')[1];
-    return userAccessTokenRaw ? jwt_decode(userAccessTokenRaw) : {};
+const handleApiError = (err, res) => {
+  if (!res || typeof res.send !== 'function') {
+    throw new Error('Could send response because res.send is not a function!');
   }
-  return {};
-}
+
+  res.status(err.status_code || 500);
+  res.send(JSON.stringify({
+    status_code: err.status_code || 500,
+    error: err.error || '',
+    details: err.details
+  }));
+};
 
 app.get(apiPrefix + '/user/schema', (req, res) => {
-  const userAccessTokenData = decodeAccessToken(req);
+  const userAccessTokenData = TokenService.decodeAccessToken(req);
   // console.log(userAccessTokenData);
 
   const getSchemaOptions = {
@@ -77,7 +123,7 @@ app.get(apiPrefix + '/user/schema', (req, res) => {
     port: process.env.ACP_PORT,
     path: `${acpApiPrefix}/schemas/${process.env.USER_SCHEMA_ID}`,
     headers: {
-      'Authorization': `Bearer ${currentAccessToken}`
+      'Authorization': `Bearer ${currentAdminAccessToken}`
     }
   };
 
@@ -123,34 +169,44 @@ app.get(apiPrefix + '/user/schema', (req, res) => {
   schemaReq.end();
 });
 
-app.get(apiPrefix + '/profile/:user', (req, res) => {
-  const userAccessTokenData = decodeAccessToken(req);
-  // console.log(userAccessTokenData);
+app.get(apiPrefix + '/self/profile', (req, res) => {
+  const requiredScopes = ['profile'];
 
-  const getProfileOptions = {
-    method: 'GET',
-    hostname: process.env.ACP_HOST,
-    port: process.env.ACP_PORT,
-    path: `${acpApiPrefix}/pools/${process.env.IDENTITY_POOL_ID}/users/${req.params.user}`,
-    headers: {
-      'Authorization': `Bearer ${currentAccessToken}`
-    }
-  };
-
-  const profileReq = https.request(getProfileOptions, function (profileRes) {
-    const chunks = [];
-
-    profileRes.on('data', function (chunk) {
-      chunks.push(chunk);
+  TokenService.validateClientAccessToken(req, currentUserAccessToken, requiredScopes)
+    .then(validateTokenRes => {
+      UserService.getUser(currentAdminAccessToken, validateTokenRes[ipUserUuidKey])
+        .then(getUserRes => {
+          res.status(200);
+          res.send(JSON.stringify(getUserRes))
+        })
+        .catch(err => {
+          console.log('An error occurred');
+          handleApiError(err, res);
+        });
+    })
+    .catch(err => {
+      handleApiError(err, res);
     });
+});
 
-    profileRes.on('end', function () {
-      const body = Buffer.concat(chunks);
-      res.send(body.toString());
+app.put(apiPrefix + '/self/profile', (req, res) => {
+  const requiredScopes = ['profile'];
+
+  TokenService.validateClientAccessToken(req, currentUserAccessToken, requiredScopes)
+    .then(validateTokenRes => {
+      UserService.updateUser(currentAdminAccessToken, validateTokenRes[ipUserUuidKey], req.body)
+        .then(updateUserRes => {
+          res.status(200);
+          res.send(JSON.stringify(updateUserRes))
+        })
+        .catch(err => {
+          console.log('An error occurred');
+          handleApiError(err, res);
+        });
+    })
+    .catch(err => {
+      handleApiError(err, res);
     });
-  });
-
-  profileReq.end();
 });
 
 app.get('/', (req, res) => {

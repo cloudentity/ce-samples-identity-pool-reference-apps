@@ -91,7 +91,12 @@ app.post('/identifierpassword', (req, res) => {
       axios.post(`${acpBaseUrl}/api/system/default/logins/${loginId}/accept`, {
         auth_time: (new Date()).toISOString(),
         subject: identifier,
-        login_state: loginState
+        login_state: loginState,
+        authentication_context: {
+          user: {
+            id: passwordVerifyRes?.data?.id || '',
+          }
+        }
       },
       {
         headers: {
