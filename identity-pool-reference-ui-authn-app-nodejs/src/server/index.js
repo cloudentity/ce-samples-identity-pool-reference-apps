@@ -29,8 +29,8 @@ const acpConfig = {
     secret: process.env.OAUTH_CLIENT_SECRET
   },
   auth: {
-    tokenHost: process.env.OAUTH_TOKEN_HOST,
-    tokenPath: process.env.OAUTH_TOKEN_PATH
+    tokenHost: acpBaseUrl,
+    tokenPath: `/${process.env.ACP_TENANT_ID}${process.env.OAUTH_TOKEN_PATH}`
   }
 };
 
@@ -83,8 +83,9 @@ app.post('/identifierpassword', (req, res) => {
   if (!identifier || !password || !loginId || !loginState) {
     res.status(422);
     res.json({
-      error: 'UnprocessableEntity',
-      message: 'Request could not be processed due to missing parameters'
+      status_code: 422,
+      error: 'Unprocessable Entity',
+      details: 'Request could not be processed due to missing parameters'
     });
   } else {
     axios.post(`${ipApiBaseUrl}/pools/${process.env.IDENTITY_POOL_ID}/user/password/verify`, {
@@ -98,7 +99,7 @@ app.post('/identifierpassword', (req, res) => {
     })
     .then(passwordVerifyRes => {
       console.log('Password verify response', passwordVerifyRes.data);
-      axios.post(`${acpBaseUrl}/api/system/default/logins/${loginId}/accept`, {
+      axios.post(`${acpBaseUrl}/api/system/${process.env.ACP_TENANT_ID}/logins/${loginId}/accept`, {
         auth_time: (new Date()).toISOString(),
         subject: identifier,
         login_state: loginState,
@@ -120,16 +121,12 @@ app.post('/identifierpassword', (req, res) => {
       })
       .catch(loginAcceptErr => {
         const error = handleError(loginAcceptErr);
-        console.log('ERROR STATUS (LOGIN ACCEPT)');
-        console.log(error);
         res.status(error.status_code);
         res.send(JSON.stringify(error))
       });
     })
     .catch(passwordVerifyErr => {
       const error = handleError(passwordVerifyErr);
-      console.log('ERROR STATUS (PASSWORD VERIFY)');
-      console.log(error);
       res.status(error.status_code);
       res.send(JSON.stringify(error))
     });
