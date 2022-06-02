@@ -70,6 +70,16 @@ app.post('/identifierpassword', (req, res) => {
   const loginId = req.body?.loginId;
   const loginState = req.body?.loginState;
 
+  const handleError = err => {
+    const error = err?.response?.data || {};
+
+    return {
+      status_code: error.status_code || 500,
+      error: error.error || 'internal server error',
+      details: error.details || 'an unexpected error occured'
+    };
+  };
+
   if (!identifier || !password || !loginId || !loginState) {
     res.status(422);
     res.json({
@@ -109,17 +119,19 @@ app.post('/identifierpassword', (req, res) => {
         res.send(JSON.stringify(loginAcceptRes.data))
       })
       .catch(loginAcceptErr => {
-        console.log('error!', loginAcceptErr);
-        // TODO: expanded error handling
-        res.status(500);
-        res.send(JSON.stringify({}))
+        const error = handleError(loginAcceptErr);
+        console.log('ERROR STATUS (LOGIN ACCEPT)');
+        console.log(error);
+        res.status(error.status_code);
+        res.send(JSON.stringify(error))
       });
     })
     .catch(passwordVerifyErr => {
-      console.log('error!', passwordVerifyErr);
-      // TODO: expanded error handling
-      res.status(500);
-      res.send(JSON.stringify({}))
+      const error = handleError(passwordVerifyErr);
+      console.log('ERROR STATUS (PASSWORD VERIFY)');
+      console.log(error);
+      res.status(error.status_code);
+      res.send(JSON.stringify(error))
     });
   }
 });
