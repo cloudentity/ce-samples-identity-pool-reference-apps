@@ -6,7 +6,7 @@ const qs = require('qs');
 const acpBaseUrl = `https://${process.env.ACP_HOST}${process.env.ACP_PORT ? ':' + process.env.ACP_PORT : ''}`;
 const acpApiPrefix = `/api/identity/${process.env.ACP_TENANT_ID}/${process.env.ACP_AUTHORIZATION_SERVER_ID}`;
 const acpSystemApiPrefix = `/api/identity/${process.env.ACP_TENANT_ID}/system`;
-const acpTokenIntrospectionUrl = `${process.env.USER_OAUTH_TOKEN_HOST}${process.env.USER_OAUTH_TOKEN_INTROSPECTION_PATH}`;
+const acpTokenIntrospectionUrl = `${acpBaseUrl}${process.env.USER_OAUTH_TOKEN_INTROSPECTION_PATH}`;
 const ipId = process.env.IDENTITY_POOL_ID;
 
 class AcpApiService {
@@ -20,6 +20,18 @@ class AcpApiService {
       },
       data: qs.stringify({token: userToken}),
       url: acpTokenIntrospectionUrl,
+    };
+
+    return axios(options);
+  }
+
+  getUserSchema (systemToken) {
+    const options = {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${systemToken}`
+      },
+      url: `${acpBaseUrl}${acpApiPrefix}/schemas/${process.env.USER_SCHEMA_ID}`
     };
 
     return axios(options);

@@ -7,6 +7,14 @@ const ipUserUuidKey = process.env.IDENTITY_POOL_USER_UUID_KEY;
 
 class UserService {
 
+  getUserSchema (systemToken) {
+    return AcpApiService.getUserSchema(systemToken)
+      .then(userSchemaRes => {
+        return Promise.resolve(this._processUserPayloadSchema(userSchemaRes?.data?.schema));
+      })
+      .catch(err => ErrorService.handleAcpApiError(err));
+  }
+
   getUser (systemToken, userId) {
     return AcpApiService.getUser(systemToken, userId)
       .then(getUserRes => {
@@ -29,6 +37,23 @@ class UserService {
         return Promise.resolve(changePasswordRes?.data);
       })
       .catch(err => ErrorService.handleAcpApiError(err));
+  }
+
+  _processUserPayloadSchema (schema) {
+    const nonSystemSchemaProps = R.omit(['given_name', 'family_name', 'name'], schema.properties || {});
+    const reqdFields = schema.required || [];
+    let finalFields = [];
+    for (const prop in nonSystemSchemaProps) {
+      finalFields.push({
+        ...nonSystemSchemaProps[prop],
+        ...{
+          id: prop,
+          required: reqdFields.indexOf(prop) > -1
+        }
+      });
+    }
+
+    return finalFields;
   }
 
   _processUserDataRes (userRes) {

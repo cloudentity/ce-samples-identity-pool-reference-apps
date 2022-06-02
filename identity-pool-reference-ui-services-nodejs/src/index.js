@@ -27,13 +27,15 @@ let currentAdminAccessToken;
 let currentSystemAccessToken;
 let currentUserAccessToken;
 
+const acpTokenBaseUrl = `https://${process.env.ACP_HOST}${process.env.ACP_PORT ? ':' + process.env.ACP_PORT : ''}`;
+
 const acpAdminConfig = {
   client: {
     id: process.env.ADMIN_OAUTH_CLIENT_ID,
     secret: process.env.ADMIN_OAUTH_CLIENT_SECRET
   },
   auth: {
-    tokenHost: process.env.ADMIN_OAUTH_TOKEN_HOST,
+    tokenHost: acpTokenBaseUrl,
     tokenPath: process.env.ADMIN_OAUTH_TOKEN_PATH
   }
 };
@@ -44,7 +46,7 @@ const acpSystemConfig = {
     secret: process.env.SYSTEM_OAUTH_CLIENT_SECRET
   },
   auth: {
-    tokenHost: process.env.SYSTEM_OAUTH_TOKEN_HOST,
+    tokenHost: acpTokenBaseUrl,
     tokenPath: process.env.SYSTEM_OAUTH_TOKEN_PATH
   }
 };
@@ -55,7 +57,7 @@ const acpUserConfig = {
     secret: process.env.USER_OAUTH_CLIENT_SECRET
   },
   auth: {
-    tokenHost: process.env.USER_OAUTH_TOKEN_HOST,
+    tokenHost: acpTokenBaseUrl,
     tokenPath: process.env.USER_OAUTH_TOKEN_PATH
   }
 };
@@ -137,58 +139,14 @@ const checkServerAuth = setInterval(() => {
 }, 60000);
 
 app.get(apiPrefix + '/user/schema', (req, res) => {
-  const userAccessTokenData = TokenService.decodeAccessToken(req);
-
-  const getSchemaOptions = {
-    method: 'GET',
-    hostname: process.env.ACP_HOST,
-    port: process.env.ACP_PORT,
-    path: `${acpApiPrefix}/schemas/${process.env.USER_SCHEMA_ID}`,
-    headers: {
-      'Authorization': `Bearer ${currentAdminAccessToken}`
-    }
-  };
-
-  function processUserPayloadSchema (schema) {
-    const nonSystemSchemaProps = R.omit(['given_name', 'family_name', 'name'], schema.properties || {});
-    const reqdFields = schema.required || [];
-    let finalFields = [];
-    for (const prop in nonSystemSchemaProps) {
-      finalFields.push({
-        ...nonSystemSchemaProps[prop],
-        ...{
-          id: prop,
-          required: reqdFields.indexOf(prop) > -1
-        }
-      });
-    }
-    return finalFields;
-  };
-
-  const schemaReq = https.request(getSchemaOptions, function (schemaRes) {
-    const chunks = [];
-
-    schemaRes.on('data', function (chunk) {
-      chunks.push(chunk);
+  UserService.getUserSchema(currentAdminAccessToken)
+    .then(userSchemaRes => {
+      res.status(200);
+      res.send(JSON.stringify(userSchemaRes));
+    })
+    .catch(err => {
+      ErrorService.sendErrorResponse(err, res);
     });
-
-    schemaRes.on('end', function () {
-      const bodyRaw = Buffer.concat(chunks);
-      const bodyJson = JSON.parse(bodyRaw.toString());
-
-      if (!bodyJson.schema) {
-        res.status(500);
-        res.json({
-          error: 'Internal Server Error',
-          message: 'The application was unable to process the response from identity pool server'
-        });
-      } else {
-        res.send(JSON.stringify(processUserPayloadSchema(bodyJson.schema)));
-      }
-    });
-  });
-
-  schemaReq.end();
 });
 
 app.get(apiPrefix + '/self/profile', (req, res) => {
