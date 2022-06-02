@@ -36,7 +36,7 @@ const acpAdminConfig = {
   },
   auth: {
     tokenHost: acpTokenBaseUrl,
-    tokenPath: process.env.ADMIN_OAUTH_TOKEN_PATH
+    tokenPath: `/${process.env.ACP_TENANT_ID}${process.env.ADMIN_OAUTH_TOKEN_PATH}`
   }
 };
 
@@ -47,7 +47,7 @@ const acpSystemConfig = {
   },
   auth: {
     tokenHost: acpTokenBaseUrl,
-    tokenPath: process.env.SYSTEM_OAUTH_TOKEN_PATH
+    tokenPath: `/${process.env.ACP_TENANT_ID}${process.env.SYSTEM_OAUTH_TOKEN_PATH}`
   }
 };
 
@@ -58,7 +58,7 @@ const acpUserConfig = {
   },
   auth: {
     tokenHost: acpTokenBaseUrl,
-    tokenPath: process.env.USER_OAUTH_TOKEN_PATH
+    tokenPath: `/${process.env.ACP_TENANT_ID}${process.env.USER_OAUTH_TOKEN_PATH}`
   }
 };
 
