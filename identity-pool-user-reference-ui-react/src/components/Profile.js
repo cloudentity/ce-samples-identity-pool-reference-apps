@@ -33,6 +33,12 @@ const useStyles = makeStyles((theme) => ({
       width: 'calc(100vw - 300px)',
     }
   },
+  buttonContainer: {
+    [theme.breakpoints.down('md')]: {
+      display: 'flex',
+      flexDirection: 'column',
+    },
+  },
   profileInfoContainer: {
     background: '#eefeef',
     width: 260,
@@ -65,6 +71,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 15,
     '&:hover': {
       color: theme.palette.primary.main,
+    },
+    [theme.breakpoints.down('md')]: {
+      marginBottom: 10,
     },
   },
   dialogRootStyles: {
@@ -114,11 +123,13 @@ const Profile = ({auth, handleLogout}) => {
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
   const [refreshProfile, initRefreshProfile] = useState(false);
 
+  const fetchProfileApi = authConfig.customLoginEnabled ? api.fetchProfileCustomIdp : api.selfFetchProfile;
+
   const {
     isLoading: fetchProfileProgress,
     error: fetchProfileError,
     data: profileRes
-  } = useQuery(['fetchProfile', refreshProfile], api.fetchProfile, {
+  } = useQuery(['fetchProfile', refreshProfile], fetchProfileApi, {
     refetchOnWindowFocus: false,
     retry: false,
     onSuccess: profileRes => {
@@ -144,16 +155,27 @@ const Profile = ({auth, handleLogout}) => {
       setUpdateProfileDialogOpen(false);
     }
     if (action === 'confirm') {
-      console.log('data', data)
-      api.updateProfile({payload: pickBy(f => !!f, data)})
-      .then(() => {
+      const payload = {payload: pickBy(f => !!f, data)};
+      const handleSuccess = () => {
         setUpdateProfileDialogOpen(false);
         initRefreshProfile(!refreshProfile);
-      })
-      .catch((err) => {
+      };
+      const handleError = (err) => {
         console.log('API error', err);
         window.alert('There was an error. Please try again.');
-      });
+      };
+
+      if (authConfig.customLoginEnabled) {
+        console.log('profile update', payload);
+        api.updateProfileCustomIdp(payload)
+        .then(() => handleSuccess())
+        .catch(err => handleError(err));
+      }
+      if (!authConfig.customLoginEnabled) {
+        api.selfUpdateProfile(payload)
+        .then(() => handleSuccess())
+        .catch(err => handleError(err));
+      }
     }
   };
 
@@ -162,8 +184,7 @@ const Profile = ({auth, handleLogout}) => {
       setChangePasswordDialogOpen(false);
     }
     if (action === 'confirm') {
-      console.log('data', data)
-      api.changePassword(data)
+      api.changePasswordCustomIdp(data)
       .then(() => {
         setChangePasswordDialogOpen(false);
         initRefreshProfile(!refreshProfile);
@@ -244,13 +265,15 @@ const Profile = ({auth, handleLogout}) => {
       <Card className={classes.profileCard}>
         <div className={classes.profileHeader}>
           <Typography variant="h5" component="h2">{profileRes?.payload?.name || ''}</Typography>
-          <div>
+          <div className={classes.buttonContainer}>
             <Button color="primary" onClick={() => setUpdateProfileDialogOpen(true)} className={classes.updateProfileButton}>
               Update Profile
             </Button>
-            <Button color="primary" onClick={() => setChangePasswordDialogOpen(true)} className={classes.updateProfileButton}>
-              Change Password
-            </Button>
+            {authConfig.customLoginEnabled && (
+              <Button color="primary" onClick={() => setChangePasswordDialogOpen(true)} className={classes.updateProfileButton}>
+                Change Password
+              </Button>
+            )}
           </div>
         </div>
         <div className={classes.profileInfoContainer}>

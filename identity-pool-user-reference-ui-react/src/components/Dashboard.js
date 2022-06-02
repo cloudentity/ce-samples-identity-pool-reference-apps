@@ -3,9 +3,10 @@ import makeStyles from '@mui/styles/makeStyles';
 import Grid from '@mui/material/Grid';
 import IdentityPools from './IdentityPools';
 import Users from './Users';
+import Progress from './Progress';
+
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
-import Progress from './Progress';
 
 const useStyles = makeStyles((theme) => ({
   root: {
