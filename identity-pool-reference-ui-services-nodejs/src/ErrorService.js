@@ -3,7 +3,7 @@
 class ErrorService {
 
   handleAcpApiError (err) {
-    const error = err?.response?.data || {};
+    const error = err?.response?.data || (err?.status_code && err?.error && err?.details ? err : {});
 
     return Promise.reject({
       status_code: error.status_code || 500,
