@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import SelfUpdateIdentityPoolUser from './SelfUpdateIdentityPoolUser';
+import SelfChangePassword from './SelfChangePassword';
 import { pickBy } from 'ramda';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
@@ -25,13 +26,32 @@ const useStyles = makeStyles((theme) => ({
   },
   profileCard: {
     margin: '30px 0',
-    padding: '30px 50px',
-    width: 'calc(100vw - 300px)',
+    padding: '10px 20px',
+    width: 'calc(100vw - 80px)',
+    [theme.breakpoints.up('sm')]: {
+      padding: '30px 50px',
+      width: 'calc(100vw - 300px)',
+    }
+  },
+  buttonContainer: {
+    [theme.breakpoints.down('md')]: {
+      display: 'flex',
+      flexDirection: 'column',
+    },
   },
   profileInfoContainer: {
     background: '#eefeef',
-    width: 400,
-    padding: 15
+    width: 260,
+    padding: 15,
+    fontSize: '.8em',
+    [theme.breakpoints.up('sm')]: {
+      width: 300,
+      fontSize: '.9em',
+    },
+    [theme.breakpoints.up('md')]: {
+      width: 400,
+      fontSize: '1em',
+    }
   },
   profileInfoItem: {
     display: 'flex',
@@ -48,13 +68,25 @@ const useStyles = makeStyles((theme) => ({
     color: '#fff',
     background: theme.palette.primary.main,
     padding: '10px 20px',
+    marginLeft: 15,
     '&:hover': {
       color: theme.palette.primary.main,
     },
+    [theme.breakpoints.down('md')]: {
+      marginBottom: 10,
+    },
   },
   dialogRootStyles: {
-    padding: 40,
-    minWidth: 300
+    padding: 16,
+    minWidth: 270,
+    [theme.breakpoints.up('sm')]: {
+      padding: 40,
+      minWidth: 300,
+    },
+    [theme.breakpoints.up('md')]: {
+      padding: 40,
+      minWidth: 500,
+    }
   },
   dialogConfirmButton: {
     color: '#fff',
@@ -62,6 +94,25 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       color: theme.palette.primary.main,
     },
+  },
+  formInput: {
+    [theme.breakpoints.up('sm')]: {
+      width: 450,
+    },
+    [theme.breakpoints.up('md')]: {
+      width: 500,
+    }
+  },
+  actionButtonsContainer: {
+    [theme.breakpoints.down('sm')]: {
+      width: '100%'
+    }
+  },
+  actionButtons: {
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 15,
+      width: '100%'
+    }
   }
 }));
 
@@ -69,13 +120,16 @@ const Profile = ({auth, handleLogout}) => {
   const classes = useStyles();
 
   const [updateProfileDialogOpen, setUpdateProfileDialogOpen] = useState(false);
+  const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
   const [refreshProfile, initRefreshProfile] = useState(false);
+
+  const fetchProfileApi = authConfig.customLoginEnabled ? api.fetchProfileCustomIdp : api.selfFetchProfile;
 
   const {
     isLoading: fetchProfileProgress,
     error: fetchProfileError,
     data: profileRes
-  } = useQuery(['fetchProfile', refreshProfile], api.selfFetchProfile, {
+  } = useQuery(['fetchProfile', refreshProfile], fetchProfileApi, {
     refetchOnWindowFocus: false,
     retry: false,
     onSuccess: profileRes => {
@@ -101,10 +155,38 @@ const Profile = ({auth, handleLogout}) => {
       setUpdateProfileDialogOpen(false);
     }
     if (action === 'confirm') {
-      console.log('data', data)
-      api.selfUpdateProfile({payload: pickBy(f => !!f, data)})
-      .then(() => {
+      const payload = {payload: pickBy(f => !!f, data)};
+      const handleSuccess = () => {
         setUpdateProfileDialogOpen(false);
+        initRefreshProfile(!refreshProfile);
+      };
+      const handleError = (err) => {
+        console.log('API error', err);
+        window.alert('There was an error. Please try again.');
+      };
+
+      if (authConfig.customLoginEnabled) {
+        console.log('profile update', payload);
+        api.updateProfileCustomIdp(payload)
+        .then(() => handleSuccess())
+        .catch(err => handleError(err));
+      }
+      if (!authConfig.customLoginEnabled) {
+        api.selfUpdateProfile(payload)
+        .then(() => handleSuccess())
+        .catch(err => handleError(err));
+      }
+    }
+  };
+
+  const handleCloseChangePasswordDialog = (action, data) => {
+    if (action === 'cancel') {
+      setChangePasswordDialogOpen(false);
+    }
+    if (action === 'confirm') {
+      api.changePasswordCustomIdp(data)
+      .then(() => {
+        setChangePasswordDialogOpen(false);
         initRefreshProfile(!refreshProfile);
       })
       .catch((err) => {
@@ -183,9 +265,16 @@ const Profile = ({auth, handleLogout}) => {
       <Card className={classes.profileCard}>
         <div className={classes.profileHeader}>
           <Typography variant="h5" component="h2">{profileRes?.payload?.name || ''}</Typography>
-          <Button color="primary" onClick={() => setUpdateProfileDialogOpen(true)} className={classes.updateProfileButton}>
-            Update Profile
-          </Button>
+          <div className={classes.buttonContainer}>
+            <Button color="primary" onClick={() => setUpdateProfileDialogOpen(true)} className={classes.updateProfileButton}>
+              Update Profile
+            </Button>
+            {authConfig.customLoginEnabled && (
+              <Button color="primary" onClick={() => setChangePasswordDialogOpen(true)} className={classes.updateProfileButton}>
+                Change Password
+              </Button>
+            )}
+          </div>
         </div>
         <div className={classes.profileInfoContainer}>
           {isLoading ? (
@@ -215,18 +304,25 @@ const Profile = ({auth, handleLogout}) => {
         <ReactJson style={{marginTop: 20}} src={idTokenData} />
       </Card>
       {!isLoading && (
-        <SelfUpdateIdentityPoolUser
-          open={updateProfileDialogOpen}
-          handleClose={handleCloseUpdateProfileDialog}
-          customFields={profileSchemaRes}
-          profileData={{
-            given_name: profileRes?.payload?.given_name || '',
-            family_name: profileRes?.payload?.family_name || '',
-            name: profileRes?.payload?.name || '',
-            ...prepareUpdateProfileCustomAttributes(profileSchemaRes || [], profileRes?.payload || [])
-          }}
-          classes={classes}
-        />
+        <>
+          <SelfUpdateIdentityPoolUser
+            open={updateProfileDialogOpen}
+            handleClose={handleCloseUpdateProfileDialog}
+            customFields={profileSchemaRes}
+            profileData={{
+              given_name: profileRes?.payload?.given_name || '',
+              family_name: profileRes?.payload?.family_name || '',
+              name: profileRes?.payload?.name || '',
+              ...prepareUpdateProfileCustomAttributes(profileSchemaRes || [], profileRes?.payload || [])
+            }}
+            classes={classes}
+          />
+          <SelfChangePassword
+            open={changePasswordDialogOpen}
+            handleClose={handleCloseChangePasswordDialog}
+            classes={classes}
+          />
+        </>
       )}
     </div>
   );

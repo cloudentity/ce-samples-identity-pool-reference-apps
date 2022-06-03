@@ -3,13 +3,17 @@ import makeStyles from '@mui/styles/makeStyles';
 import Grid from '@mui/material/Grid';
 import IdentityPools from './IdentityPools';
 import Users from './Users';
+import Progress from './Progress';
+
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
-import Progress from './Progress';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100%'
+  },
+  adminNavContainer: {
+    marginTop: 20
   }
 }));
 
@@ -31,9 +35,9 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
 
   return (
     <>
-      <Grid container className={classes.root}>
-        <Grid item xs={2} style={{background: '#F7FAFF', padding: '16px 32px', borderRight: '1px solid #EAECF1'}}>
-          <div>
+      <Grid container sx={{ flexDirection: { xs: 'column', sm: 'column', md: 'row'} }} className={classes.root}>
+        <Grid item xs={0} sm={0} md={2} style={{background: '#F7FAFF', padding: '16px 32px', borderRight: '1px solid #EAECF1'}}>
+          <div className={classes.adminNavContainer}>
             {leftNavItems.map((n, i) => (
               <div
                 key={i}
@@ -45,7 +49,7 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
             ))}
           </div>
         </Grid>
-        <Grid item xs={10} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
+        <Grid item xs={0} sm={0} md={10} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
           {currentView === 'pools' && (
             <IdentityPools />
           )}

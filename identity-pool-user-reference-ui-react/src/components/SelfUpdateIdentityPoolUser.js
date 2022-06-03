@@ -1,11 +1,6 @@
 import {useState} from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import Card from '@mui/material/Card';
-import Checkbox from '@mui/material/Checkbox';
 
 import {useFormFactory} from './forms/formFactory';
 import {validators} from './forms/validation';
@@ -119,6 +114,8 @@ export default function SelfUpdateIdentityPoolUser ({open, handleClose, customFi
             onCancel: () => handleClose('cancel'),
             onSubmit: processSubmit,
             submitText: 'Update',
+            formFooterContainerClass: classes.actionButtonsContainer,
+            className: classes.actionButtons
           })}
         </div>
       </div>

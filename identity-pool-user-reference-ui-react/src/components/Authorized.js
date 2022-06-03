@@ -14,8 +14,9 @@ const queryClient = new QueryClient();
 const Authorized = ({auth, handleLogout}) => {
   const idToken = window.localStorage.getItem(authConfig.idTokenName);
   const idTokenData = idToken ? jwt_decode(idToken) : {};
+  const adminViewEnabled = authConfig.authorizationServerId === 'admin'
 
-  const [currentTab, setCurrentTab] = useState('admin');
+  const [currentTab, setCurrentTab] = useState(adminViewEnabled ? 'admin' : 'profile');
 
   const handleTabChange = (id) => {
     setCurrentTab(id);
@@ -34,8 +35,7 @@ const Authorized = ({auth, handleLogout}) => {
               <PageToolbar
                 mode="main"
                 tab={currentTab}
-                authorizationServerURL={'authorizationServerURL'}
-                authorizationServerId={'authorizationServerId'}
+                authorizationServerId={authConfig.authorizationServerId}
                 tenantId={'tenantId'}
                 handleTabChange={handleTabChange}
                 handleLogout={handleLogout}

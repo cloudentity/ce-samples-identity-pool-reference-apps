@@ -14,9 +14,16 @@ import Progress from './Progress';
 
 const useStyles = makeStyles((theme) => ({
   selectPoolInput: {
-    width: 400
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: 250,
+    },
+    [theme.breakpoints.up('md')]: {
+      width: 400,
+    },
   },
   createUserButton: {
+    marginLeft: 15,
     color: '#fff',
     background: theme.palette.primary.main,
     padding: '10px 20px',

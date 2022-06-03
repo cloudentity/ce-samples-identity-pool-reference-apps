@@ -1,10 +1,10 @@
 {
-  "name": "identity-pool-reference-ui-services-nodejs",
+  "name": "identity-pool-reference-ui-authn-app-nodejs",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/index.js",
+    "start": "nodemon src/server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,14 +14,13 @@
     "axios": "^0.27.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
-    "express": "^4.17.3",
+    "express": "^4.18.1",
     "jwt-decode": "^3.1.2",
     "morgan": "^1.10.0",
-    "qs": "^6.10.3",
     "ramda": "^0.28.0",
     "simple-oauth2": "^4.3.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.16"
   }
 }

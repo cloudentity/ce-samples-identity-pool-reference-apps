@@ -104,18 +104,20 @@ export default function PageToolbar({
             </Hidden>
             <Hidden mdDown>
               <Tabs
-                value={tab || 'admin'}
+                value={tab || 'profile'}
                 indicatorColor="primary"
                 aria-label="menu tabs"
                 style={{ height: 64 }}
               >
-                <Tab
-                  label="Admin"
-                  value="admin"
-                  id={'admin-tab'}
-                  style={{ height: 64 }}
-                  onClick={() => handleTabChange('admin')}
-                />
+                {authorizationServerId === 'admin' && (
+                  <Tab
+                    label="Admin"
+                    value="admin"
+                    id={'admin-tab'}
+                    style={{ height: 64 }}
+                    onClick={() => handleTabChange('admin')}
+                  />
+                )}
                 <Tab
                   label="My Profile"
                   value="profile"

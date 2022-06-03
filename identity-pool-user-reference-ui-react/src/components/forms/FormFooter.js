@@ -10,13 +10,14 @@ export default function FormFooter({
   progress,
   onCancel,
   onSubmit,
-  align = 'left',
   cancelButtonWidth = 150,
   submitButtonWidth = 192,
   style = {},
+  formFooterContainerClass,
+  ...props
 }) {
   return (
-    <div style={{ textAlign: align, ...style }}>
+    <div className={formFooterContainerClass} style={{ ...style }}>
       {onCancel && (
         <Button
           id={`${id}-cancel-button`}
@@ -28,6 +29,7 @@ export default function FormFooter({
           sx={{
             width: cancelButtonWidth,
           }}
+          {...props}
         >
           {cancelText || 'Cancel'}
         </Button>
@@ -44,6 +46,7 @@ export default function FormFooter({
             width: submitButtonWidth,
             color: '#fff',
           }}
+          {...props}
         >
           {progress && <CircularProgress size={18} style={{ color: 'gray', marginRight: 12 }} />}
           {submitText || 'Next'}
