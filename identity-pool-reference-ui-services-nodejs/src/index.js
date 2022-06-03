@@ -152,7 +152,7 @@ app.get(apiPrefix + '/user/schema', (req, res) => {
 app.get(apiPrefix + '/self/profile', (req, res) => {
   const requiredScopes = ['profile'];
 
-  TokenService.validateClientAccessToken(req, currentUserAccessToken, requiredScopes)
+  TokenService.validateClientAccessToken(req, currentUserAccessToken || currentAdminAccessToken, requiredScopes)
     .then(validateTokenRes => {
       UserService.getUser(currentAdminAccessToken, validateTokenRes[ipUserUuidKey])
         .then(getUserRes => {
@@ -171,7 +171,7 @@ app.get(apiPrefix + '/self/profile', (req, res) => {
 app.put(apiPrefix + '/self/profile', (req, res) => {
   const requiredScopes = ['profile'];
 
-  TokenService.validateClientAccessToken(req, currentUserAccessToken, requiredScopes)
+  TokenService.validateClientAccessToken(req, currentUserAccessToken || currentAdminAccessToken, requiredScopes)
     .then(validateTokenRes => {
       UserService.updateUser(currentAdminAccessToken, validateTokenRes[ipUserUuidKey], req.body)
         .then(updateUserRes => {
@@ -190,7 +190,7 @@ app.put(apiPrefix + '/self/profile', (req, res) => {
 app.post(apiPrefix + '/self/changepassword', (req, res) => {
   const requiredScopes = ['profile'];
 
-  TokenService.validateClientAccessToken(req, currentUserAccessToken, requiredScopes)
+  TokenService.validateClientAccessToken(req, currentUserAccessToken || currentAdminAccessToken, requiredScopes)
     .then(validateTokenRes => {
       UserService.changeUserPassword(currentSystemAccessToken, validateTokenRes[ipUserUuidKey], req.body)
         .then(changePasswordRes => {
