@@ -7,6 +7,7 @@ import Progress from './Progress';
 
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
+import authConfig from '../authConfig';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,11 +15,25 @@ const useStyles = makeStyles((theme) => ({
   },
   adminNavContainer: {
     marginTop: 20
+  },
+  notAdminMessageContainer: {
+    width: '100%',
+    textAlign: 'center'
+  },
+  notAdminMessageHeader: {
+    fontSize: '2em',
+    marginBottom: 20
+  },
+  inlineMonospace: {
+    color: '#3c3da7',
+    fontWeight: 700
   }
 }));
 
 export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) {
   const classes = useStyles();
+
+  const adminViewEnabled = authConfig.authorizationServerId === 'admin';
 
   const [currentView, setCurrentView] = useState('users');
 
@@ -49,14 +64,22 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
             ))}
           </div>
         </Grid>
-        <Grid item xs={0} sm={0} md={10} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
-          {currentView === 'pools' && (
-            <IdentityPools />
-          )}
-          {currentView === 'users' && (
-            <Users />
-          )}
-        </Grid>
+        {adminViewEnabled ? (
+          <Grid item xs={0} sm={0} md={10} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
+            {currentView === 'pools' && (
+              <IdentityPools />
+            )}
+            {currentView === 'users' && (
+              <Users />
+            )}
+          </Grid>
+        ) : (
+          <div className={classes.notAdminMessageContainer}>
+            <div className={classes.notAdminMessageHeader}>You are currently not signed in as an admin.</div>
+            <div>Go to <code className={classes.inlineMonospace}>identity-pool-admin-reference-ui-react/src/authConfig.js</code></div>
+            <div>and make sure the <code className={classes.inlineMonospace}>authorizationServerId</code> value is set to <code className={classes.inlineMonospace}>admin</code></div>
+          </div>
+        )}
       </Grid>
     </>
   )

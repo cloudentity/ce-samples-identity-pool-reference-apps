@@ -23,15 +23,6 @@ const useStyles = (
       backgroundColor: '#F7FAFF',
       position: 'fixed',
       minWidth: '100vw',
-      // ...(withBackground
-      //   ? {
-      //       [theme.breakpoints.up('lg')]: {
-      //         backgroundImage: `url(${brandingMask})`,
-      //         backgroundPosition: 'left top',
-      //         backgroundRepeat: 'no-repeat',
-      //       },
-      //     }
-      //   : {}),
     },
   }));
 };

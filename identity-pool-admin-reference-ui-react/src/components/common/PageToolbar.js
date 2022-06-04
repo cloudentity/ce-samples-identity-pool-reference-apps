@@ -119,7 +119,7 @@ export default function PageToolbar({
                   />
                 )}
                 <Tab
-                  label="My Profile"
+                  label="My Token Data"
                   value="profile"
                   id={'profile-tab'}
                   style={{ height: 64 }}
