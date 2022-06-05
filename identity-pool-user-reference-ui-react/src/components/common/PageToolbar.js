@@ -109,21 +109,11 @@ export default function PageToolbar({
                 aria-label="menu tabs"
                 style={{ height: 64 }}
               >
-                {authorizationServerId === 'admin' && (
-                  <Tab
-                    label="Admin"
-                    value="admin"
-                    id={'admin-tab'}
-                    style={{ height: 64 }}
-                    onClick={() => handleTabChange('admin')}
-                  />
-                )}
                 <Tab
                   label="My Profile"
                   value="profile"
                   id={'profile-tab'}
                   style={{ height: 64 }}
-                  onClick={() => handleTabChange('profile')}
                 />
               </Tabs>
             </Hidden>
