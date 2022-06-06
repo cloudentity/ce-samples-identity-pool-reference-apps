@@ -19,7 +19,7 @@ To set up an Identity Pool as an IDP:
 - Log into your ACP tenant as an admin. If you are not in the workspace management view already, go the workspaces menu and select "View all workspaces"
 - Click on "Identity Pools" in the left-hand navigation
 - Click on "Create Pool"
-- OPTIONAL: After your pool is created, you may click on the "Schemas" tab and create a custom schema. To use it in your pool, select the pool, go to the "Advanced" tab, and under "Payload schema," select the schema you have created, then click "Save." For this basic reference example, please preserve the core attributes (`name`, `family_name` and `given_name`) as they are when creating a custom schema. An example custom schema is provided in this repository in the `custom_schemas` directory, which can be copied and pasted into the schema editor in ACP.
+- OPTIONAL: After your pool is created, you may click on the "Schemas" tab and create a custom schema. To use it in your pool, select the pool, go to the "Advanced" tab, and under "Payload schema," select the schema you have created, then click "Save." For this basic reference example, please preserve the core attributes (`name`, `family_name` and `given_name`) as they are when creating a custom schema. An example custom schema is provided in this repository in the `identity-pool-example-custom-schemas` directory, which can be copied and pasted into the schema editor in ACP.
 - Navigate to the dashboard of the workspace where you wish to use your pool as an IDP
 - In the left-hand navigation, select "Identity Data" > "Identity Providers"
 - Click on "Create Identity," and click "No thanks" when the IDP discovery prompt is shown
