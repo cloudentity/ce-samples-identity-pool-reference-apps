@@ -16,8 +16,8 @@ In the case of the self-service app, there are 2 ways an Identity Pool user can 
 
 To set up an Identity Pool as an IDP:
 
-- Log into your ACP tenant as an admin. If you are not in the workspace management view already, go the workspaces menu and select "View all workspaces"
-- Click on "Identity Pools" in the left-hand navigation
+- Log into your ACP tenant as an admin.
+- In the top-right navigation menu, click on the gear icon, and select "Identity Pools" from the list of options. Alternately, in the left-hand navigation, click on the workspace icon to see the options menu, select "View all workspaces," and then select "Identity Pools" from the left-hand navigation menu.
 - Click on "Create Pool"
 - OPTIONAL: After your pool is created, you may click on the "Schemas" tab and create a custom schema. To use it in your pool, select the pool, go to the "Advanced" tab, and under "Payload schema," select the schema you have created, then click "Save." For this basic reference example, please preserve the core attributes (`name`, `family_name` and `given_name`) as they are when creating a custom schema. An example custom schema is provided in this repository in the `identity-pool-example-custom-schemas` directory, which can be copied and pasted into the schema editor in ACP.
 - Navigate to the dashboard of the workspace where you wish to use your pool as an IDP
@@ -211,7 +211,8 @@ To configure the reference apps for custom login flow:
 - Click on "Create Identity," and click "No thanks" when the IDP discovery prompt is shown
 - Under the category "Custom and test connections," select "Custom IDP" and click "Next"
 - Give your custom IDP a name, and for the login URL, enter `http://localhost:3000/login` and click "Save"
-- On the IDP details page for your new custom IDP, copy the client ID and secret
+- Navigate to the System workspace, and under "Applications" > "Clients" find your custom IDP, and open it to view its details. Open the "Scopes" tab, and check "Identity"
+- On the System application details for your custom IDP (or back on the custom IDP details page in your main workspace) copy the client ID and secret
 - In the reference app codebase, open `identity-pool-reference-ui-authn-app-nodejs/.env` and use the custom IDP client ID and client secret as values for `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET`
 - In the same file, modify the values for `ACP_HOST`, `ACP_PORT` (set to blank string for ACP SaaS), `ACP_TENANT_ID` and `IDENTITY_POOL_ID` with the values from your ACP tenant and the Identity Pool you are utilizing
 
@@ -241,10 +242,11 @@ To verify that the logged in user is able to call the REST endpoints we're expos
 - Create a "Server Web" application and modify it to use "client_credentials" and "Client Secret Basic" as in the previous examples
 - Additionally, under the "Scopes" tab, expand "OAuth2" options, and check "Introspect tokens" and click "Save"
 - Add this application's client ID and client secret to `identity-pool-reference-ui-services-nodejs/.env` for the variables `USER_OAUTH_CLIENT_ID` and `USER_OAUTH_CLIENT_SECRET`
+- Make sure that you update the value of `USER_OAUTH_TOKEN_INTROSPECTION_PATH` to use the id for the workspace in which you created your custom IDP, e.g. `"/my-custom-login-demo/oauth2/introspect"`
 
-> Note: the instructions above should be modified if using the `admin` workspace to set up your custom IDP. In this case, set `USER_OAUTH_CLIENT_ID`, `USER_OAUTH_CLIENT_SECRET` and `USER_OAUTH_TOKEN_PATH` to blank strings. The backend services app will then user the admin values for token introspection.
+> Note: the instructions above should be modified if using the `admin` workspace to set up your custom IDP. In this case, set `USER_OAUTH_CLIENT_ID`, `USER_OAUTH_CLIENT_SECRET` and `USER_OAUTH_TOKEN_PATH` to blank strings. For `USER_OAUTH_TOKEN_INTROSPECTION_PATH`, use the value `"/admin/oauth2/introspect"` The backend services app will then user the admin values for token introspection.
 
-For the self-reset password flow, it is necessary for the underlying API to use an application in the system workspace, so we will need to fill in the values for `SYSTEM_OAUTH_CLIENT_ID` and `SYSTEM_OAUTH_CLIENT_SECRET` in `identity-pool-reference-ui-services-nodejs/.env` as well. It is fine to copy the same values from `identity-pool-reference-ui-authn-app-nodejs/.env`, or create a new OAuth Application following the previous instructions in the System workspace.
+For the self-reset password flow, it is necessary for the underlying API to use an application in the system workspace, so we will need to fill in the values for `SYSTEM_OAUTH_CLIENT_ID` and `SYSTEM_OAUTH_CLIENT_SECRET` in `identity-pool-reference-ui-services-nodejs/.env` as well. It is fine to copy the same values from `identity-pool-reference-ui-authn-app-nodejs/.env`, or create a new OAuth Application following the previous instructions in the System workspace (note that it must have `identity` and `manage_logins` scopes enabled).
 
 Finally, we need to configure ACP to map the Identity Pool user's UUID into the access token, as this value is not available by default, and without it, there is no way for our APIs to get this context. We can name the access token key that will hold this value to anything we want, but for this reference app, we will call it `identity_pool_uuid`. To configure this:
 

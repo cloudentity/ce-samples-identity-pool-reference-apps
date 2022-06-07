@@ -83,7 +83,7 @@ async function setServerSystemAccessToken () {
   const client = new ClientCredentials(acpSystemConfig);
 
   const tokenParams = {
-    scope: '',
+    scope: 'identity manage_logins',
   };
 
   try {
