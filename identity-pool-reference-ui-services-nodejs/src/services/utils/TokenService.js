@@ -2,7 +2,7 @@
 
 const R = require('ramda');
 const jwt_decode = require('jwt-decode');
-const AcpApiService = require('./AcpApiService');
+const AcpApiService = require('../api/AcpApiService');
 const ErrorService = require('./ErrorService');
 const ipUserUuidKey = process.env.IDENTITY_POOL_USER_UUID_KEY;
 
@@ -16,7 +16,7 @@ class TokenService {
     return {};
   }
 
-  validateClientAccessToken (req, systemToken, requiredScopes = []) {
+  validateClientAccessToken (req, serverToken, requiredScopes = []) {
     const introspectTokenRaw = req.headers?.authorization?.split(' ')[1];
 
     if (!introspectTokenRaw || introspectTokenRaw === 'null') {
@@ -27,7 +27,7 @@ class TokenService {
       });
     }
 
-    return AcpApiService.introspectToken(introspectTokenRaw, systemToken)
+    return AcpApiService.introspectToken(introspectTokenRaw, serverToken)
       .then(introspectTokenRes => {
         if (!introspectTokenRes.data?.active) {
           return Promise.reject({
