@@ -62,7 +62,7 @@ const authConfig = {
      domain: 'my-tenant.us.authz.cloudentity.io', // e.g. 'example.authz.cloudentity.io' (domain only, without 'https://' prefix)
      tenantId: 'my-tenant', // If using ACP SaaS, this is generally in the subdomain of your ACP SaaS URL. For local ACP, value is 'default'
      authorizationServerId: 'admin', // This is generally the name of the workspace you created the OAuth client in.
-     // NOTE: authorizationServerId value MUST be 'admin' to enable admin views/actions!
+     // NOTE: Do not change this; authorizationServerId value MUST be 'admin' to enable admin views/actions!
      clientId: 'c74ugh6tdb84g2wugku0', // Find this value by viewing the details of your OAuth client
      redirectUri: 'http://localhost:3000/', // Make sure to add this exact value (including trailing slash) to the 'redirect_uri' list of your OAuth client settings
      scopes: ['profile', 'email', 'openid'], // 'revoke_tokens' scope must be present for 'logout' action to revoke token! Without it, token will only be deleted from browser's local storage.
