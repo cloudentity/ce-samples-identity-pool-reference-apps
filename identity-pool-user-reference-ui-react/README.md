@@ -61,6 +61,7 @@ Additionally, to configure an ACP SaaS tenant with the self-service UI app, make
 
 ```js
 const authConfig = {
+     // Basic ACP authorization flow configs:
      domain: 'my-tenant.us.authz.cloudentity.io', // e.g. 'example.authz.cloudentity.io' (domain only, without 'https://' prefix)
      tenantId: 'my-tenant', // If using ACP SaaS, this is generally in the subdomain of your ACP SaaS URL. For local ACP, value is 'default'
      authorizationServerId: 'my-demo-workspace', // This is generally the name of the workspace you created the OAuth client in.
@@ -71,11 +72,18 @@ const authConfig = {
      accessTokenName: 'identity_demo_access_token', // optional; defaults to '{tenantId}_{authorizationServerId}_access_token'
      idTokenName: 'identity_demo_id_token', // optional; defaults to '{tenantId}_{authorizationServerId}_id_token'
 
-     // etc..
+     // App functionality configs:
+     nodeJsBackendEnabled: false,
+     // Set to 'true' if 'identity-pool-reference-ui-services-nodejs' is set up and running, and a custom user schema is being utilized.
+     // When set to 'false,' custom user schema will not be utilized for profile functionality, even if one exists for the configured identity pool.
+
+     customLoginEnabled: false
+     // Set to 'true' if 'identity-pool-reference-ui-authn-app-nodejs' is set up and running, and a custom IDP has been set up for the ACP workspace.
+     // When set to 'false,' direct requests to ACP '/self/me' APIs will be used for profile functionality.
  };
 ```
 
-> **IMPORTANT!** Make sure you set the redirect URI value in your ACP Oauth client configuration _exactly_ as it is configured here; i.e. with a forward slash at the end. See the README in the main directory of this repository for more information on ACP OAuth Client configuration.
+> **IMPORTANT!** Make sure you set the redirect URI value in your ACP Oauth client configuration _exactly_ as it is configured here; i.e. with a forward slash at the end. See the README in the main directory of this repository for more information on ACP OAuth client configuration.
 
 ## Optional steps for enhanced customization use cases
 

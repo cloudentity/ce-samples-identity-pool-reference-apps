@@ -2,9 +2,9 @@
       // Basic ACP authorization flow configs:
       domain: 'localhost:8443', // e.g. 'example.authz.cloudentity.io' (domain only, without 'https://' prefix)
       tenantId: 'default', // If using ACP SaaS, this is generally in the subdomain of your ACP SaaS URL. For local ACP, value is 'default'
-      authorizationServerId: 'login-demo', // This is generally the name of the workspace you created the OAuth application in.
-      clientId: 'login-demo', // Find this value by viewing the details of your OAuth application
-      redirectUri: 'http://localhost:3000/', // Make sure to add this exact value (including trailing slash) to the 'redirect_uri' list of your OAuth application settings
+      authorizationServerId: '**your-workspace-id**', // This is generally the name of the workspace you created the OAuth client in.
+      clientId: '**your-oauth-client-id**', // Find this value by viewing the details of your OAuth client
+      redirectUri: 'http://localhost:3000/', // Make sure to add this exact value (including trailing slash) to the 'redirect_uri' list of your OAuth client settings
       scopes: ['profile', 'email', 'openid'], // 'revoke_tokens' scope must be present for 'logout' action to revoke token. Without it, token will only be deleted from browser's local storage.
       responseType: ['code'],
       accessTokenName: 'identity_demo_access_token',
