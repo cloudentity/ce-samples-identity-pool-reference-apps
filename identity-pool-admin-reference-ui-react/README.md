@@ -36,7 +36,8 @@ For more info, read the [NVM docs](https://github.com/nvm-sh/nvm#intro).
 # Make sure you are in the correct app directory
 cd identity-pool-admin-reference-ui-react
 
-npm install
+npm install --legacy-peer-deps
+# --legacy-peer-deps flag required at this time due to Material-UI not having been updated for React 18
 ```
 
 **To start the dev server:**
