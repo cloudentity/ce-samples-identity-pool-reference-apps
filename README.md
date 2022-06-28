@@ -1,14 +1,14 @@
 ## Quickstart and customization guide for React Identity Pools reference UI
 
-This set of reference apps is intended to demonstrate a basic self service and admin UI that is wired up to an ACP Identity Pool.
+This set of reference apps is intended to demonstrate a basic auth, profile management and admin UI that is wired up to an ACP Identity Pool.
 
 This guide assumes some basic familiarity with ACP and the Identity Pools feature in ACP. Please see the developer guide for [Identity Pools](https://developer.cloudentity.com/howtos/tenant_configuration/configuring_identity_pools/) if you are unfamiliar with this topic.
 
-In this repository, there are several individual apps that fall into two categories: **self-service** and **admin**:
+In this repository, there are several individual apps that fall into two categories: **user auth/profile management** and **admin**:
 
-- The self-service app comes as a set of two apps: `identity-pool-user-reference-ui-react`, a simple React.js SPA, and a Node.js/Express backend app, `identity-pool-reference-ui-services-nodejs`, which acts as a backend-for-frontend between ACP and the self-service UI. This set of apps demonstrates how a robust profile management tool for ACP Identity Pool users can be set up, with a flexible & fully customized login page that works with a custom IDP configured in ACP.
+- The **user auth & profile management** UI project comes as a set of two apps: `identity-pool-user-reference-ui-react` (we'll call it the **"user auth React app"** from now on), a simple React.js SPA, and a Node.js/Express backend app, `identity-pool-reference-ui-services-nodejs` (we'll call it the **"Node.js backend app"**), which acts as a backend-for-frontend between ACP and the user auth React app. This set of apps demonstrates how a robust profile management tool for ACP Identity Pool users can be set up, with a flexible & fully customized login page that works with a custom IDP configured in ACP.
 
-- The admin app, located in the directory `identity-pool-admin-reference-ui-react`, is a simple React.js SPA like the self-service app. ACP has a built-in UI feature for Identity Pools management, but it is possible to build a custom API for this purpose that fits the needs of your organization. This app demonstrates how ACP admin APIs for Identity Pools can be integrated into a custom UI app.
+- The **admin app**, located in the directory `identity-pool-admin-reference-ui-react`, is a simple React.js SPA like the user auth React app. ACP has a built-in UI feature for Identity Pools management, but it is possible to build a custom API for this purpose that fits the needs of your organization. This app demonstrates how ACP admin APIs for Identity Pools can be integrated into a custom UI app.
 
 > **IMPORTANT!** For any of the reference apps to work, you must have access to an ACP tenant with admin/system workspace privileges, and with the Identity Pools feature flag enabled. Please contact us through our support portal if you need these features turned on for your ACP SaaS tenant.
 
@@ -19,15 +19,15 @@ At a high level, there are two basic categories of prerequisites that must be co
 - An **identity provider (IDP)**
 - At least one **OAuth client**
 
-The IDP and OAuth clients together provide the means for users, whether admin or self-service users, to log in to the frontend apps via an OAuth authorization flow (Multiple OAuth clients come into play if using a custom IDP with the self-service app; more about that later in this article).
+The IDP and OAuth clients together provide the means for users, whether admin or non-admin users, to log in to the frontend apps via an OAuth authorization flow (Multiple OAuth clients come into play if using a custom IDP with a combination of the user auth React app and the Node.js backend app; more about that later in this article).
 
 The frontend apps utilize a lightweight, open-source JS authorization library, [@cloudentity/auth](https://www.npmjs.com/package/@cloudentity/auth), to handle initiating OAuth authorization flows and handling redirects between the reference app and the IDP configured in ACP. This library has 0 dependencies and can be used with any frontend JS framework, such as React, Angular, Vue, etc.
 
-## ACP setup (Self-service app)
+## ACP setup (User Auth React App)
 
-**Basic ACP Configuration for the Self-service App**
+**Basic ACP Configuration for the User Auth React App**
 
-The self-service app is designed to be used only by ACP Identity Pool users. There are two ways an Identity Pool user can log in to manage their account: with a default Identity Pool IDP, which is automatically configured by ACP (simpler to implement, but limited ability to customize), and with a custom IDP (more complex, but allows implementing a fully customized, branded login page that matches the look-and-feel of the rest of the UI).
+The user auth React app is designed to be used only by ACP Identity Pool users. There are two ways an Identity Pool user can log in to manage their account: with a default Identity Pool IDP, which is automatically configured by ACP (simpler to implement, but limited ability to customize), and with a custom IDP (more complex, but allows implementing a fully customized, branded login page that matches the look-and-feel of the rest of the UI).
 
 Let's cover the simple use case first.
 
@@ -41,7 +41,7 @@ Let's cover the simple use case first.
 
 - Navigate to the dashboard of the workspace where you wish to use your Identity Pool as an IDP.
 
-> OPTIONAL: To create a new workspace just for this tutorial (recommend for the self-service app):
+> OPTIONAL: To create a new workspace just for this tutorial (recommend for the user auth React app):
 > - In the top-right navigation menu, click on the gear icon, and select "Workspaces" from the list of options
 > - Click on "Create Workspace," and select "Demo."
 > - Create a workspace Name and ID. Make a note of the ID, as you will need it later to configure reference app environment variables, and click "Next"
@@ -64,27 +64,27 @@ Let's cover the simple use case first.
 - Enter `http://localhost:3000/` and click "Save"
 - Have the "Client ID" value handy for the Reference UI app setup
 
-After this configuration has been completed, go to `identity-pool-user-reference-ui-react/README.md` for instructions on how to install the self-service app dependencies, populate the ACP values you've configured in the app's environment variables, and run the app.
+After this configuration has been completed, go to `identity-pool-user-reference-ui-react/README.md` for instructions on how to install the user auth React app dependencies, populate the ACP values you've configured in the app's environment variables, and run the app.
 
-> **Note:** Having followed these basic instructions, you do not need the `identity-pool-reference-ui-services-nodejs` backend app at this point.
+> **Note:** Having followed these basic instructions, you do not need the Node.js backend app at this point.
 
-After following the self-service app instructions, click on the "Login" button and you should be redirected to an Identity Pool login page if everything has been configured correctly. Once logged in, you will be able to view and edit the profile of your logged-in Identity Pool user.
+After following the user auth React app instructions, click on the "Login" button and you should be redirected to an Identity Pool login page if everything has been configured correctly. Once logged in, you will be able to view and edit the profile of your logged-in Identity Pool user.
 
-> **Note:** if you are using a workspace that has more than one IDP set up, you will be presented with a choice of IDPs with which to log in after clicking the "Login" button. In this case, you must select the Identity Pool IDP for the self-service app to work. For clarity, we recommend that you create a workspace to use just for this tutorial.
+> **Note:** if you are using a workspace that has more than one IDP set up, you will be presented with a choice of IDPs with which to log in after clicking the "Login" button. In this case, you must select the Identity Pool IDP for the user auth React app to work. For clarity, we recommend that you create a workspace to use just for this tutorial.
 
-**Advanced ACP Configuration for the Self-service App: Setting up a Custom IDP and Login Page**
+**Advanced ACP Configuration for the User Auth React App: Setting up a Custom IDP and Login Page**
 
 In the basic examples above, the use of an Identity Pool IDP meant that the login page was generated by ACP, and we had only limited control over its appearance. To make a fully custom login page possible, it is necessary to create a custom IDP and wire the series of requests required for the authorization flow in a backend server. This is where the Node.js backend app `identity-pool-reference-ui-services-nodejs` comes in. It will act as an intermediary between our frontend and the resource server, i.e. our ACP Identity Pool.
 
-**Concepts Behind the Backend-for-Frontend (BFF) Pattern used for Custom IDP Login in the Self-service UI**
+**Concepts Behind the Backend-for-Frontend (BFF) Pattern used for Custom IDP Login in the User Auth React App**
 
-In our first, basic example above, the frontend was directly calling a set of self-service APIs exposed by ACP Identity Pools, which internally are able to determine the user's identity from the authentication context, as long as the user possesses an access token that was issued by an Identity Pool IDP.
+In our first, basic example above, the frontend was directly calling a set of profile management APIs exposed by ACP Identity Pools, which internally are able to determine the user's identity from the authentication context, as long as the user possesses an access token that was issued by an Identity Pool IDP.
 
-With a custom IDP, which we need to implement a fully customized login page, an access token minted for the same identity pool user will not have this context, and requests to self service APIs will fail. We must manually configure the authentication context to map the user's UUID into the access token, but even then, this is not enough to allow calling Identity Pool self-service API endpoints. We must set up an intermediary backend application that internally calls Identity Pool admin APIs on behalf of the user, and passes the data we want to expose to the frontend.
+With a custom IDP, which we need to implement a fully customized login page, an access token minted for the same identity pool user will not have this context, and requests to profile management APIs will fail. We must manually configure the authentication context to map the user's UUID into the access token, but even then, this is not enough to allow calling Identity Pool profile management API endpoints. We must set up an intermediary backend application (the Node.js backend app in this project) that internally calls Identity Pool admin APIs on behalf of the user, and passes the data we want to expose to the frontend.
 
-At a high level, the BFF pattern for the self-service app works like this:
+At a high level, the BFF pattern for the user auth React app plus the Node.js backend app works like this:
 
-- The user clicks "Login" on the self-service UI app, and is redirected to the custom IDP login page (which looks like the rest of the reference app, creating the illusion that no redirect took place at all)
+- The user clicks "Login" on the user auth React app, and is redirected to the custom IDP login page (which looks like the rest of the reference app, creating the illusion that no redirect took place at all)
 - The user enters their identifier and password
 - The backend application internally calls the Identity Pool [Verify Password](https://docs.authorization.cloudentity.com/api/identity/#tag/Users/operation/verifyPassword) API, and if that request is successful, it next calls the ACP System [Accept Login](https://docs.authorization.cloudentity.com/api/system/#tag/logins/operation/acceptLoginRequest) API, passing the user's UUID (which was returned in the Verify Password response) into the `authentication_context` parameter of the request body
 - The Accept Login response contains a redirect URL to ACP to complete the authorization flow, and the frontend redirects to this URL
@@ -96,15 +96,15 @@ At a high level, the BFF pattern for the self-service app works like this:
 
 The backend is able to call ACP Admin & System APIs by authorizing with ACP Admin and System OAuth clients using the Client Credentials flow. When the backend server first starts, it obtains access tokens for each of these clients, and refreshes the tokens as they expire for as long as the server is running. This way, the admin credentials are never exposed to the frontend.
 
-For this tutorial, the self-service frontend app has a pre-built custom login view and route that is ready to be connected to a custom IDP. However, the login page could be any type of frontend app that connects to the backend server that is responsible for processing the custom IDP login.
+For this tutorial, the user auth React app has a pre-built custom login view and route that is ready to be connected to a custom IDP. However, the login page could be any type of frontend app that connects to the backend server that is responsible for processing the custom IDP login.
 
-Finally, in this example, the backend app exposes REST endpoints to be utilized by a stateless SPA, but this pattern could be just as easily implemented for a server-side-rendered frontend, including a mobile app.
+Finally, in this example, the Node.js backend app exposes REST endpoints to be utilized by a stateless SPA, but this pattern could be just as easily implemented for a server-side-rendered frontend, including a mobile app.
 
 **How to configure ACP for custom login flow:**
 
 First, we will create a custom IDP, and configure it so it can also double as a System OAuth client we can use to call System APIs. These include the [Accept Login](https://docs.authorization.cloudentity.com/api/system/#tag/logins/operation/acceptLoginRequest) API and certain Identity Pool APIs such as the [Verify Password](https://docs.authorization.cloudentity.com/api/identity/#tag/Users/operation/verifyPassword) and [Change Password](https://docs.authorization.cloudentity.com/api/identity/#tag/Users/operation/changePassword) APIs.
 
-- Log into your ACP tenant as an admin, and navigate to the dashboard of the workspace in which we created the "Single Page"-type OAuth client for the self-service UI at the start of this tutorial
+- Log into your ACP tenant as an admin, and navigate to the dashboard of the workspace in which we created the "Single Page"-type OAuth client for the user auth React app at the start of this tutorial
 - In the left-hand navigation, select "Identity Data" > "Identity Providers"
 - Click on "Create Identity," and click "No thanks" when the IDP discovery prompt is shown
 - Under the category "Custom and test connections," select "Custom IDP" and click "Next"
@@ -125,7 +125,7 @@ Now, regardless of which workspace we're using for the Identity Pools IDP, we ne
 
 Now that we have a custom IDP, as well as System and Admin OAuth clients configured for the backend, we need one more OAuth client.
 
-We must verify that the logged in user is authorized to call the REST endpoints we're exposing in the backend app, which allow self-service CRUD operations. To do this, we will set up an additional "Server Web"-type OAuth client in the same workspace in which we've created the custom IDP. This additional client will be used to call the token introspection endpoint to check the user's token.
+We must verify that the logged in user is authorized to call the REST endpoints we're exposing in the Node.js backend app, which allow profile management CRUD operations. To do this, we will set up an additional "Server Web"-type OAuth client in the same workspace in which we've created the custom IDP. This additional client will be used to call the token introspection endpoint to check the user's token.
 
 - Navigate to the dashboard of the workspace in which we have set up the custom IDP
 - On the workspace dashboard, in the left-hand navigation, select "Applications" > "Clients"
@@ -145,23 +145,23 @@ Finally, we need to configure ACP to map the Identity Pool user's UUID into the 
 - Select the "Mappings" tab in your custom IDP details, and click on the "Add mapping" button
 - Under the "Source name" column, select your newly created name, and under the "Target Names" column, select your authN context attribute you created in the previous steps, then click "Save mappings"
 
-Now, when you log in with your custom IDP, the access token will contain the `identity_pool_uuid` mapping, and the backend app will be able to call Identity Pool admin APIs with this value from the token.
+Now, when you log in with your custom IDP, the access token will contain the `identity_pool_uuid` mapping, and the Node.js backend app will be able to call Identity Pool admin APIs with this value from the token.
 
 Having configured everything we need on the ACP side, all that is left to do is configure the necessary environment variables in the frontend and backend apps.
 
-- In the self-service UI app codebase, go to `identity-pool-user-reference-ui-react/src/authConfig.js` and set the value of `customLoginEnabled` and `nodeJsBackendEnabled` to `true`
-- In the backend app code base, go to `identity-pool-reference-ui-services-nodejs/README.md` and follow the instructions for populating the environment variables, installing the dependencies, and running the server.
+- In the user auth React app codebase, go to `identity-pool-user-reference-ui-react/src/authConfig.js` and set the value of `customLoginEnabled` and `nodeJsBackendEnabled` to `true`
+- In the Node.js backend app code base, go to `identity-pool-reference-ui-services-nodejs/README.md` and follow the instructions for populating the environment variables, installing the dependencies, and running the server.
 
-With the frontend and backend apps configured and both dev servers running, you should now be able to login with the custom IDP we've set up, and perform all the available self-service operations.
+With the frontend and backend apps configured and both dev servers running, you should now be able to login with the custom IDP we've set up, and perform all the available profile management operations.
 
 ## ACP setup (Admin app)
 
 For the admin app, the IDP does not need to be associated with an Identity Pool. It can be the Cloudentity IDP you use to log into your ACP SaaS account, or it could be an external IDP, such as Microsoft or Google. In order for an admin to have access to the functionality of the admin app, however, the IDP must be set up in the Admin workspace in ACP.
 
-This guide will not cover all IDP setup use cases for the admin app in detail. If you want to set up an Identity Pool as an IDP for the admin app, refer back to the **Basic ACP Configuration for the Self-service App** section of this article for IDP/OAuth client setup. Just make sure you select the "Admin" workspace when following the directions.
+This guide will not cover all IDP setup use cases for the admin app in detail. If you want to set up an Identity Pool as an IDP for the admin app, refer back to the **Basic ACP Configuration for the User Auth React App** section of this article for IDP/OAuth client setup. Just make sure you select the "Admin" workspace when following the directions.
 
-If using a different type of IDP for the admin app, after setting it up, refer to the **Basic ACP Configuration for the Self-service App** section of this article for OAuth client setup only, again making sure you are still in the "Admin" workspace.
+If using a different type of IDP for the admin app, after setting it up, refer to the **Basic ACP Configuration for the User Auth React App** section of this article for OAuth client setup only, again making sure you are still in the "Admin" workspace.
 
 After this configuration has been completed, go to `identity-pool-admin-reference-ui-react/README.md` for instructions on how to install the admin app dependencies, populate the ACP values you've configured in the app's environment variables, and run the app.
 
-> **Note:** You do not need the `identity-pool-reference-ui-services-nodejs` backend app for the admin UI app.
+> **Note:** You do not need the Node.js backend app for the admin UI app.

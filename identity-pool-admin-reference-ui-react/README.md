@@ -48,7 +48,7 @@ npm start
 
 By default, the dev server for this app runs at http://localhost:3000.
 
-> **Note:** The admin and self-service UI apps in this repository cannot be run simultaneously unless they are running on different ports. This tutorial assumes you will be running only one at a time. Also, you do not need the backend app in this repository, `identity-pool-reference-ui-services-nodejs`, to run the Admin UI app.
+> **Note:** The admin and user auth/profile management React apps in this repository cannot be run simultaneously unless they are running on different ports. This tutorial assumes you will be running only one at a time. Also, you do not need the backend app in this repository, `identity-pool-reference-ui-services-nodejs`, to run the Admin UI app.
 
 **How to configure the proxy for the API server & set up app to use an ACP SaaS tenant**
 

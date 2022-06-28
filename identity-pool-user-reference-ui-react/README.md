@@ -1,8 +1,8 @@
-## Getting started with the ACP Identity Pools Self-service UI reference app
+## Getting started with the ACP Identity Pools User Auth React Reference App
 
 > **IMPORTANT!** Before you begin, please make sure you have gone through the README guide in the main directory of this repository, and set up the ACP prerequisites. This guide is focused only on operational setup for this app.
 
-This self-service UI app is a React.js project bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This auth and profile management UI app is a React.js project bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 It offers the following features:
 
 - Customized, brandable login page that works with a custom IDP
@@ -11,9 +11,9 @@ It offers the following features:
 
 Look for more features to be added soon.
 
-> **IMPORTANT!** Running this app with a customized login page and a custom IDP requires the backend app in this repository, `identity-pool-reference-ui-services-nodejs`, to be configured and running. Please see the README in that repository for setup of that app, and see the README in the main directory of this repository for an overview of custom IDP setup in ACP.
+> **IMPORTANT!** Running this app with a customized login page and a custom IDP requires the Node.js backend app in this repository, `identity-pool-reference-ui-services-nodejs`, to be configured and running. Please see the README in that repository for setup of that app, and see the README in the main directory of this repository for an overview of custom IDP setup in ACP.
 
-**Minimum requirements for running the Self-service Reference UI app:**
+**Minimum requirements for running the User Auth React Reference app:**
 
 - NodeJS 16.x
 - NPM 8.x
@@ -50,7 +50,7 @@ npm start
 
 By default, the dev server for this app runs at http://localhost:3000.
 
-> Note: The admin and self-service UI apps in this repository cannot be run simultaneously unless they are running on different ports. This tutorial assumes you will be running only one at a time.
+> Note: The admin and user auth/profile management React apps in this repository cannot be run simultaneously unless they are running on different ports. This tutorial assumes you will be running only one at a time.
 
 **How to configure the proxy for the API server & set up app to use an ACP SaaS tenant**
 
@@ -58,7 +58,7 @@ This app proxies some API requests to ACP through its dev server. By default, th
 
 To configure proxying API requests made from the UI to ACP, open `identity-pool-user-reference-ui-react/package.json` and find line 5 (`"proxy": "https://localhost:8443",`). Change this value if you are using an ACP SaaS tenant, e.g `"proxy": "https://my-tenant.us.authz.cloudentity.io",`.
 
-Additionally, to configure an ACP SaaS tenant with the self-service UI app, make sure you edit the contents of the file `identity-pool-user-reference-ui-react/src/authConfig.js`. This file is configured for a locally running ACP dev server by default, but you can easily configure your ACP SaaS tenant as in the example below:
+Additionally, to configure an ACP SaaS tenant with the user auth React app, make sure you edit the contents of the file `identity-pool-user-reference-ui-react/src/authConfig.js`. This file is configured for a locally running ACP dev server by default, but you can easily configure your ACP SaaS tenant as in the example below:
 
 ```js
 const authConfig = {
