@@ -16,7 +16,7 @@ Identity Pools allow for the persistent storage of user data within Cloudentity'
 highly flexible schema and high scale, low latency APIs to manage user authentication and attributes and can meet your hyper scale use cases.
 
 To learn how to configure Identity pools in Cloudentity platform, first read these articles
-* [Create an Identity pool with flexible schema](https://developer.cloudentity.com/howtos/tenant_configuration/configuring_identity_pools/?q=)
+* [Create an Identity pool with flexible schema](https://developer.cloudentity.com/howtos/tenant_configuration/configuring_identity_pools/)
 * [Create a custom schema](https://developer.cloudentity.com/howtos/tenant_configuration/configuring_identity_pools/#configure-identity-schemas)
 
 We have provided a sample schema in the `identity-pool-example-custom-schemas` directory, which can be copied and pasted into the schema editor in Cloudentity.
@@ -38,7 +38,7 @@ This repo has multiple modules to demonstrate couple of different functionalitie
 
 Once you have a SaaS tenant registered:
 
-- [Create a new worskpace within Cloudentity](https://developer.cloudentity.com/howtos/tenant_configuration/adding_workspaces/?q=)
+- [Create a new worskpace within Cloudentity](https://developer.cloudentity.com/howtos/tenant_configuration/adding_workspaces/)
 - **Get System and Admin workspace access for your Cloudentity tenant** - This feature is not enabled for the free SaaS tenants, please contact [info@cloudentity.com](mailto:info@cloudentity.com) to get this enabled for your SaaS tenant
 
 ## Configuring the apps
@@ -93,7 +93,7 @@ With the frontend and backend apps configured and both dev servers running, you 
 
 ### Cloudentity Identity pool identity provider as Authn provider
 
-In this pattern we will use the identity pool identity provider natively to serve as the authentication provider. [This article highlights how to configure identity pool as an authentication provider](https://developer.cloudentity.com/howtos/identities/identity_pool_idp/?q=). So in this pattern, there isn't a need to utilize any Identity pool APIs directly.
+In this pattern we will use the identity pool identity provider natively to serve as the authentication provider. [This article highlights how to configure identity pool as an authentication provider](https://developer.cloudentity.com/howtos/identities/identity_pool_idp/). So in this pattern, there isn't a need to utilize any Identity pool APIs directly.
 
 #### Configure & run the applications
 
