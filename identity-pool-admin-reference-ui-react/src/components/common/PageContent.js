@@ -1,0 +1,44 @@
+import makeStyles from '@mui/styles/makeStyles';
+import { subHeaderHeight } from './PageToolbar';
+
+const useStyles = (
+  withBackground: boolean,
+  withSubheader: boolean,
+  withOnlySubheader: boolean
+) => {
+  const height =
+    (withSubheader && 64 + subHeaderHeight) ||
+    (withOnlySubheader && subHeaderHeight) ||
+    64;
+
+  return makeStyles((theme) => ({
+    root: {
+      marginTop: 56,
+      height: 'calc(100vh - 56px)',
+      [theme.breakpoints.up('sm')]: {
+        marginTop: height,
+        height: `calc(100vh - ${height}px)`,
+      },
+      overflowY: 'auto',
+      backgroundColor: '#F7FAFF',
+      position: 'fixed',
+      minWidth: '100vw',
+    },
+  }));
+};
+
+export default function PageContent({
+  children,
+  withBackground = false,
+  withSubheader = false,
+  withOnlySubheader = false,
+  style = {},
+}) {
+  const classes = useStyles(withBackground, withSubheader, withOnlySubheader)();
+
+  return (
+    <div className={classes.root} style={style}>
+      {children}
+    </div>
+  );
+}

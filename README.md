@@ -1,176 +1,106 @@
-## Quickstart and customization guide for React Identity Pools reference UI
+## Overview
 
-This app is intended to demonstrate a basic admin and self service UI that is wired up to an ACP Identity Pool.
+Cloudentity Identity pools functionality provides a robust set of APIs that enables you to build custom authentication flows for user authentication. With Identity pools APIs, what you get is a hyper scale identity API set for user authentication and management. We will leave it up to your team to build the UX and CX associated with the user authentication journey while Cloudentity APIs provide the backbone for user profile storage.
 
-**ACP setup:**
+This repo provides a set of apps that demonstrates how to utilize Cloudentity Identity pools API to build
+* an authentication application
+* a self service user profile management application
+* admin application to manage set of users and organizations
 
-For this reference app to work, you must have access to an ACP tenant with administrative privileges, and with the Identity Pools feature flag enabled.
+and finally how to integrate the authentication application with Cloudentity authorization platform to mint
+OAuth compliant tokens (accessToken, idToken, refresh tokens etc)
 
-To set up an Identity Pool as an IDP:
+## Cloudentity Identity pools
 
-- Log into your ACP tenant as an admin. If you are not in the workspace management view already, go the workspaces menu and select "View all workspaces"
-- Click on "Identity Pools" in the left-hand navigation
-- Click on "Create Pool"
-- OPTIONAL: After your pool is created, you may click on the "Schemas" tab and create a custom schema. To use it in your pool, select the pool, go to the "Advanced" tab, and under "Payload schema," select the schema you have created, then click "Save"
-- Navigate to the dashboard of the workspace where you wish to use your pool as an IDP
-- In the left-hand navigation, select "Identity Data" > "Identity Providers"
-- Click on "Create Identity," and click "No thanks" when the IDP discovery prompt is shown
-- Your pool should be shown as an option in "User Pools." Select it, and click "Next"
-- Enter a name for your Identity Pool IDP, and click "Save"
-- Now your Identity Pool IDP should be shown as an IDP option on the login page for that tenant/workspace.
+Identity Pools allow for the persistent storage of user data within Cloudentity's infrastructure and we provide
+highly flexible schema and high scale, low latency APIs to manage user authentication and attributes and can meet your hyper scale use cases.
 
-To set up an ACP OAuth application to use with the reference UI:
+To learn how to configure Identity pools in Cloudentity platform, first read these articles
+* [Create an Identity pool with flexible schema](https://developer.cloudentity.com/howtos/tenant_configuration/configuring_identity_pools/)
+* [Create a custom schema](https://developer.cloudentity.com/howtos/tenant_configuration/configuring_identity_pools/#configure-identity-schemas)
 
-- Make sure you are in the same workspace where you set up your Identity Pools IDP
-- On the workspace dashboard, in the left-hand navigation, select "Applications" > "Clients"
-- Click on "Create Application"
-- Give the application a name, and select "Single Page" as the application type
-- Under "Redirect URI," click on "Setup a redirect URI for your application"
-- Enter `http://localhost:3000/` and click "Save"
-- Have the "Client ID" value handy for the Reference UI app setup
+We have provided a sample schema in the `identity-pool-example-custom-schemas` directory, which can be copied and pasted into the schema editor in Cloudentity.
 
-**Minimum requirements for running the Reference UI app:**
+## Repo layout
 
-- NodeJS 16.x
-- NPM 8.x
+This repo has multiple modules to demonstrate couple of different functionalities as highlighted above
+* [identity-pool-user-reference-ui-react](identity-pool-user-reference-ui-react) - React.js project that serves the UI for the authentication and user profile management application
+* [identity-pool-reference-ui-services-nodejs](identity-pool-reference-ui-services-nodejs) - We use Backend for Frontend (BFF) pattern to talk to Cloudentity APIs and we use a simple Node.js project as the backend component.
+* [identity-pool-admin-reference-ui-react](identity-pool-admin-reference-ui-react) - React.js project that serves the UI for an admin application that showcases how you can model business cases like partner organizations and partner user management using the multitudes of Identity pools that can be added within a Cloudentity tenant.
 
-Note: if you are using NVM to set your Node.js version (recommended), you can install Node.js v.16 by running the following command:
+## Pre-requisites
 
-```bash
-nvm install 16
-```
+- [Cloudentity tenant](https://authz.cloudentity.io/register)
+- [Node.js](https://nodejs.org) - Recommended v16.x +
+- [ExpressJS](https://expressjs.com) - Recommended 4.16.1 +
 
-If you already have Node.js v.16 installed with NVM, but are currently running another version, you can run the following command:
+## Cloudentity Tenant configuration
 
-```bash
-nvm use 16
-```
+Once you have a SaaS tenant registered:
 
-For more info, read the [NVM docs](https://github.com/nvm-sh/nvm#intro).
+- [Create a new worskpace within Cloudentity](https://developer.cloudentity.com/howtos/tenant_configuration/adding_workspaces/)
+- **Get System and Admin workspace access for your Cloudentity tenant** - This feature is not enabled for the free SaaS tenants, please contact [info@cloudentity.com](mailto:info@cloudentity.com) to get this enabled for your SaaS tenant
 
-**To install dependencies:**
+## Configuring the apps
 
-```bash
-# Make sure you are in the correct app directory
-cd identity-pool-user-reference-ui-react
+This guide will focus on how to set up and configure Cloudentity platform to meet the prerequisites for running these apps, while each individual repo has a `README` file in its root project directory with documentation on topics like how to install dependencies, configure environment variables, and run the dev server.
 
-npm install
-```
+## User authentication application
 
-**To start the dev server:**
+First let's take a look at what is required to configure the user authentication application. User authentication application can be configured to obtain the user authentication token (idToken) from Cloudentity authorization platform using one of the approaches below
 
-```bash
-npm start
-```
+* [**Using a Custom Identity provider that uses Identity pool APIs**](#custom-identity-provider-using-identity-pool-apis-as-authn-provider) - This pattern allows you to take control of the entire user experience journey. This means there is a need to run an application that handles the UX journey but behind the scenes it can talk to Cloudentity Identity Pool APIs along with other system APIs that it may want to interact with to have better UX. The UI screens that will be displayed to the user
+will be totally under your control and is not limited.
+* [**Using Cloudentity Identity pool identity provider**](#cloudentity-identity-pool-identity-provider-as-authn-provider) - This pattern hides the complexity of Identity pool API integration and there isn't a need to run any specific services that integrates with the APIs. The users will directly interact with a form that is exposed by Cloudentity for authentication. The UI screens that will be displayed to the user will be limited by the CSS/styling boundaries provided by Cloudentity
 
-By default, the app runs at http://localhost:3000.
+So choose a pattern that suits your needs and let's dive into details for each of these patterns
 
-**How to change the proxy for the API server, set up app to use an ACP SaaS tenant**
+### Custom Identity provider using Identity pool APIs as Authn provider
 
-Currently this app proxies some API requests to ACP, while others are made directly to ACP. By default, the settings for this app are configured for a locally running instance of ACP, which runs on https://localhost:8443.
+As mentioned before we will use Backend for frontent (BFF) design pattern to talk to Identity Pool APIs. The Node.js backend app `identity-pool-reference-ui-services-nodejs` will act as an intermediary between the React.js app and Identity Pool API. Some of the Identity Pool APIs needs a trusted backend to initiate a secure communication channel and retrieve user information on behalf of the authenticated user. Later in the article, we will see couple of configurations to enable this.
 
-To configure the proxied requests, open the `package.json` of the React app (line 5, `"proxy": "https://localhost:8443",`). Change this value if you are not using ACP running locally, for example an ACP SaaS tenant, e.g `"proxy": "https://my-tenant.us.authz.cloudentity.io",`.
+#### Configure Cloudentity to use Custom Identity provider
 
-To configure an ACP SaaS tenant, make sure you edit the contents of the file `identity-pool-user-reference-ui-react/src/authConfig.js`. This file is configured for a locally running ACP dev server by default, but you can easily configure your ACP SaaS tenant as in the example below:
+* [Register a custom identity provider within Cloudentity](https://developer.cloudentity.com/howtos/identities/custom_idp/#connecting-custom-idps-to-cloudentity)
+    * while configuring the identity provider for the login URL enter `http://localhost:3000/login`
+* Configure `identity_pool_uuid` to be returned as an OIDC claim in access and idTokens
+    * [Define `identity_pool_uuid` as an attribute in authentication context](https://developer.cloudentity.com/howtos/tenant_configuration/setting_up_identity_context/#define-authentication-context-schema)
+    * [Configure `user.id` as an attribute returned by Custom Identity provider](https://developer.cloudentity.com/howtos/identities/custom_idp/#configure-authentication-context-attributes)
+    * [Map `user.id` attribute to authentication context attribute `identity_pool_uuid`](https://developer.cloudentity.com/howtos/identities/custom_idp/#configure-mappings-of-the-attributes)
 
-```js
-const authConfig = {
-    domain: 'my-tenant.us.authz.cloudentity.io', // e.g. 'example.authz.cloudentity.io.' Recommended; always generates URLs with 'https' protocol.
-     // baseUrl: optional alternative to 'domain.' Protocol required, e.g. 'https://example.demo.cloudentity.com.'
-     // In situations where protocol may dynamically resolve to 'http' rather than 'https' (for example in dev mode), use 'baseUrl' rather than 'domain'.
-     tenantId: 'my-tenant', // This is generally in the subdomain of your Cloudentity ACP URL
-     authorizationServerId: 'default', // This is generally the name of the workspace you created the OAuth application in.
-     clientId: 'c74ugh6tdb84g2wugku0', // Find this value by viewing the details of your OAuth application
-     redirectUri: 'http://localhost:3000/',
-     scopes: ['profile', 'email', 'openid'], // 'revoke_tokens' scope must be present for 'logout' action to revoke token! Without it, token will only be deleted from browser's local storage.
-     accessTokenName: 'identity_demo_access_token', // optional; defaults to '{tenantId}_{authorizationServerId}_access_token'
-     idTokenName: 'identity_demo_id_token', // optional; defaults to '{tenantId}_{authorizationServerId}_id_token'
- };
-```
+Now, when you log in with your custom IDP, the access token will contain the `identity_pool_uuid` mapping, and the Node.js backend app will be able to call Identity Pool admin APIs with this value from the token.
 
-Note: Make sure you set the redirect URI value in your ACP Oauth application _exactly_ as it is configured here; i.e. with a forward slash at the end.
+#### Register apps in Cloudentity to make API calls
 
-Note: if you do not have access to configure the Admin or System workspaces in ACP, you will not be able to use the admin features of this demo app. You will only have access to the self user features.
+* [Register a trusted OAuth client for BFF to call Identity Pool API](https://developer.cloudentity.com/howtos/applications/connecting_and_configuring_client_apps/#create-application)
+    * Navigate to `admin` workspace an create an OAuth client application
+    * The type of application must be `Service`
+    * Subscribe to `identity` scopes
+* [Register a trusted OAuth client for BFF to verify user accessToken](https://developer.cloudentity.com/howtos/applications/connecting_and_configuring_client_apps/#create-application)
+    * Navigate to the workspace where the identity provider was register and create an OAuth client application
+    * The type of application must be `Service`
+    * Subscribe to `Introspect tokens` scope
 
-**How to change the default theme color**
 
-By default, the UI uses a soft pastel green color (`#36C6AF`) as the default primary theme color.
+#### Configure & run the applications
 
-It's possible to change this color everywhere by opening `identity-pool-user-reference-ui-react/src/theme.js` and changing the `palette.primary.main` value to the hex code of your choice:
+Having configured everything we need on the Cloudentity side, let's configure the necessary environment variables in the frontend and backend apps.
+- In the user auth React app codebase, go to [identity-pool-user-reference-ui-react/src/authConfig.js](identity-pool-user-reference-ui-react/src/authConfig.js) and and configure the Cloudentity authorization server url, client id etc
+- In the user auth React app codebase, go to [identity-pool-user-reference-ui-react/src/authConfig.js](identity-pool-user-reference-ui-react/src/authConfig.js) and set the value of `customLoginEnabled` and `nodeJsBackendEnabled` to `true`
+- In the Node.js backend app code base, go to [identity-pool-reference-ui-services-nodejs/README.md](identity-pool-reference-ui-services-nodejs/README.md) and follow the instructions for populating the environment variables, installing the dependencies, and running the server.
 
-```js
-{
-  // ...
-  palette: {
-    primary: {
-      main: '#36C6AF',
-    },
-    secondary: {
-      main: '#1F2D48',
-    },
-  }
-  // ...
-}
-```
+With the frontend and backend apps configured and both dev servers running, you should now be able to login with the custom IDP we've set up, and perform all the available profile management operations.
 
-**How to use your own logo image**
+### Cloudentity Identity pool identity provider as Authn provider
 
-By default, the logo is a plain text value, "Identity Pools Demo."
+In this pattern we will use the identity pool identity provider natively to serve as the authentication provider. [This article highlights how to configure identity pool as an authentication provider](https://developer.cloudentity.com/howtos/identities/identity_pool_idp/). So in this pattern, there isn't a need to utilize any Identity pool APIs directly.
 
-To use a custom logo image, first add an SVG or PNG to the directory `identity-pool-user-reference-ui-react/src/assets`.
+#### Configure & run the applications
 
-Then, in `identity-pool-user-reference-ui-react/src/components/common/PageToolbar.js`, in the imports section, find the following block and follow the directions in the comments:
+Having configured everything we need on the Cloudentity side, let's configure the necessary environment variables in the frontend and backend apps.
 
-```js
-// Uncomment and change the line below to point to your own logo image
-// import logoImage from '../../assets/logo-example.svg';
-```
+- In the user auth React app codebase, go to [identity-pool-user-reference-ui-react/src/authConfig.js](identity-pool-user-reference-ui-react/src/authConfig.js) and and configure the Cloudentity authorization server url, client id etc
+- In the user auth React app codebase, go to `identity-pool-user-reference-ui-react/src/authConfig.js` and set the value of `customLoginEnabled` and `nodeJsBackendEnabled` to `false`
+- In the Node.js backend app code base, go to `identity-pool-reference-ui-services-nodejs/README.md` and follow the instructions for populating the environment variables, installing the dependencies, and running the server.
 
-Then in the same file, in the JSX section, find the following block and follow the directions in the comments:
-
-```jsx
-{/* <img alt="logo image" src={logoImage} /> */}
-{/* To use your own logo, uncomment the line above (after editing the 'logoImage' import declaration to point to your own image)... */}
-{/* ...and remove the div block directly below */}
-<div className={classes.textLogo}>
-  <Typography variant="h5" component="h1">Identity Pools Demo</Typography>
-</div>
-```
-
-**To set up the Node.js backend server**
-
-The reference UI app has additional functionality available via a Node.js backend app that is able to make admin requests to the Identity Pool service and return information to the reference UI app, without the UI having access to the admin credentials. This allows, for example, a non admin user to have visibility of the custom schema attributes they are able to edit in their profile data.
-
-This Node.js backend service feature is optional, but without it, user self-service features will be limited.
-
-To set up an ACP OAuth application to use with the Node.js backend:
-
-- Make sure you are working in the "Admin" or "System" workspace, regardless of which workspace you are using for your Identity Pools IDP
-- On the workspace dashboard, in the left-hand navigation, select "Applications" > "Clients"
-- Click on "Create Application"
-- Give the application a name, and select "Server Web" as the application type
-- Under the "OAuth" tab, add `client_credentials` to "Grant Types," and set "Token Endpoint Authentication Method" to "Client Secret Basic"
-- Under the "Overview" tab, copy the "Client ID" and "Client Secret" and add them to `identity-pool-reference-ui-services-nodejs/.env` in the values for `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET`
-- Navigate to the Identity Pools management page ("View all Workspaces" > "Identity Pools")
-- Click on the pool you will be using for the self-service app, copy the param in the URL in your browser that corresponds to the pool ID (`/pools/{poolId}/configuration`), and in `identity-pool-reference-ui-services-nodejs/.env`, add that value for `IDENTITY_POOL_ID`
-- Return to the main Identity Pools management page, and go to the "Schemas" tab
-- Click on the schema you will be using for the self-service app, copy the param in the URL in your browser that corresponds to the schema ID (`/schemas/{schemaId}/schema`), and in `identity-pool-reference-ui-services-nodejs/.env`, add that value for `USER_SCHEMA_ID`
-
-After following the instructions above, install and run the app:
-
-```bash
-# Make sure you are in the correct app directory
-cd identity-pool-reference-ui-services-nodejs
-
-npm install
-```
-
-Start the dev server:
-
-```bash
-npm start
-```
-
-By default, the Node.js backend services app runs at http://localhost:5002.
-
-With both the Refernce UI app and the Node.js backend services app running, you will have access to the full functionality of the self-service features when using an Identity Pool with a custom user attributes schema.
+With the frontend and backend apps configured and both dev servers running, you should now be able to login with the native Identity pool as authentication provider, and perform all the available profile management operations.
