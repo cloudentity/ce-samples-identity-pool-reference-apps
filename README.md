@@ -123,9 +123,11 @@ Now, regardless of which workspace we're using for the Identity Pools IDP, we ne
 
 > **Note:** In case `client_credentials` is not an option when selecting "Grant Types," from the workspace dashboard, select "Auth Settings" > "OAuth" in the left-hand navigation. Under the "General" tab, check "Client credentials" and click "Save changes."
 
-Now that we have a custom IDP, as well as System and Admin OAuth clients configured for the backend, we need one more OAuth client.
+Now that we have a custom IDP, as well as System and Admin OAuth clients configured for the backend, we need one more "Server Web"-type OAuth client.
 
 We must verify that the logged in user is authorized to call the REST endpoints we're exposing in the Node.js backend app, which allow profile management CRUD operations. To do this, we will set up an additional "Server Web"-type OAuth client in the same workspace in which we've created the custom IDP. This additional client will be used to call the token introspection endpoint to check the user's token.
+
+> **Note:** This OAuth client must be different than the "Single Page"-type client you already created in this workspace. After going through these steps, you will have 2 clients in this workspace related to this tutorial, one exclusively for the frontend, and one exclusively for the backend.
 
 - Navigate to the dashboard of the workspace in which we have set up the custom IDP
 - On the workspace dashboard, in the left-hand navigation, select "Applications" > "Clients"
@@ -136,13 +138,13 @@ Finally, we need to configure ACP to map the Identity Pool user's UUID into the 
 
 - Navigate to the dashboard of the workspace in which we have set up the custom IDP
 - Navigate to "Auth Settings" > "AuthN Context" and click on "Create Attribute"
-- Under "Name," enter `identity_pool_uuid` and under "Data type," select "string."
+- Under "Name," enter `identity_pool_uuid`; under "Data type," select "string," and (optionally) under "Description," enter a description you can easily reference later, such as "Identity pool user uuid"
 - Navigate to "Auth Settings" > "Tokens" and select the "Claims" tab
 - In the "Claims list" section, select the "Access Tokens" tab, and click the "Add Claim" button
-- Under "Claim name," enter `identity_pool_uuid` and under "Source type," select your newly created authN context attribute
+- Under "Claim name," enter `identity_pool_uuid`; under "Source type," make sure "AuthN Context" is selected; and under "Source path," select your newly created authN context attribute
 - Navigate to the details of your Custom IDP, select the "Attributes" tab, and click on the "Add attribute" button
-- Under "Attribute name," enter `user.id`, and select "string" as the data type
-- Select the "Mappings" tab in your custom IDP details, and click on the "Add mapping" button
+- Under "Attribute name," enter `user.id`; under "Display name," add a description such as "Identity pool user uuid," and select "string" as the data type
+- Select the "Mappings" tab in your custom IDP details. If you just created this custom IDP for this tutorial, there should be no mappings configured yet, and a "Custom" option should be shown with a pair of fields that contain only a `.` symbol; use this option for the next step
 - Under the "Source name" column, select your newly created name, and under the "Target Names" column, select your authN context attribute you created in the previous steps, then click "Save mappings"
 
 Now, when you log in with your custom IDP, the access token will contain the `identity_pool_uuid` mapping, and the Node.js backend app will be able to call Identity Pool admin APIs with this value from the token.
