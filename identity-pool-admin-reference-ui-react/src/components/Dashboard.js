@@ -35,7 +35,7 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
 
   const adminViewEnabled = authConfig.authorizationServerId === 'admin';
 
-  const [currentView, setCurrentView] = useState('users');
+  const [currentView, setCurrentView] = useState('pools');
 
   const updateCurrentView = (view) => {
     if (view !== currentView) {

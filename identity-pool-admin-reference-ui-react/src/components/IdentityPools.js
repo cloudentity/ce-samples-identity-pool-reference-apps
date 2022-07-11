@@ -40,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
 export default function IdentityPools () {
   const classes = useStyles();
 
+  const [selectedPool, setSelectedPool] = useState([]);
   const [createPoolDialogOpen, setCreatePoolDialogOpen] = useState(false);
   const [refreshList, initRefreshList] = useState(false);
 
@@ -61,6 +62,7 @@ export default function IdentityPools () {
     }
   };
 
+  // LOAD POOL LIST
   const {
     isLoading: fetchIdentityPoolsProgress,
     error: fetchIdentityPoolsError,
@@ -77,7 +79,23 @@ export default function IdentityPools () {
 
   const tableData = identityPools.map(mapPoolsToData);
 
-  const isLoading = fetchIdentityPoolsProgress;
+  const isPoolListLoading = fetchIdentityPoolsProgress;
+
+  // LOAD POOL DETAILS
+  const {
+    isLoading: fetchPoolDetailsProgress,
+    error: fetchPoolDetailsError,
+    data: poolDetailsRes
+  } = useQuery(['identityPoolDetails', refreshList], () => api.identityPoolDetails(selectedPool[0]), {
+    enabled: !!selectedPool[0],
+    refetchOnWindowFocus: false,
+    retry: false,
+    onSuccess: poolDetailsRes => {
+      console.log('identity pool details response', poolDetailsRes);
+    }
+  });
+
+  const isPoolDataLoading = fetchPoolDetailsProgress;
 
   useEffect(() => {
     if (createPoolDialogOpen === false) {
@@ -85,7 +103,7 @@ export default function IdentityPools () {
     }
   }, [createPoolDialogOpen]);
 
-  if (isLoading) {
+  if (isPoolListLoading) {
     return <Progress/>;
   }
 
@@ -97,7 +115,16 @@ export default function IdentityPools () {
           Create Identity Pool
         </Button>
       </div>
-      <IdentityPoolsTable data={tableData} style={{marginTop: 24, height: 'calc(100% - 332px - 24px'}}/>
+      <IdentityPoolsTable
+        data={tableData}
+        selectedPool={selectedPool}
+        setSelectedPool={p => setSelectedPool(p)}
+        poolData={poolDetailsRes}
+        isPoolDataLoading={isPoolDataLoading}
+        refreshData={refreshList}
+        handleRefreshList={() => initRefreshList(!refreshList)}
+        style={{marginTop: 24, height: 'calc(100% - 332px - 24px'}}
+      />
       <CreateIdentityPoolDialog
         open={createPoolDialogOpen}
         handleClose={handleChangeCreatePoolDialogState}

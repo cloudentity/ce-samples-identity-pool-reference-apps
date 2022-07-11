@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import clsx from 'clsx';
 import createStyles from '@mui/styles/createStyles';
 import makeStyles from '@mui/styles/makeStyles';
+import Drawer from '@mui/material/Drawer';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -12,7 +13,9 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
+import IdentityPoolDetails from './IdentityPoolDetails';
 // import {stringToHex} from './analytics.utils';
+import { api } from '../api/api';
 
 export const mapPoolsToData = pool => createData (
   pool.id,
@@ -136,14 +139,48 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-export default function IdentityPoolsTable({data, style = {}}) {
+export default function IdentityPoolsTable({
+  data,
+  selectedPool,
+  setSelectedPool,
+  poolData,
+  isPoolDataLoading,
+  refreshData,
+  handleRefreshList,
+  style = {}
+}) {
   const classes = useStyles();
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('id');
-  const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [dense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [updatePoolDialogOpen, setUpdatePoolDialogOpen] = useState(false);
+
+  const handleOpenEditPoolDialog = () => {
+    setUpdatePoolDialogOpen(true);
+  }
+
+  const handleCloseUpdatePoolDialog = (action, data) => {
+    if (action === 'cancel') {
+      setUpdatePoolDialogOpen(false);
+    }
+    if (action === 'confirm') {
+      api.editIdentityPool(selectedPool[0], data)
+      .then(() => {
+        setUpdatePoolDialogOpen(false);
+        handleRefreshList();
+      })
+      .catch((err) => {
+        console.log('API error', err);
+        window.alert('There was an error. Please try again.');
+      });
+    }
+  };
+
+  const handleCloseDrawer = () => {
+    setSelectedPool([]);
+  }
 
   useEffect(() => {
     const rootHeight = document.getElementById('analytics-table-root')?.clientHeight;
@@ -165,11 +202,19 @@ export default function IdentityPoolsTable({data, style = {}}) {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelecteds = data.map((n) => n.id);
-      setSelected(newSelecteds);
+      setSelectedPool(newSelecteds);
       return;
     }
-    setSelected([]);
+    setSelectedPool([]);
   };
+
+  const handleSelectPool = (id) => {
+    if (selectedPool.length) {
+      setSelectedPool([]);
+      return;
+    }
+    setSelectedPool([id]);
+  }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -180,7 +225,7 @@ export default function IdentityPoolsTable({data, style = {}}) {
     setPage(0);
   };
 
-  const isSelected = (id) => selected.indexOf(id) !== -1;
+  const isSelected = (id) => selectedPool.indexOf(id) !== -1;
 
   return (
     <div className={classes.root} id="analytics-table-root" style={style}>
@@ -194,7 +239,7 @@ export default function IdentityPoolsTable({data, style = {}}) {
           >
             <EnhancedTableHead
               classes={classes}
-              numSelected={selected.length}
+              numSelected={selectedPool.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
@@ -218,6 +263,7 @@ export default function IdentityPoolsTable({data, style = {}}) {
                       tabIndex={-1}
                       key={row.id + index}
                       selected={isItemSelected}
+                      onClick={() => handleSelectPool(row.id)}
                     >
                       <TableCell id={labelId} scope="row" align="left">
                         <span style={{background: '#ECECEC', padding: 4}}>{row.id}</span>
@@ -249,6 +295,25 @@ export default function IdentityPoolsTable({data, style = {}}) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      <Drawer
+        open={!!selectedPool.length}
+        anchor="right"
+        onClose={handleCloseDrawer}
+      >
+        <IdentityPoolDetails
+          isLoading={isPoolDataLoading}
+          poolId={selectedPool[0]}
+          poolData={poolData}
+          refreshData={refreshData}
+          updatePoolDialogOpen={updatePoolDialogOpen}
+          handleOpenEditPoolDialog={handleOpenEditPoolDialog}
+          handleCloseUpdatePoolDialog={handleCloseUpdatePoolDialog}
+          // deletePoolDialogOpen={deletePoolDialogOpen}
+          // handleOpenDeletePoolDialog={handleOpenDeletePoolDialog}
+          // handleCloseDeletePoolDialog={handleCloseDeletePoolDialog}
+          onClose={handleCloseDrawer}
+        />
+      </Drawer>
     </div>
   );
 }
