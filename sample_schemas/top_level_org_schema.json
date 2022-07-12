@@ -1,0 +1,40 @@
+{
+  "properties": {
+    "crm_id": {
+      "description": "CRM system id, e.g. Salesforce Id",
+      "type": "string",
+      "minLength": 1
+    },
+    "family_name": {
+      "description": "user last name",
+      "type": "string",
+      "minLength": 1
+    },
+    "given_name": {
+      "description": "user first name",
+      "type": "string",
+      "minLength": 1
+    },
+    "identity_role": {
+      "description": "Identity role e.g. pool_admin, user",
+      "type": "string",
+      "enum": [
+        "superadmin",
+        "pools_read",
+        "list_users",
+        "user"
+      ],
+      "minLength": 1
+    },
+    "name": {
+      "description": "user full name",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "description": "sample user data schema",
+  "type": "object",
+  "required": [
+    "identity_role"
+  ]
+}
