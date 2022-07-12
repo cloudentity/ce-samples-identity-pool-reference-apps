@@ -10,7 +10,7 @@ import Checkbox from '@mui/material/Checkbox';
 import {useFormFactory} from './forms/formFactory';
 import {validators} from './forms/validation';
 
-export default function CreateIdentityPoolDialog ({open, handleClose, classes}) {
+export default function CreateIdentityPoolDialog ({open, poolsList, handleClose, classes}) {
 
   const formFactory = useFormFactory({
     id: 'create-identity-pool',

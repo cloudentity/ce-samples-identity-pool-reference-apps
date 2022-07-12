@@ -127,7 +127,7 @@ export default function IdentityPoolDetails ({
     name: poolData?.name || '',
     description: poolData?.description || '',
     id: poolData?.id || '',
-    public_registration_allowed: poolData?.public_registration_allowed || '',
+    public_registration_allowed: poolData?.public_registration_allowed || false,
     authentication_mechanisms: poolData?.authentication_mechanisms || [],
   };
 

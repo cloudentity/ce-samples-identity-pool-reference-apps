@@ -66,7 +66,7 @@ export const processPayloadSchema = (schema) => {
   return finalFields;
 };
 
-export default function Users () {
+export default function Users ({org, identityRole}) {
   const classes = useStyles();
 
   const [currentPool, setCurrentPool] = useState('');

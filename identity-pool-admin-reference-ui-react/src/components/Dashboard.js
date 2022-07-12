@@ -7,6 +7,7 @@ import Progress from './Progress';
 
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
+import jwt_decode from 'jwt-decode';
 import authConfig from '../authConfig';
 
 const useStyles = makeStyles((theme) => ({
@@ -33,9 +34,19 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) {
   const classes = useStyles();
 
+  const accessToken = window.localStorage.getItem(authConfig.accessTokenName);
+  // const accessTokenData = accessToken ? jwt_decode(accessToken) : {};
+
+  const preMockAccessTokenData = accessToken ? jwt_decode(accessToken) : {};
+  const accessTokenData = {...preMockAccessTokenData, ...{org: 'demoadmin', identity_role: 'superadmin'}};
+
+  const canViewPoolsList = accessTokenData.identity_role === 'superadmin'
+    || accessTokenData.identity_role === 'pools_admin'
+    || accessTokenData.identity_role === 'pools_read';
+
   const adminViewEnabled = authConfig.authorizationServerId === 'admin';
 
-  const [currentView, setCurrentView] = useState('pools');
+  const [currentView, setCurrentView] = useState(canViewPoolsList ? 'pools' : 'users');
 
   const updateCurrentView = (view) => {
     if (view !== currentView) {
@@ -43,8 +54,10 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
     }
   };
 
-  const leftNavItems = [
+  const leftNavItems = canViewPoolsList ? [
     {id: 'pools', label: 'Identity Pools'},
+    {id: 'users', label: 'Users'}
+  ] : [
     {id: 'users', label: 'Users'}
   ];
 
@@ -66,11 +79,11 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
         </Grid>
         {adminViewEnabled ? (
           <Grid item xs={0} sm={0} md={10} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
-            {currentView === 'pools' && (
-              <IdentityPools />
+            {currentView === 'pools' && canViewPoolsList && (
+              <IdentityPools org={accessTokenData.org} identityRole={accessTokenData.identity_role} />
             )}
             {currentView === 'users' && (
-              <Users />
+              <Users org={accessTokenData.org} identityRole={accessTokenData.identity_role} />
             )}
           </Grid>
         ) : (

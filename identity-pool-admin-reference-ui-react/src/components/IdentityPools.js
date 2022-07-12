@@ -7,7 +7,7 @@ import { useQuery } from 'react-query';
 import { api } from '../api/api';
 import Progress from './Progress';
 import authConfig from '../authConfig';
-import { pick } from 'ramda';
+import { pick, isEmpty } from 'ramda';
 
 const useStyles = makeStyles((theme) => ({
   createIdentityPoolButton: {
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function IdentityPools () {
+export default function IdentityPools ({org, identityRole}) {
   const classes = useStyles();
 
   const [selectedPool, setSelectedPool] = useState([]);
@@ -75,9 +75,12 @@ export default function IdentityPools () {
     }
   });
 
-  const identityPools = identityPoolsRes?.pools || [];
+  const identityPools = identityPoolsRes?.pools.filter(p => !isEmpty(p.metadata) || p.id === authConfig.superadminOrgId) || [];
 
-  const tableData = identityPools.map(mapPoolsToData);
+  // TODO: filtering mechanism
+  const filteredPools = [];
+
+  const tableData = org === authConfig.superadminOrgId ? identityPools.map(mapPoolsToData) : filteredPools.map(mapPoolsToData);
 
   const isPoolListLoading = fetchIdentityPoolsProgress;
 
