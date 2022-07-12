@@ -10,8 +10,7 @@ import {useFormFactory} from './forms/formFactory';
 import {validators} from './forms/validation';
 import { omit } from 'ramda';
 
-export default function EditPoolDialog ({open, poolId, poolData, handleClose, classes}) {
-  console.log(poolData);
+export default function EditPoolDialog ({open, poolId, rawPoolData, poolData, handleClose, classes}) {
 
   const formFactory = useFormFactory({
     id: 'update-identity-pool',
@@ -20,7 +19,7 @@ export default function EditPoolDialog ({open, poolId, poolData, handleClose, cl
   });
 
   const processSubmit = (formData) => {
-    handleClose('confirm', formData);
+    handleClose('confirm', formData, rawPoolData);
   };
 
   return (
@@ -76,6 +75,34 @@ export default function EditPoolDialog ({open, poolId, poolData, handleClose, cl
         {formFactory.createCheckBox({
           name: "public_registration_allowed",
           label: "Public Registration Allowed",
+        })}
+
+        {formFactory.createField({
+          name: 'location',
+          label: 'Location',
+          placeholder: 'Enter a location...',
+          validate: {},
+        })}
+
+        {formFactory.createField({
+          name: 'salesforceAccount',
+          label: 'Salesforce account',
+          placeholder: 'Enter a Salesforce account ID...',
+          validate: {},
+        })}
+
+        {formFactory.createField({
+          name: 'bp',
+          label: 'BP',
+          placeholder: 'Enter a BP value...',
+          validate: {},
+        })}
+
+        {formFactory.createField({
+          name: 'industry',
+          label: 'Industry',
+          placeholder: 'Enter an industry category...',
+          validate: {},
         })}
 
         <div style={{display: 'flex', justifyContent: 'flex-end'}}>

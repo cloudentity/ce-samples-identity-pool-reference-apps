@@ -35,10 +35,7 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
   const classes = useStyles();
 
   const accessToken = window.localStorage.getItem(authConfig.accessTokenName);
-  // const accessTokenData = accessToken ? jwt_decode(accessToken) : {};
-
-  const preMockAccessTokenData = accessToken ? jwt_decode(accessToken) : {};
-  const accessTokenData = {...preMockAccessTokenData, ...{org: 'demoadmin', identity_role: 'superadmin'}};
+  const accessTokenData = accessToken ? jwt_decode(accessToken) : {};
 
   const canViewPoolsList = accessTokenData.identity_role === 'superadmin'
     || accessTokenData.identity_role === 'pools_admin'
@@ -66,26 +63,39 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
       <Grid container sx={{ flexDirection: { xs: 'column', sm: 'column', md: 'row'} }} className={classes.root}>
         <Grid item xs={0} sm={0} md={2} style={{background: '#F7FAFF', padding: '16px 32px', borderRight: '1px solid #EAECF1'}}>
           <div className={classes.adminNavContainer}>
-            {leftNavItems.map((n, i) => (
-              <div
-                key={i}
-                style={{marginBottom: 20, textDecoration: currentView === n.id ? 'underline' : 'none'}}
-                onClick={() => updateCurrentView(n.id)}
-              >
-               {n.label}
-              </div>
-            ))}
+            {accessTokenData.org && accessTokenData.identity_role && (
+              <>
+                {leftNavItems.map((n, i) => (
+                  <div
+                    key={i}
+                    style={{marginBottom: 20, textDecoration: currentView === n.id ? 'underline' : 'none'}}
+                    onClick={() => updateCurrentView(n.id)}
+                  >
+                   {n.label}
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         </Grid>
         {adminViewEnabled ? (
-          <Grid item xs={0} sm={0} md={10} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
-            {currentView === 'pools' && canViewPoolsList && (
-              <IdentityPools org={accessTokenData.org} identityRole={accessTokenData.identity_role} />
+          <>
+            {accessTokenData.org && accessTokenData.identity_role ? (
+              <Grid item xs={0} sm={0} md={10} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
+                {currentView === 'pools' && canViewPoolsList && (
+                  <IdentityPools org={accessTokenData.org} identityRole={accessTokenData.identity_role} />
+                )}
+                {currentView === 'users' && (
+                  <Users org={accessTokenData.org} identityRole={accessTokenData.identity_role} />
+                )}
+              </Grid>
+            ) : (
+              <div className={classes.notAdminMessageContainer}>
+                <div className={classes.notAdminMessageHeader}>You must configure ACP to view this demo.</div>
+                <div>Make sure that the attributes <code className={classes.inlineMonospace}>org</code> and <code className={classes.inlineMonospace}>identity_role</code> are mapped in the access token before continuing.</div>
+              </div>
             )}
-            {currentView === 'users' && (
-              <Users org={accessTokenData.org} identityRole={accessTokenData.identity_role} />
-            )}
-          </Grid>
+          </>
         ) : (
           <div className={classes.notAdminMessageContainer}>
             <div className={classes.notAdminMessageHeader}>You are currently not signed in as an admin.</div>

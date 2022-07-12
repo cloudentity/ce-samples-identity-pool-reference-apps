@@ -7,7 +7,7 @@ import { useQuery } from 'react-query';
 import { api } from '../api/api';
 import Progress from './Progress';
 import authConfig from '../authConfig';
-import { pick, isEmpty } from 'ramda';
+import { pick, pickBy, isEmpty } from 'ramda';
 
 const useStyles = makeStyles((theme) => ({
   createIdentityPoolButton: {
@@ -49,16 +49,48 @@ export default function IdentityPools ({org, identityRole}) {
       setCreatePoolDialogOpen(false);
     }
     if (action === 'confirm') {
-      console.log('data', data)
-      api.createIdentityPool({tenant_id: authConfig.tenantId, ...data})
-      .then(() => {
-        setCreatePoolDialogOpen(false);
-        initRefreshList(!refreshList);
-      })
-      .catch((err) => {
-        console.log('API error', err);
-        window.alert('There was an error. Please try again.');
-      });
+      const mainProps = pickBy(f => f !== '', pick(['name', 'id', 'description', 'public_registration_allowed', 'authentication_mechanisms'], data));
+      const metadataProps = {
+        ...pickBy(f => !!f, pick(['location', 'salesforceAccount', 'bp', 'industry'], data)),
+        parentOrg: org
+      };
+
+      const payload = {
+        ...mainProps,
+        payload_schema_id: authConfig.childOrgSchemaId,
+        metadata: metadataProps
+      };
+
+      api.createIdentityPool({tenant_id: authConfig.tenantId, ...payload})
+        .then(() => {
+          api.identityPoolDetails(org)
+            .then(parentOrgData => {
+              const parentOrgMetadata = parentOrgData.metadata || {};
+              const childOrgs = parentOrgMetadata.childOrg || [];
+              const updatedChildOrgs = childOrgs.includes(payload.id) ? childOrgs : [...[payload.id], ...childOrgs];
+              const updatedMetadata = {...parentOrgMetadata, childOrg: updatedChildOrgs};
+              const updatedParentOrgData = {...parentOrgData, metadata: updatedMetadata};
+
+              api.editIdentityPool(org, updatedParentOrgData)
+                .then(editParentOrgRes => {
+                  console.log(editParentOrgRes);
+                  setCreatePoolDialogOpen(false);
+                  initRefreshList(!refreshList);
+                })
+                .catch((err) => {
+                  console.log('API error', err);
+                  window.alert('There was an error editing the parent org.');
+                });
+            })
+            .catch((err) => {
+              console.log('API error', err);
+              window.alert('There was an error fetching the parent org.');
+            });
+        })
+        .catch((err) => {
+          console.log('API error', err);
+          window.alert('There was an error creating the organziation. Please try again.');
+        });
     }
   };
 
@@ -78,7 +110,7 @@ export default function IdentityPools ({org, identityRole}) {
   const identityPools = identityPoolsRes?.pools.filter(p => !isEmpty(p.metadata) || p.id === authConfig.superadminOrgId) || [];
 
   // TODO: filtering mechanism
-  const filteredPools = [];
+  const filteredPools = identityPools.filter(p => p.id === org || p.metadata?.parentOrg === org);
 
   const tableData = org === authConfig.superadminOrgId ? identityPools.map(mapPoolsToData) : filteredPools.map(mapPoolsToData);
 

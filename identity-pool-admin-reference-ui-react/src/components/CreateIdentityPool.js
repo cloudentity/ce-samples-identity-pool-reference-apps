@@ -10,7 +10,7 @@ import Checkbox from '@mui/material/Checkbox';
 import {useFormFactory} from './forms/formFactory';
 import {validators} from './forms/validation';
 
-export default function CreateIdentityPoolDialog ({open, poolsList, handleClose, classes}) {
+export default function CreateIdentityPoolDialog ({open, handleClose, classes}) {
 
   const formFactory = useFormFactory({
     id: 'create-identity-pool',
@@ -46,8 +46,8 @@ export default function CreateIdentityPoolDialog ({open, poolsList, handleClose,
 
         {formFactory.createRequiredField({
           name: 'id',
-          label: 'Identifier',
-          placeholder: 'Enter an identifier...',
+          label: 'Organization identifier',
+          placeholder: 'Enter an identifier for the organization...',
           validate: {
             onlyAlphanumeric: validators.onlyAlphanumeric({label: 'Name'})
           },
@@ -79,6 +79,34 @@ export default function CreateIdentityPoolDialog ({open, poolsList, handleClose,
         {formFactory.createCheckBox({
           name: "public_registration_allowed",
           label: "Public Registration Allowed",
+        })}
+
+        {formFactory.createField({
+          name: 'location',
+          label: 'Location',
+          placeholder: 'Enter a location...',
+          validate: {},
+        })}
+
+        {formFactory.createField({
+          name: 'salesforceAccount',
+          label: 'Salesforce account',
+          placeholder: 'Enter a Salesforce account ID...',
+          validate: {},
+        })}
+
+        {formFactory.createField({
+          name: 'bp',
+          label: 'BP',
+          placeholder: 'Enter a BP value...',
+          validate: {},
+        })}
+
+        {formFactory.createField({
+          name: 'industry',
+          label: 'Industry',
+          placeholder: 'Enter an industry category...',
+          validate: {},
         })}
 
         <div style={{display: 'flex', justifyContent: 'flex-end'}}>

@@ -106,6 +106,30 @@ export default function IdentityPoolDetails ({
       value: poolData.id || missingInfoPlaceholder
     },
     {
+      displayName: 'Parent Organization',
+      value: poolData.metadata?.parentOrg || missingInfoPlaceholder
+    },
+    {
+      displayName: 'Child Organizations',
+      value: (poolData.metadata?.childOrg || []).join(', ') || missingInfoPlaceholder
+    },
+    {
+      displayName: 'Location',
+      value: poolData.metadata?.location || missingInfoPlaceholder
+    },
+    {
+      displayName: 'Salesforce Account ID',
+      value: poolData.metadata?.salesforceAccount || missingInfoPlaceholder
+    },
+    {
+      displayName: 'BP',
+      value: poolData.metadata?.bp || missingInfoPlaceholder
+    },
+    {
+      displayName: 'Industry',
+      value: poolData.metadata?.industry || missingInfoPlaceholder
+    },
+    {
       displayName: 'Public Registration Allowed',
       value: poolData.public_registration_allowed ? 'yes' : 'no'
     },
@@ -129,6 +153,12 @@ export default function IdentityPoolDetails ({
     id: poolData?.id || '',
     public_registration_allowed: poolData?.public_registration_allowed || false,
     authentication_mechanisms: poolData?.authentication_mechanisms || [],
+
+    // metadata attributes
+    location: poolData?.metadata?.location || '',
+    salesforceAccount: poolData?.metadata?.salesforceAccount || '',
+    bp: poolData?.metadata?.bp || '',
+    industry: poolData?.metadata?.industry || ''
   };
 
   if (isLoading) {
@@ -172,6 +202,7 @@ export default function IdentityPoolDetails ({
         <EditPoolDialog
           open={updatePoolDialogOpen}
           handleClose={handleCloseUpdatePoolDialog}
+          rawPoolData={poolData}
           poolData={editablePoolDetails}
           classes={classes}
         />

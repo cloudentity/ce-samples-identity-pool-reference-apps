@@ -15,26 +15,27 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import IdentityPoolDetails from './IdentityPoolDetails';
 // import {stringToHex} from './analytics.utils';
+import { pick, pickBy } from 'ramda';
 import { api } from '../api/api';
 
 export const mapPoolsToData = pool => createData (
   pool.id,
   pool.name,
-  pool.description,
-  pool.public_registration_allowed,
-  pool.tenant_id,
-  pool.authentication_mechanisms
+  pool.metadata?.parentOrg,
+  pool.metadata?.salesforceAccount,
+  pool.metadata?.industry,
+  pool.metadata?.location
 );
 
 function createData (
   id,
   name,
-  description,
-  public_registration_allowed,
-  tenant_id,
-  authentication_mechanisms
+  parentOrg,
+  salesforceAccount,
+  industry,
+  location
 ) {
-  return {id, name, description, public_registration_allowed, tenant_id, authentication_mechanisms};
+  return {id, name, parentOrg, salesforceAccount, industry, location};
 }
 
 function descendingComparator (a, b, orderBy) {
@@ -66,10 +67,10 @@ function stableSort (array, comparator) {
 const headCells = [
   {id: 'id', numeric: false, disablePadding: false, label: 'ID'},
   {id: 'name', numeric: false, disablePadding: false, label: 'Name'},
-  {id: 'description', numeric: false, disablePadding: false, label: 'Description'},
-  {id: 'public_registration_allowed', numeric: false, disablePadding: false, label: 'Public registration allowed'},
-  {id: 'authentication_mechanisms', numeric: false, disablePadding: false, label: 'Authentication mechanisms'},
-  {id: 'tenant_id', numeric: false, disablePadding: false, label: 'Tenant ID'},
+  {id: 'parentOrg', numeric: false, disablePadding: false, label: 'Parent Org'},
+  {id: 'salesforceAccount', numeric: false, disablePadding: false, label: 'Salesforce Acct. ID'},
+  {id: 'industry', numeric: false, disablePadding: false, label: 'Industry'},
+  {id: 'location', numeric: false, disablePadding: false, label: 'Location'},
 ];
 
 function EnhancedTableHead (props) {
@@ -161,12 +162,22 @@ export default function IdentityPoolsTable({
     setUpdatePoolDialogOpen(true);
   }
 
-  const handleCloseUpdatePoolDialog = (action, data) => {
+  const handleCloseUpdatePoolDialog = (action, newData, originalPoolData) => {
     if (action === 'cancel') {
       setUpdatePoolDialogOpen(false);
     }
     if (action === 'confirm') {
-      api.editIdentityPool(selectedPool[0], data)
+      const mainProps = pickBy(f => f !== '', pick(['name', 'id', 'description', 'public_registration_allowed', 'authentication_mechanisms'], newData));
+      const metadataProps = pickBy(f => !!f, pick(['location', 'salesforceAccount', 'bp', 'industry'], newData));
+      const updatedMetadata = {...(originalPoolData.metadata || {}), ...metadataProps};
+
+      const payload = {
+        ...originalPoolData,
+        ...mainProps,
+        metadata: updatedMetadata
+      };
+
+      api.editIdentityPool(selectedPool[0], payload)
       .then(() => {
         setUpdatePoolDialogOpen(false);
         handleRefreshList();
@@ -269,10 +280,10 @@ export default function IdentityPoolsTable({
                         <span style={{background: '#ECECEC', padding: 4}}>{row.id}</span>
                       </TableCell>
                       <TableCell align="left">{row.name}</TableCell>
-                      <TableCell align="left">{row.description}</TableCell>
-                      <TableCell align="left">{`${row.public_registration_allowed ? 'yes' : 'no'}`}</TableCell>
-                      <TableCell align="left">{(row.authentication_mechanisms || []).join(', ')}</TableCell>
-                      <TableCell align="left">{row.tenant_id}</TableCell>
+                      <TableCell align="left">{row.parentOrg || 'N/A'}</TableCell>
+                      <TableCell align="left">{row.salesforceAccount}</TableCell>
+                      <TableCell align="left">{row.industry}</TableCell>
+                      <TableCell align="left">{row.location}</TableCell>
                     </TableRow>
                   );
                 })}
