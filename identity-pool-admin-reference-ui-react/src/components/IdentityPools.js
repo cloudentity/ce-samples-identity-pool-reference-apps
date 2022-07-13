@@ -146,9 +146,11 @@ export default function IdentityPools ({org, identityRole}) {
     <>
       {/* chart card here */}
       <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-        <Button color="primary" onClick={() => setCreatePoolDialogOpen(true)} className={classes.createIdentityPoolButton}>
-          Create Identity Pool
-        </Button>
+        {(identityRole === 'superadmin' || identityRole === 'pools_admin') && (
+          <Button color="primary" onClick={() => setCreatePoolDialogOpen(true)} className={classes.createIdentityPoolButton}>
+            Create Identity Pool
+          </Button>
+        )}
       </div>
       <IdentityPoolsTable
         data={tableData}
@@ -158,6 +160,7 @@ export default function IdentityPools ({org, identityRole}) {
         isPoolDataLoading={isPoolDataLoading}
         refreshData={refreshList}
         handleRefreshList={() => initRefreshList(!refreshList)}
+        identityRole={identityRole}
         style={{marginTop: 24, height: 'calc(100% - 332px - 24px'}}
       />
       <CreateIdentityPoolDialog

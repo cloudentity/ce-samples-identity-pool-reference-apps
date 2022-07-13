@@ -50,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function IdentityPoolDetails ({
   isLoading,
+  identityRole,
   payloadSchema,
   poolId,
   poolData,
@@ -65,32 +66,6 @@ export default function IdentityPoolDetails ({
   const classes = useStyles();
 
   const missingInfoPlaceholder = 'N/A';
-
-  const sampleData = {
-    "name": "g3admin",
-    "description": "G3 super admin org",
-    "id": "g3admin",
-    "tenant_id": "csattgast",
-    "authentication_mechanisms": ["password"],
-    "payload_schema_id": "default_payload",
-    "metadata_schema_id": "default_metadata",
-    "public_registration_allowed": false,
-    "otp_settings": {
-      "activation": {
-        "length": 8,
-        "ttl": "168h0m0s"
-      },
-      "reset_password": {
-        "length":8,
-        "ttl": "1h0m0s"
-      },
-      "challenge": {
-        "length": 8,
-        "ttl": "5m0s"
-      }
-    },
-    "metadata":{}
-  };
 
   const poolDetails = poolData ? [
     {
@@ -186,19 +161,21 @@ export default function IdentityPoolDetails ({
         ))}
       </div>
       <div className={classes.editPoolButtonContainer}>
-        <Button
-          id="edit-pool-details-button"
-          variant="contained"
-          size="large"
-          onClick={() => handleOpenEditPoolDialog()}
-          style={{marginRight: 5}}
-          sx={{
-            width: 220,
-            color: '#fff',
-          }}
-        >
-          Edit Identity Pool
-        </Button>
+        {(identityRole === 'superadmin' || identityRole === 'pools_admin') && (
+          <Button
+            id="edit-pool-details-button"
+            variant="contained"
+            size="large"
+            onClick={() => handleOpenEditPoolDialog()}
+            style={{marginRight: 5}}
+            sx={{
+              width: 220,
+              color: '#fff',
+            }}
+          >
+            Edit Identity Pool
+          </Button>
+        )}
         <EditPoolDialog
           open={updatePoolDialogOpen}
           handleClose={handleCloseUpdatePoolDialog}
