@@ -9,7 +9,9 @@ import Select from '@mui/material/Select';
 import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
-import { pickBy, omit } from 'ramda';
+import jwt_decode from 'jwt-decode';
+import authConfig from '../authConfig';
+import { pick, pickBy, omit, isEmpty } from 'ramda';
 import Progress from './Progress';
 
 const useStyles = makeStyles((theme) => ({
@@ -69,7 +71,10 @@ export const processPayloadSchema = (schema) => {
 export default function Users ({org, identityRole}) {
   const classes = useStyles();
 
-  const [currentPool, setCurrentPool] = useState('');
+  const idToken = window.localStorage.getItem(authConfig.idTokenName);
+  const idTokenData = idToken ? jwt_decode(idToken) : {};
+
+  const [currentPool, setCurrentPool] = useState(org || '');
   const [selectedUser, setSelectedUser] = useState([]);
   const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
   const [refreshList, initRefreshList] = useState(false);
@@ -91,7 +96,14 @@ export default function Users ({org, identityRole}) {
     }
   });
 
-  const identityPools = identityPoolsRes?.pools || [];
+  const isSuperadmin = org === authConfig.superadminOrgId;
+  const canSeeOwnPoolOnly = identityRole === 'list_users' || identityRole === 'user';
+
+  const identityPools = identityPoolsRes?.pools.filter(p => !isEmpty(p.metadata) || p.id === authConfig.superadminOrgId) || [];
+  const filteredPools = identityPools.filter(p => p.id === org || p.metadata?.parentOrg === org);
+  const listOwnPoolOnly = identityPools.filter(p => p.id === org);
+  const identityPoolOptions = isSuperadmin ? identityPools : (canSeeOwnPoolOnly ? listOwnPoolOnly : filteredPools);
+
   const isPoolListLoading = fetchIdentityPoolsProgress;
 
 // LOAD USERS
@@ -190,7 +202,7 @@ export default function Users ({org, identityRole}) {
             label="Identity Pools"
             onChange={handleSelectPool}
           >
-            {identityPools.map((p, i) => (
+            {identityPoolOptions.map((p, i) => (
               <MenuItem key={i} value={p.id}>{p.name}</MenuItem>
             ))}
           </Select>
