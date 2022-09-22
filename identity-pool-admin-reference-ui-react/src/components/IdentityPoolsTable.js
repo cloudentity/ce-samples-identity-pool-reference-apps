@@ -24,7 +24,8 @@ export const mapPoolsToData = pool => createData (
   pool.metadata?.parentOrg,
   pool.metadata?.salesforceAccount,
   pool.metadata?.industry,
-  pool.metadata?.location
+  pool.metadata?.location,
+  pool.children
 );
 
 function createData (
@@ -33,9 +34,10 @@ function createData (
   parentOrg,
   salesforceAccount,
   industry,
-  location
+  location,
+  children
 ) {
-  return {id, name, parentOrg, salesforceAccount, industry, location};
+  return {id, name, parentOrg, salesforceAccount, industry, location, children};
 }
 
 function descendingComparator (a, b, orderBy) {
@@ -80,7 +82,7 @@ function EnhancedTableHead (props) {
   };
 
   return (
-    <TableHead>
+    <TableHead style={{background: '#ECECEC'}}>
       <TableRow className={'analytics-table-head'}>
         {headCells.map((headCell) => (
           <TableCell
@@ -106,6 +108,102 @@ function EnhancedTableHead (props) {
       </TableRow>
     </TableHead>
   );
+}
+
+function EnhancedTableBody ({
+  classes,
+  data,
+  selectedPool,
+  isSelected,
+  handleSelectPool,
+  handleSelectAllClick,
+  handleRequestSort,
+  order,
+  orderBy,
+  page,
+  rowsPerPage,
+  isChildTable
+}) {
+  const orgHasChildren = org => org?.children?.length > 1;
+
+  return (
+    <Table
+      className={classes.table}
+      aria-labelledby="tableTitle"
+      size={'medium'}
+      aria-label="enhanced table"
+    >
+      {!isChildTable && (
+        <EnhancedTableHead
+          classes={classes}
+          numSelected={selectedPool.length}
+          order={order}
+          orderBy={orderBy}
+          onSelectAllClick={handleSelectAllClick}
+          onRequestSort={handleRequestSort}
+          rowCount={data.length}
+        />
+      )}
+      <TableBody>
+        {stableSort(data, getComparator(order, orderBy))
+          .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+          .map((row, index) => {
+            const isItemSelected = isSelected(row.id);
+            const labelId = `enhanced-analytics-table-checkbox-${index}`;
+
+            return (
+            <>
+              <TableRow
+                hover
+                className={'analytics-table-row'}
+                style={{borderTop: '2px solid #ECECEC'}}
+                // onClick={(event) => handleClick(event, row.id)}
+                role="checkbox"
+                aria-checked={isItemSelected}
+                tabIndex={-1}
+                key={row.id + index}
+                selected={isItemSelected}
+                onClick={() => handleSelectPool(row.id)}
+              >
+                <TableCell id={labelId} scope="row" align="left">
+                  <span style={{background: '#ECECEC', padding: 4}}>{row.id}</span>
+                </TableCell>
+                <TableCell align="left">{row.name}</TableCell>
+                <TableCell align="left">{row.parentOrg || 'N/A'}</TableCell>
+                <TableCell align="left">{row.salesforceAccount}</TableCell>
+                <TableCell align="left">{row.industry}</TableCell>
+                <TableCell align="left">{row.location}</TableCell>
+              </TableRow>
+              {row.children?.length > 0 && (
+                <TableRow>
+                  <TableCell colSpan={10} align="right">
+                    <EnhancedTableBody
+                      classes={classes}
+                      data={row.children}
+                      selectedPool={selectedPool}
+                      isSelected={isSelected}
+                      handleSelectPool={handleSelectPool}
+                      handleSelectAllClick={handleSelectAllClick}
+                      handleRequestSort={handleRequestSort}
+                      order={order}
+                      orderBy={orderBy}
+                      page={page}
+                      rowsPerPage={rowsPerPage}
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
+            );
+          })}
+        {data.length === 0 && (
+          <TableRow>
+            <TableCell colSpan={6}>No identity pools found</TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  )
 }
 
 const useStyles = makeStyles((theme) =>
@@ -243,58 +341,19 @@ export default function IdentityPoolsTable({
     <div className={classes.root} id="analytics-table-root" style={style}>
       <Paper className={classes.paper}>
         <TableContainer>
-          <Table
-            className={classes.table}
-            aria-labelledby="tableTitle"
-            size={dense ? 'small' : 'medium'}
-            aria-label="enhanced table"
-          >
-            <EnhancedTableHead
-              classes={classes}
-              numSelected={selectedPool.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={data.length}
-            />
-            <TableBody>
-              {stableSort(data, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.id);
-                  const labelId = `enhanced-analytics-table-checkbox-${index}`;
-
-                  return (
-                    <TableRow
-                      hover
-                      className={'analytics-table-row'}
-                      // onClick={(event) => handleClick(event, row.id)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.id + index}
-                      selected={isItemSelected}
-                      onClick={() => handleSelectPool(row.id)}
-                    >
-                      <TableCell id={labelId} scope="row" align="left">
-                        <span style={{background: '#ECECEC', padding: 4}}>{row.id}</span>
-                      </TableCell>
-                      <TableCell align="left">{row.name}</TableCell>
-                      <TableCell align="left">{row.parentOrg || 'N/A'}</TableCell>
-                      <TableCell align="left">{row.salesforceAccount}</TableCell>
-                      <TableCell align="left">{row.industry}</TableCell>
-                      <TableCell align="left">{row.location}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              {data.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6}>No identity pools found</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+          <EnhancedTableBody
+            classes={classes}
+            data={data}
+            selectedPool={selectedPool}
+            isSelected={isSelected}
+            handleSelectPool={handleSelectPool}
+            handleSelectAllClick={handleSelectAllClick}
+            handleRequestSort={handleRequestSort}
+            order={order}
+            orderBy={orderBy}
+            page={page}
+            rowsPerPage={rowsPerPage}
+          />
         </TableContainer>
         <TablePagination
           className={clsx(['analytics-table-pagination', classes.tablePagination])}

@@ -109,10 +109,35 @@ export default function IdentityPools ({org, identityRole}) {
 
   const identityPools = identityPoolsRes?.pools.filter(p => !isEmpty(p.metadata) || p.id === authConfig.superadminOrgId) || [];
 
-  // TODO: filtering mechanism
   const filteredPools = identityPools.filter(p => p.id === org || p.metadata?.parentOrg === org);
 
   const tableData = org === authConfig.superadminOrgId ? identityPools.map(mapPoolsToData) : filteredPools.map(mapPoolsToData);
+
+
+  function nestOrgs (list, parent, tree) {
+    const checkForParents = parentId => list.filter(p => p.id === parentId);
+    const topTierParent = list.filter(p => isEmpty(checkForParents(p.parentOrg)))[0]?.parentOrg;
+
+    tree = typeof tree !== 'undefined' ? tree : [];
+    parent = typeof parent !== 'undefined' ? parent : { id: topTierParent };
+
+    const children = list.filter(child => child.parentOrg === parent.id);
+
+    if (children.length) {
+      if (parent.id === topTierParent) {
+        tree = children;
+      } else {
+        parent['children'] = children;
+      }
+      children.forEach(child => {
+        nestOrgs(list, child);
+      });
+    }
+
+    return tree;
+  }
+
+  const nestedTableData = nestOrgs(tableData);
 
   const isPoolListLoading = fetchIdentityPoolsProgress;
 
@@ -153,7 +178,7 @@ export default function IdentityPools ({org, identityRole}) {
         )}
       </div>
       <IdentityPoolsTable
-        data={tableData}
+        data={nestedTableData}
         selectedPool={selectedPool}
         setSelectedPool={p => setSelectedPool(p)}
         poolData={poolDetailsRes}
