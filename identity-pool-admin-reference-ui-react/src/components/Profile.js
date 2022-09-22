@@ -32,7 +32,14 @@ const Profile = ({auth, handleLogout}) => {
   const classes = useStyles();
 
   const accessToken = window.localStorage.getItem(authConfig.accessTokenName);
-  const accessTokenData = accessToken ? jwt_decode(accessToken) : {};
+  let accessTokenData;
+
+  if (authConfig.env === 'dev') {
+    const preMockAccessTokenData = accessToken ? jwt_decode(accessToken) : {};
+    accessTokenData = {...preMockAccessTokenData, ...authConfig.mockAccessTokenData};
+  } else {
+    accessTokenData = accessToken ? jwt_decode(accessToken) : {};
+  }
 
   const idToken = window.localStorage.getItem(authConfig.idTokenName);
   const idTokenData = idToken ? jwt_decode(idToken) : {};

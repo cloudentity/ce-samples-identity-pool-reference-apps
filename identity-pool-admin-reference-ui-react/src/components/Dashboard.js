@@ -35,7 +35,14 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
   const classes = useStyles();
 
   const accessToken = window.localStorage.getItem(authConfig.accessTokenName);
-  const accessTokenData = accessToken ? jwt_decode(accessToken) : {};
+  let accessTokenData;
+
+  if (authConfig.env === 'dev') {
+    const preMockAccessTokenData = accessToken ? jwt_decode(accessToken) : {};
+    accessTokenData = {...preMockAccessTokenData, ...authConfig.mockAccessTokenData};
+  } else {
+    accessTokenData = accessToken ? jwt_decode(accessToken) : {};
+  }
 
   const canViewPoolsList = accessTokenData.identity_role === 'superadmin'
     || accessTokenData.identity_role === 'pools_admin'

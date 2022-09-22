@@ -12,7 +12,10 @@
       idTokenName: 'identity_demo_id_token',
 
       childOrgSchemaId: '****your-schema-id-here****',
-      superadminOrgId: 'demoadmin'
+      superadminOrgId: 'demoadmin',
+
+      env: 'dev',
+      mockAccessTokenData: {org: 'demoadmin', identity_role: 'superadmin'}
   };
 
  export default authConfig;
