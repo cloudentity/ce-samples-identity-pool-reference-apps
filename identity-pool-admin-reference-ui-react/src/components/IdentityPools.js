@@ -2,6 +2,8 @@ import {useState, useEffect} from 'react';
 import IdentityPoolsTable, {mapPoolsToData} from './IdentityPoolsTable';
 import CreateIdentityPoolDialog from './CreateIdentityPool';
 import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import TextField from '@mui/material/TextField';
 import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
@@ -10,6 +12,15 @@ import authConfig from '../authConfig';
 import { pick, pickBy, isEmpty } from 'ramda';
 
 const useStyles = makeStyles((theme) => ({
+  filterPoolsInput: {
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: 250,
+    },
+    [theme.breakpoints.up('md')]: {
+      width: 400,
+    },
+  },
   createIdentityPoolButton: {
     color: '#fff',
     background: theme.palette.primary.main,
@@ -43,6 +54,7 @@ export default function IdentityPools ({org, identityRole}) {
   const [selectedPool, setSelectedPool] = useState([]);
   const [createPoolDialogOpen, setCreatePoolDialogOpen] = useState(false);
   const [refreshList, initRefreshList] = useState(false);
+  const [filterInput, updateFilterInput] = useState('');
 
   const handleChangeCreatePoolDialogState = (action, data) => {
     if (action === 'cancel') {
@@ -89,7 +101,7 @@ export default function IdentityPools ({org, identityRole}) {
         })
         .catch((err) => {
           console.log('API error', err);
-          window.alert('There was an error creating the organziation. Please try again.');
+          window.alert('There was an error creating the organization. Please try again.');
         });
     }
   };
@@ -169,8 +181,17 @@ export default function IdentityPools ({org, identityRole}) {
 
   return (
     <>
-      {/* chart card here */}
-      <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+      <div style={{display: 'flex', justifyContent: 'space-between'}}>
+        <FormControl className={classes.filterPoolsInput}>
+          <TextField
+            id="filter-identity-pools-input"
+            name="filterpools"
+            type="text"
+            placeholder="Filter organizations by name"
+            onChange={e => updateFilterInput(e?.target?.value?.trim().toLowerCase() || '')}
+            variant="outlined"
+          />
+        </FormControl>
         {(identityRole === 'superadmin' || identityRole === 'pools_admin') && (
           <Button color="primary" onClick={() => setCreatePoolDialogOpen(true)} className={classes.createIdentityPoolButton}>
             Create Identity Pool
@@ -178,7 +199,7 @@ export default function IdentityPools ({org, identityRole}) {
         )}
       </div>
       <IdentityPoolsTable
-        data={finalTableData}
+        data={filterInput ? finalTableData.filter(p => p.name.toLowerCase().includes(filterInput)) : finalTableData}
         selectedPool={selectedPool}
         setSelectedPool={p => setSelectedPool(p)}
         poolData={poolDetailsRes}
