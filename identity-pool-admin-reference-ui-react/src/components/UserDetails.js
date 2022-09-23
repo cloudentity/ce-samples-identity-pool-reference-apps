@@ -89,20 +89,12 @@ export default function UserDetails ({
       value: userData.payload?.name || missingInfoPlaceholder
     },
     {
-      displayName: 'ID',
-      value: userData.id || missingInfoPlaceholder
-    },
-    {
       displayName: 'Identifiers',
       value: (userData.identifiers || []).map(i => i.identifier).join(', ') || 'no identifiers'
     },
     {
       displayName: 'Status',
       value: userData.status || missingInfoPlaceholder
-    },
-    {
-      displayName: 'Tenant ID',
-      value: userData.tenant_id || missingInfoPlaceholder
     },
     {
       displayName: 'Created',
