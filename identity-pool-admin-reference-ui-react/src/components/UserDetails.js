@@ -38,6 +38,9 @@ const useStyles = makeStyles((theme) => ({
   userDetailsItemValue: {
     fontWeight: 'normal'
   },
+  userPermissionsContainer: {
+    padding: '2px 8px'
+  },
   editUserButtonContainer: {
     marginTop: 30,
     display: 'flex',
@@ -154,7 +157,7 @@ export default function UserDetails ({
         ))}
         {!!customDisplayUserData.length && (
           <>
-            <div style={{fontWeight: 700, marginTop: 20, marginBottom: 10, textDecoration: 'underline'}}>
+            <div style={{fontWeight: 700, marginTop: 24, marginBottom: 10, textDecoration: 'underline'}}>
               Custom attributes:
             </div>
             {customDisplayUserData.map((d, i) => (
@@ -167,6 +170,46 @@ export default function UserDetails ({
                 </div>
               </div>
             ))}
+          </>
+        )}
+        {!!userPermissions.length && (
+          <>
+            <div style={{fontWeight: 700, marginTop: 24, marginBottom: 12, textDecoration: 'underline'}}>
+              User permissions:
+            </div>
+            {userPermissions.map((p, i) => {
+              const borderStyle = 'solid 1px #36C6AF';
+              return (
+                <div
+                  className={classes.userPermissionsContainer}
+                  style={{
+                    borderTop: i === 0 ? borderStyle : 'none',
+                    borderBottom: borderStyle,
+                    borderRight: borderStyle,
+                    borderLeft: borderStyle
+                  }}
+                >
+                  <div key={i} className={classes.userDetailsItem}>
+                    <div className={classes.userDetailsItemKey}>Permission name:</div>
+                    <div className={classes.userDetailsItemValue}>
+                      {p.permission}
+                    </div>
+                  </div>
+                  <div key={i} className={classes.userDetailsItem}>
+                    <div className={classes.userDetailsItemKey}>Resource type:</div>
+                    <div className={classes.userDetailsItemValue}>
+                      {p.resourceType}
+                    </div>
+                  </div>
+                  <div key={i} className={classes.userDetailsItem}>
+                    <div className={classes.userDetailsItemKey}>Resource value:</div>
+                    <div className={classes.userDetailsItemValue}>
+                      {p.resourceValue}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </>
         )}
       </div>
