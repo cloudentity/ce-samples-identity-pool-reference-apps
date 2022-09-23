@@ -10,6 +10,7 @@
       responseType: ['code'],
       accessTokenName: 'identity_demo_access_token',
       idTokenName: 'identity_demo_id_token',
+      loginHintEnabled: true,
 
       childOrgSchemaId: '****your-schema-id-here****',
       superadminOrgId: 'demoadmin',

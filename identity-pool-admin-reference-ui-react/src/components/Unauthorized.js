@@ -10,6 +10,8 @@ import { api } from '../api/api';
 import {validators} from './forms/validation';
 import {useFormFactory} from './forms/formFactory';
 
+import authConfig from '../authConfig';
+
 const useStyles = makeStyles((theme) => ({
   mainContainer: {
     height: 'calc(100vh - 64px)',
@@ -74,7 +76,7 @@ const Unauthorized = ({className, auth, handleLogin}) => {
   const formFactory = useFormFactory({
     id: 'create-user',
     data: {},
-    formIsActive: loginRedirect
+    formIsActive: loginRedirect || authConfig.loginHintEnabled
   });
 
   const handleSubmitLogin = (formData) => {
@@ -143,9 +145,33 @@ const Unauthorized = ({className, auth, handleLogin}) => {
                     </div>
                   </div>
                 ) : (
-                  <Button color="primary" onClick={handleLogin} className={classes.loginButton}>
-                    Continue
-                  </Button>
+                  <>
+                    {authConfig.loginHintEnabled ? (
+                      <div className={classes.loginInputsWrapper}>
+                        {formFactory.createRequiredField({
+                          name: 'loginHintIdentifier',
+                          label: 'Email',
+                          validate: {
+                            validEmail: validators.validEmail({ label: 'Input' }),
+                          },
+                          className: classes.loginInputs
+                        })}
+
+                        <div style={{marginBottom: 20}}>
+                          {formFactory.createFormFooter({
+                            onSubmit: handleLogin,
+                            submitText: 'Continue',
+                            align: 'center',
+                            className: classes.loginInputSubmit
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <Button color="primary" onClick={handleLogin} className={classes.loginButton}>
+                        Continue
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             </Card>

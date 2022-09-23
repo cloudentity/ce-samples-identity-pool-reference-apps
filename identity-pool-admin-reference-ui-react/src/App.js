@@ -18,8 +18,12 @@ function App() {
   const cloudentity = new CloudentityAuth(authConfig);
   const [authenticated] = useAuth(cloudentity);
 
-  function authorize () {
-    cloudentity.authorize();
+  function authorize (loginHintIdentifier) {
+    if (loginHintIdentifier) {
+      cloudentity.authorize(loginHintIdentifier);
+    } else {
+      cloudentity.authorize();
+    }
   };
 
   function clearAuth () {

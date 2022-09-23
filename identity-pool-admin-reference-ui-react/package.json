@@ -4,7 +4,7 @@
   "private": true,
   "proxy": "https://localhost:8443",
   "dependencies": {
-    "@cloudentity/auth": "^2.0.2-beta.0",
+    "@cloudentity/auth": "^2.0.2-beta.1",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.8.2",
