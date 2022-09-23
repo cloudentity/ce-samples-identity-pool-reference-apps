@@ -167,10 +167,15 @@ export default function UsersTable({
   const [dense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [updateUserDialogOpen, setUpdateUserDialogOpen] = useState(false);
+  const [manageUserPermissionsDialogOpen, setManageUserPermissionsDialogOpen] = useState(false);
   const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
 
   const handleOpenEditUserDialog = () => {
     setUpdateUserDialogOpen(true);
+  }
+
+  const handleOpenManageUserPermissionsDialog = () => {
+    setManageUserPermissionsDialogOpen(true);
   }
 
   const handleOpenDeleteUserDialog = () => {
@@ -180,6 +185,7 @@ export default function UsersTable({
   const handleCloseUpdateUserDialog = (action, data) => {
     if (action === 'cancel') {
       setUpdateUserDialogOpen(false);
+      setManageUserPermissionsDialogOpen(false);
     }
     if (action === 'confirm') {
       const payload = {
@@ -193,6 +199,7 @@ export default function UsersTable({
       api.updateUser(poolId, selectedUser[0], payload)
       .then(() => {
         setUpdateUserDialogOpen(false);
+        setManageUserPermissionsDialogOpen(false);
         handleRefreshList();
       })
       .catch((err) => {
@@ -355,6 +362,9 @@ export default function UsersTable({
           updateUserDialogOpen={updateUserDialogOpen}
           handleOpenEditUserDialog={handleOpenEditUserDialog}
           handleCloseUpdateUserDialog={handleCloseUpdateUserDialog}
+          manageUserPermissionsDialogOpen={manageUserPermissionsDialogOpen}
+          handleOpenManageUserPermissionsDialog={handleOpenManageUserPermissionsDialog}
+          handleCloseManageUserPermissionsDialog={handleCloseUpdateUserDialog}
           deleteUserDialogOpen={deleteUserDialogOpen}
           handleOpenDeleteUserDialog={handleOpenDeleteUserDialog}
           handleCloseDeleteUserDialog={handleCloseDeleteUserDialog}

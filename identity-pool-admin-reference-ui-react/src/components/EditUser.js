@@ -12,7 +12,7 @@ import {useFormFactory} from './forms/formFactory';
 import {validators} from './forms/validation';
 import { omit } from 'ramda';
 
-export default function EditUserDialog ({open, poolId, payloadSchema, userId, userData, handleClose, classes}) {
+export default function EditUserDialog ({open, poolId, payloadSchema, userId, userData, userPermissions, handleClose, classes}) {
 
   const formFactory = useFormFactory({
     id: 'update-user',
@@ -28,7 +28,7 @@ export default function EditUserDialog ({open, poolId, payloadSchema, userId, us
   const customFields = processPayloadSchema(payloadSchema);
 
   const processSubmit = (formData) => {
-    handleClose('confirm', formData);
+    handleClose('confirm', {...formData, ...{permissions: userPermissions}});
   };
 
   return (

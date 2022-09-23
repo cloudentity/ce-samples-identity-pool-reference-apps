@@ -1,4 +1,5 @@
 import EditUserDialog from './EditUser';
+import ManageUserPermissionsDialog from './ManageUserPermissions';
 import DeleteUserConfirmDialog from './DeleteUserConfirm';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
@@ -58,6 +59,9 @@ export default function UserDetails ({
   updateUserDialogOpen,
   handleOpenEditUserDialog,
   handleCloseUpdateUserDialog,
+  manageUserPermissionsDialogOpen,
+  handleOpenManageUserPermissionsDialog,
+  handleCloseManageUserPermissionsDialog,
   deleteUserDialogOpen,
   handleOpenDeleteUserDialog,
   handleCloseDeleteUserDialog,
@@ -122,6 +126,8 @@ export default function UserDetails ({
     ...customEditableUserData
   };
 
+  const userPermissions = userData?.payload?.permissions || [];
+
   if (isLoading) {
     return <Progress/>;
   }
@@ -163,6 +169,21 @@ export default function UserDetails ({
           </>
         )}
       </div>
+      <div style={{width: '85%', margin: '25px auto 0 auto' }}>
+        <Button
+          fullWidth
+          id="manage-permissions-button"
+          variant="contained"
+          size="large"
+          onClick={() => handleOpenManageUserPermissionsDialog()}
+          style={{marginLeft: 5}}
+          sx={{
+            color: '#fff',
+          }}
+        >
+          Manage User Permissions
+        </Button>
+      </div>
       <div className={classes.editUserButtonContainer}>
         <Button
           id="edit-user-details-button"
@@ -196,6 +217,15 @@ export default function UserDetails ({
           handleClose={handleCloseUpdateUserDialog}
           payloadSchema={payloadSchema}
           userData={editableUserDetails}
+          userPermissions={userPermissions}
+          classes={classes}
+        />
+        <ManageUserPermissionsDialog
+          open={manageUserPermissionsDialogOpen}
+          handleClose={handleCloseManageUserPermissionsDialog}
+          payloadSchema={payloadSchema}
+          userData={editableUserDetails}
+          userPermissions={userPermissions}
           classes={classes}
         />
         <DeleteUserConfirmDialog

@@ -15,7 +15,8 @@
       superadminOrgId: 'demoadmin',
 
       env: 'dev',
-      mockAccessTokenData: {org: 'demoadmin', identity_role: 'superadmin'}
+      mockAccessTokenData: {org: 'demoadmin', identity_role: 'superadmin'},
+      mockPermissions: ['read', 'write', 'copy', 'delete']
   };
 
  export default authConfig;
