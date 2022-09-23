@@ -16,7 +16,8 @@
 
       env: 'dev',
       mockAccessTokenData: {org: 'demoadmin', identity_role: 'superadmin'},
-      mockPermissions: ['read', 'write', 'copy', 'delete']
+      mockPermissions: ['read', 'write', 'copy', 'delete'],
+      hierarchicalPoolList: false
   };
 
  export default authConfig;

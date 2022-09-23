@@ -137,7 +137,7 @@ export default function IdentityPools ({org, identityRole}) {
     return tree;
   }
 
-  const nestedTableData = nestOrgs(tableData);
+  const finalTableData = authConfig.hierarchicalPoolList ? nestOrgs(tableData) : tableData;
 
   const isPoolListLoading = fetchIdentityPoolsProgress;
 
@@ -178,7 +178,7 @@ export default function IdentityPools ({org, identityRole}) {
         )}
       </div>
       <IdentityPoolsTable
-        data={nestedTableData}
+        data={finalTableData}
         selectedPool={selectedPool}
         setSelectedPool={p => setSelectedPool(p)}
         poolData={poolDetailsRes}
