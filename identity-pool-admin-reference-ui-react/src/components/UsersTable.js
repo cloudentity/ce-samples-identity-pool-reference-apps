@@ -151,6 +151,7 @@ const useStyles = makeStyles((theme) =>
 export default function UsersTable({
   data,
   poolId,
+  availablePoolsForPermissions,
   payloadSchema,
   selectedUser,
   setSelectedUser,
@@ -355,6 +356,7 @@ export default function UsersTable({
         <UserDetails
           isLoading={isUserDataLoading}
           poolId={poolId}
+          availablePoolsForPermissions={availablePoolsForPermissions}
           payloadSchema={payloadSchema}
           userId={selectedUser[0]}
           userData={userData}

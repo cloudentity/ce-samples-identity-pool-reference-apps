@@ -221,6 +221,7 @@ export default function Users ({org, identityRole}) {
             <UsersTable
               data={tableData}
               poolId={currentPool}
+              availablePoolsForPermissions={identityPoolOptions}
               payloadSchema={payloadSchema}
               selectedUser={selectedUser}
               setSelectedUser={u => setSelectedUser(u)}

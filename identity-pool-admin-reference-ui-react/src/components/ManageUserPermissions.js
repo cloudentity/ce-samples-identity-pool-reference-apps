@@ -7,15 +7,13 @@ import Dialog from '@mui/material/Dialog';
 import Card from '@mui/material/Card';
 import Checkbox from '@mui/material/Checkbox';
 
-import {processPayloadSchema} from './Users';
 import {useFormFactory} from './forms/formFactory';
 import {validators} from './forms/validation';
 import { omit, isEmpty } from 'ramda';
 
 import authConfig from '../authConfig';
 
-export default function ManageUserPermissionsDialog ({open, poolId, payloadSchema, userId, userData, userPermissions, handleClose, classes}) {
-
+export default function ManageUserPermissionsDialog ({open, userData, userPermissions, availablePoolsForPermissions, handleClose, classes}) {
   const currentPermissionsIndexes = userPermissions.map((p, i) => i);
   const initialPermissionsState = isEmpty(currentPermissionsIndexes) ? [0] : currentPermissionsIndexes;
 
@@ -27,13 +25,18 @@ export default function ManageUserPermissionsDialog ({open, poolId, payloadSchem
     setIndex(initialPermissionsState.length);
   }
 
+  const resourceValueOptions = availablePoolsForPermissions.reduce((acc, pool) => {
+    const orgOptions = [pool.name, `${pool.name}:*`];
+    return [...acc, ...orgOptions];
+  }, []);
+
   const registerExistingPermissionFields = () => {
     let counter = 0;
-    return userPermissions.reduce((o, i) => {
+    return userPermissions.reduce((o, field) => {
       const fields = {
-        [`permissions[${counter}].permission`]: i.permission,
-        [`permissions[${counter}].resourceType`]: i.resourceType,
-        [`permissions[${counter}].resourceValue`]: i.resourceValue,
+        [`permissions[${counter}].permission`]: field.permission,
+        [`permissions[${counter}].resourceType`]: field.resourceType,
+        [`permissions[${counter}].resourceValue`]: field.resourceValue,
       }
       counter += 1;
       return {...o, ...fields};
@@ -105,18 +108,19 @@ export default function ManageUserPermissionsDialog ({open, poolId, payloadSchem
                   name: `permissions[${p}].resourceType`,
                   label: 'Resource Type',
                   options: ['org'],
-                  defaultValue: 'org'
+                  defaultValue: 'org',
+                  disabled: true
                 })}
               </div>
               <div style={{marginTop: -30}}>
-                {formFactory.createRequiredField({
+                {formFactory.createSelect({
                   name: `permissions[${p}].resourceValue`,
                   label: 'Resource Value',
-                  validate: {},
+                  options: resourceValueOptions
                 })}
               </div>
 
-              <div onClick={() => onRemovePermission(i)} style={{textDecoration: 'underline', marginTop: -8, marginBottom: 15}}>
+              <div onClick={() => onRemovePermission(i)} style={{textDecoration: 'underline', marginTop: -40, marginBottom: 20}}>
                 Remove
               </div>
 

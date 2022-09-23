@@ -52,6 +52,7 @@ const useStyles = makeStyles((theme) => ({
 export default function UserDetails ({
   isLoading,
   poolId,
+  availablePoolsForPermissions,
   payloadSchema,
   userId,
   userData,
@@ -223,9 +224,9 @@ export default function UserDetails ({
         <ManageUserPermissionsDialog
           open={manageUserPermissionsDialogOpen}
           handleClose={handleCloseManageUserPermissionsDialog}
-          payloadSchema={payloadSchema}
           userData={editableUserDetails}
           userPermissions={userPermissions}
+          availablePoolsForPermissions={availablePoolsForPermissions}
           classes={classes}
         />
         <DeleteUserConfirmDialog
