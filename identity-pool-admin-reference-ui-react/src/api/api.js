@@ -1,6 +1,6 @@
 import {base, authAppBase} from './api-base';
 import authConfig from '../authConfig';
-const identityAdminApiBase = `/identity/${authConfig.tenantId}/${authConfig.authorizationServerId}`;
+const identityAdminApiBase = `/identity/${authConfig.tenantId}/admin`;
 
 export const api = {
   fetchIdentityPools: () => base.get({url: `${identityAdminApiBase}/pools`}),
