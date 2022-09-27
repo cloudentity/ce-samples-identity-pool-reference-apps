@@ -1,4 +1,5 @@
 import EditPoolDialog from './EditIdentityPool';
+import EditPoolMetadataDialog from './EditIdentityPoolMetadata';
 // import DeletePoolConfirmDialog from './DeletePoolConfirm';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
@@ -38,8 +39,10 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'normal'
   },
   editPoolButtonContainer: {
-    marginTop: 30,
+    margin: '30px auto 0 auto',
+    width: '85%',
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center'
   },
   dialogRootStyles: {
@@ -54,10 +57,14 @@ export default function IdentityPoolDetails ({
   payloadSchema,
   poolId,
   poolData,
+  poolsList,
   refreshData,
   updatePoolDialogOpen,
   handleOpenEditPoolDialog,
   handleCloseUpdatePoolDialog,
+  editMetadataDialogOpen,
+  handleOpenEditMetadataDialog,
+  handleCloseEditMetadataDialog,
   // deletePoolDialogOpen,
   // handleOpenDeletePoolDialog,
   // handleCloseDeletePoolDialog,
@@ -86,7 +93,7 @@ export default function IdentityPoolDetails ({
     },
     {
       displayName: 'Child Organizations',
-      value: (poolData.metadata?.childOrg || []).join(', ') || missingInfoPlaceholder
+      value: poolsList.filter(p => p.parentOrg === poolData.id).map(p => p.id).join(', ') || missingInfoPlaceholder
     },
     {
       displayName: 'Location',
@@ -98,7 +105,7 @@ export default function IdentityPoolDetails ({
     },
     {
       displayName: 'BP',
-      value: poolData.metadata?.bp || missingInfoPlaceholder
+      value: ((Array.isArray(poolData.metadata?.bp) && poolData.metadata?.bp) || []).join(', ') || missingInfoPlaceholder
     },
     {
       displayName: 'Industry',
@@ -143,7 +150,7 @@ export default function IdentityPoolDetails ({
   return (
     <>
       <div className={classes.poolDetailsHeader}>
-        <Typography style={{marginTop: 8}} variant="h5" component="h3">Identity Pool Details</Typography>
+        <Typography style={{marginTop: 8}} variant="h5" component="h3">Organization Details</Typography>
         <IconButton onClick={onClose} edge="start" color="inherit" aria-label="close" size="large">
           <CloseIcon />
         </IconButton>
@@ -162,23 +169,44 @@ export default function IdentityPoolDetails ({
       </div>
       <div className={classes.editPoolButtonContainer}>
         {(identityRole === 'superadmin' || identityRole === 'pools_admin') && (
-          <Button
-            id="edit-pool-details-button"
-            variant="contained"
-            size="large"
-            onClick={() => handleOpenEditPoolDialog()}
-            style={{marginRight: 5}}
-            sx={{
-              width: 220,
-              color: '#fff',
-            }}
-          >
-            Edit Identity Pool
-          </Button>
+          <>
+            <Button
+              fullWidth
+              id="edit-pool-details-button"
+              variant="contained"
+              size="large"
+              onClick={() => handleOpenEditPoolDialog()}
+              style={{marginBottom: 20}}
+              sx={{
+                color: '#fff',
+              }}
+            >
+              Edit Organization
+            </Button>
+            <Button
+              fullWidth
+              id="edit-pool-details-button"
+              variant="contained"
+              size="large"
+              onClick={() => handleOpenEditMetadataDialog()}
+              sx={{
+                color: '#fff',
+              }}
+            >
+              Manage Organization Metadata
+            </Button>
+          </>
         )}
         <EditPoolDialog
           open={updatePoolDialogOpen}
           handleClose={handleCloseUpdatePoolDialog}
+          rawPoolData={poolData}
+          poolData={editablePoolDetails}
+          classes={classes}
+        />
+        <EditPoolMetadataDialog
+          open={editMetadataDialogOpen}
+          handleClose={handleCloseEditMetadataDialog}
           rawPoolData={poolData}
           poolData={editablePoolDetails}
           classes={classes}

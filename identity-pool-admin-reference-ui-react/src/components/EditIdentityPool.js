@@ -29,7 +29,7 @@ export default function EditPoolDialog ({open, poolId, rawPoolData, poolData, ha
     >
       <div className={classes.dialogRootStyles}>
         <div style={{display: 'flex', justifyContent: 'space-around', marginBottom: 20}}>
-          <Typography variant="h5" component="h5">Edit Identity Pool</Typography>
+          <Typography variant="h5" component="h5">Edit Organization</Typography>
         </div>
 
         {formFactory.createRequiredField({
@@ -75,34 +75,6 @@ export default function EditPoolDialog ({open, poolId, rawPoolData, poolData, ha
         {formFactory.createCheckBox({
           name: "public_registration_allowed",
           label: "Public Registration Allowed",
-        })}
-
-        {formFactory.createField({
-          name: 'location',
-          label: 'Location',
-          placeholder: 'Enter a location...',
-          validate: {},
-        })}
-
-        {formFactory.createField({
-          name: 'salesforceAccount',
-          label: 'Salesforce account',
-          placeholder: 'Enter a Salesforce account ID...',
-          validate: {},
-        })}
-
-        {formFactory.createField({
-          name: 'bp',
-          label: 'BP',
-          placeholder: 'Enter a BP value...',
-          validate: {},
-        })}
-
-        {formFactory.createField({
-          name: 'industry',
-          label: 'Industry',
-          placeholder: 'Enter an industry category...',
-          validate: {},
         })}
 
         <div style={{display: 'flex', justifyContent: 'flex-end'}}>

@@ -198,7 +198,7 @@ function EnhancedTableBody ({
           })}
         {data.length === 0 && (
           <TableRow>
-            <TableCell colSpan={6}>No identity pools found</TableCell>
+            <TableCell colSpan={6}>No Organizations found</TableCell>
           </TableRow>
         )}
       </TableBody>
@@ -256,14 +256,20 @@ export default function IdentityPoolsTable({
   const [dense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [updatePoolDialogOpen, setUpdatePoolDialogOpen] = useState(false);
+  const [editMetadataDialogOpen, setEditMetadataDialogOpen] = useState(false);
 
   const handleOpenEditPoolDialog = () => {
     setUpdatePoolDialogOpen(true);
   }
 
+  const handleOpenEditMetadataDialog = () => {
+    setEditMetadataDialogOpen(true);
+  }
+
   const handleCloseUpdatePoolDialog = (action, newData, originalPoolData) => {
     if (action === 'cancel') {
       setUpdatePoolDialogOpen(false);
+      setEditMetadataDialogOpen(false);
     }
     if (action === 'confirm') {
       const mainProps = pickBy(f => f !== '', pick(['name', 'id', 'description', 'public_registration_allowed', 'authentication_mechanisms'], newData));
@@ -279,6 +285,7 @@ export default function IdentityPoolsTable({
       api.editIdentityPool(selectedPool[0], payload)
       .then(() => {
         setUpdatePoolDialogOpen(false);
+        setEditMetadataDialogOpen(false);
         handleRefreshList();
       })
       .catch((err) => {
@@ -376,10 +383,14 @@ export default function IdentityPoolsTable({
           identityRole={identityRole}
           poolId={selectedPool[0]}
           poolData={poolData}
+          poolsList={data || []}
           refreshData={refreshData}
           updatePoolDialogOpen={updatePoolDialogOpen}
           handleOpenEditPoolDialog={handleOpenEditPoolDialog}
           handleCloseUpdatePoolDialog={handleCloseUpdatePoolDialog}
+          editMetadataDialogOpen={editMetadataDialogOpen}
+          handleOpenEditMetadataDialog={handleOpenEditMetadataDialog}
+          handleCloseEditMetadataDialog={handleCloseUpdatePoolDialog}
           // deletePoolDialogOpen={deletePoolDialogOpen}
           // handleOpenDeletePoolDialog={handleOpenDeletePoolDialog}
           // handleCloseDeletePoolDialog={handleCloseDeletePoolDialog}
