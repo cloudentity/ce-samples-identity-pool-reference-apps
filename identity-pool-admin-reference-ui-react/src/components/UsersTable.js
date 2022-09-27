@@ -331,7 +331,7 @@ export default function UsersTable({
                 })}
               {data.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6}>No users found for the selected identity pool</TableCell>
+                  <TableCell colSpan={6}>No users found for the selected organization</TableCell>
                 </TableRow>
               )}
             </TableBody>

@@ -59,7 +59,7 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
   };
 
   const leftNavItems = canViewPoolsList ? [
-    {id: 'pools', label: 'Identity Pools'},
+    {id: 'pools', label: 'Organizations'},
     {id: 'users', label: 'Users'}
   ] : [
     {id: 'users', label: 'Users'}

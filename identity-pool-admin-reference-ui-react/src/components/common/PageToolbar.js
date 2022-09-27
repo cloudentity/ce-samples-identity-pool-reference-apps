@@ -90,7 +90,7 @@ export default function PageToolbar({
         {/* To use your own logo, uncomment the line above (after editing the 'logoImage' import declaration to point to your own image)... */}
         {/* ...and remove the div block directly below */}
         <div className={classes.textLogo}>
-          <Typography variant="h5" component="h1">Identity Pools Demo</Typography>
+          <Typography variant="h5" component="h1">Cloudentity B2B Organizations Demo</Typography>
         </div>
         <div style={{ flex: 1 }} />
 

@@ -92,7 +92,7 @@ export default function Users ({org, identityRole}) {
     refetchOnWindowFocus: false,
     retry: false,
     onSuccess: identityPoolsRes => {
-      console.log('identity pools response', identityPoolsRes);
+      console.log('Organizations response', identityPoolsRes);
     }
   });
 
@@ -194,12 +194,12 @@ export default function Users ({org, identityRole}) {
     <>
       <div style={{display: 'flex', justifyContent: 'space-between'}}>
         <FormControl className={classes.selectPoolInput}>
-          <InputLabel id="select-identity-pool-label">Identity Pools</InputLabel>
+          <InputLabel id="select-identity-pool-label">Organizations</InputLabel>
           <Select
             labelId="select-identity-pool-label"
             id="select-identity-pool-input"
             value={currentPool}
-            label="Identity Pools"
+            label="Organizations"
             onChange={handleSelectPool}
           >
             {identityPoolOptions.map((p, i) => (
@@ -234,7 +234,7 @@ export default function Users ({org, identityRole}) {
           )}
         </>
       ) : (
-        <div style={{marginTop: 80, textAlign: 'center'}}>Select an Identity Pool to see its users list</div>
+        <div style={{marginTop: 80, textAlign: 'center'}}>Select an Organization to see its users list</div>
       )}
       <CreateUserDialog
         open={createUserDialogOpen}
