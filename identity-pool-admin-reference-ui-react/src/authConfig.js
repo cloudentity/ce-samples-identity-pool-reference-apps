@@ -14,6 +14,7 @@
 
       childOrgSchemaId: '****your-schema-id-here****',
       superadminOrgId: 'demoadmin',
+      b2borganizationGroupLabel: 'demogroup',
 
       env: 'dev',
       mockAccessTokenData: {org: 'demoadmin', identity_role: 'superadmin'},

@@ -64,7 +64,9 @@ export default function IdentityPools ({org, identityRole}) {
       const mainProps = pickBy(f => f !== '', pick(['name', 'id', 'description', 'public_registration_allowed', 'authentication_mechanisms'], data));
       const metadataProps = {
         ...pickBy(f => !!f, pick(['location', 'salesforceAccount', 'bp', 'industry'], data)),
-        parentOrg: org
+        parentOrg: org,
+        type: 'b2borganization',
+        b2borganizationGroupLabel: authConfig.b2borganizationGroupLabel
       };
 
       const payload = {
@@ -75,29 +77,8 @@ export default function IdentityPools ({org, identityRole}) {
 
       api.createIdentityPool({tenant_id: authConfig.tenantId, ...payload})
         .then(() => {
-          api.identityPoolDetails(org)
-            .then(parentOrgData => {
-              const parentOrgMetadata = parentOrgData.metadata || {};
-              const childOrgs = parentOrgMetadata.childOrg || [];
-              const updatedChildOrgs = childOrgs.includes(payload.id) ? childOrgs : [...[payload.id], ...childOrgs];
-              const updatedMetadata = {...parentOrgMetadata, childOrg: updatedChildOrgs};
-              const updatedParentOrgData = {...parentOrgData, metadata: updatedMetadata};
-
-              api.editIdentityPool(org, updatedParentOrgData)
-                .then(editParentOrgRes => {
-                  console.log(editParentOrgRes);
-                  setCreatePoolDialogOpen(false);
-                  initRefreshList(!refreshList);
-                })
-                .catch((err) => {
-                  console.log('API error', err);
-                  window.alert('There was an error editing the parent org.');
-                });
-            })
-            .catch((err) => {
-              console.log('API error', err);
-              window.alert('There was an error fetching the parent org.');
-            });
+          setCreatePoolDialogOpen(false);
+          initRefreshList(!refreshList);
         })
         .catch((err) => {
           console.log('API error', err);
@@ -115,11 +96,17 @@ export default function IdentityPools ({org, identityRole}) {
     refetchOnWindowFocus: false,
     retry: false,
     onSuccess: identityPoolsRes => {
-      console.log('identity pools response', identityPoolsRes);
+      console.log('Organizations response', identityPoolsRes);
     }
   });
 
-  const identityPools = identityPoolsRes?.pools.filter(p => !isEmpty(p.metadata) || p.id === authConfig.superadminOrgId) || [];
+  const isPartOfB2BOrgGroup = org => (
+    !isEmpty(org.metadata)
+    && org.metadata.type === 'b2borganization'
+    && org.metadata.b2borganizationGroupLabel === authConfig.b2borganizationGroupLabel
+  );
+
+  const identityPools = identityPoolsRes?.pools.filter(p => isPartOfB2BOrgGroup(p) || p.id === authConfig.superadminOrgId) || [];
 
   const filteredPools = identityPools.filter(p => p.id === org || p.metadata?.parentOrg === org);
 
@@ -163,7 +150,7 @@ export default function IdentityPools ({org, identityRole}) {
     refetchOnWindowFocus: false,
     retry: false,
     onSuccess: poolDetailsRes => {
-      console.log('identity pool details response', poolDetailsRes);
+      console.log('Organization details response', poolDetailsRes);
     }
   });
 
@@ -194,7 +181,7 @@ export default function IdentityPools ({org, identityRole}) {
         </FormControl>
         {(identityRole === 'superadmin' || identityRole === 'pools_admin') && (
           <Button color="primary" onClick={() => setCreatePoolDialogOpen(true)} className={classes.createIdentityPoolButton}>
-            Create Identity Pool
+            Create Organization
           </Button>
         )}
       </div>
