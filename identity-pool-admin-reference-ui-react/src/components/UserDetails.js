@@ -181,19 +181,19 @@ export default function UserDetails ({
                     borderLeft: borderStyle
                   }}
                 >
-                  <div key={i} className={classes.userDetailsItem}>
+                  <div className={classes.userDetailsItem}>
                     <div className={classes.userDetailsItemKey}>Permission name:</div>
                     <div className={classes.userDetailsItemValue}>
                       {p.permission}
                     </div>
                   </div>
-                  <div key={i} className={classes.userDetailsItem}>
+                  <div className={classes.userDetailsItem}>
                     <div className={classes.userDetailsItemKey}>Resource type:</div>
                     <div className={classes.userDetailsItemValue}>
                       {p.resourceType}
                     </div>
                   </div>
-                  <div key={i} className={classes.userDetailsItem}>
+                  <div className={classes.userDetailsItem}>
                     <div className={classes.userDetailsItemKey}>Resource value:</div>
                     <div className={classes.userDetailsItemValue}>
                       {p.resourceValue}
