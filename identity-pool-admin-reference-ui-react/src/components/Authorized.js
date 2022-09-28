@@ -14,7 +14,8 @@ const queryClient = new QueryClient();
 const Authorized = ({auth, handleLogout}) => {
   const idToken = window.localStorage.getItem(authConfig.idTokenName);
   const idTokenData = idToken ? jwt_decode(idToken) : {};
-  const adminViewEnabled = authConfig.authorizationServerId === 'admin';
+  // const adminViewEnabled = authConfig.authorizationServerId === 'admin';
+  const adminViewEnabled = true;
 
   const [currentTab, setCurrentTab] = useState(adminViewEnabled ? 'admin' : 'profile');
 

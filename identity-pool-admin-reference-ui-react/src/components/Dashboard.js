@@ -48,7 +48,8 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
     || accessTokenData.identity_role === 'pools_admin'
     || accessTokenData.identity_role === 'pools_read';
 
-  const adminViewEnabled = authConfig.authorizationServerId === 'admin';
+  // const adminViewEnabled = authConfig.authorizationServerId === 'admin';
+  const adminViewEnabled = true;
 
   const [currentView, setCurrentView] = useState(canViewPoolsList ? 'pools' : 'users');
 
