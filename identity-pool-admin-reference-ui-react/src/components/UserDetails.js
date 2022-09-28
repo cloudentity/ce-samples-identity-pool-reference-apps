@@ -109,7 +109,7 @@ export default function UserDetails ({
   const customDisplayUserData = userData ? processPayloadSchema(payloadSchema).map(f => ({
     displayName: f.description && f.description.length > 1 && `${f.description[0].toUpperCase()}${f.description.substring(1)}`,
     value: (userData.payload && userData.payload[f.id]) || ''
-  })) : [];
+  })).filter(f => f.displayName.toLowerCase() !== 'permissions') : [];
 
   const customEditableUserData = userData && processPayloadSchema(payloadSchema)
     .map(f => ({ [f.id]: (userData.payload && userData.payload[f.id]) || '' }))
