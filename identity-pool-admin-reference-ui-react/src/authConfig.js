@@ -19,6 +19,7 @@
       env: 'dev',
       mockAccessTokenData: {org: 'demoadmin', identity_role: 'superadmin'},
       mockPermissions: ['read', 'write', 'copy', 'delete'],
+      mockLocations: ['california', 'oregon', 'washington', 'outside usa'],
       hierarchicalPoolList: false
   };
 

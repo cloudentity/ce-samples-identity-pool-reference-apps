@@ -10,6 +10,8 @@ import {useFormFactory} from './forms/formFactory';
 import {validators} from './forms/validation';
 import { omit } from 'ramda';
 
+import authConfig from '../authConfig';
+
 export default function EditPoolMetadataDialog ({open, poolId, rawPoolData, poolData, handleClose, classes}) {
 
   const formFactory = useFormFactory({
@@ -32,12 +34,15 @@ export default function EditPoolMetadataDialog ({open, poolId, rawPoolData, pool
           <Typography variant="h5" component="h5">Edit Organization Metadata</Typography>
         </div>
 
-        {formFactory.createField({
-          name: 'location',
-          label: 'Location',
-          placeholder: 'Enter a location...',
-          validate: {},
-        })}
+        <div style={{marginBottom: -26}}>
+          {formFactory.createSelect({
+            name: 'location',
+            label: 'Location',
+            placeholder: 'Select a location...',
+            options: authConfig.mockLocations,
+            validate: {},
+          })}
+        </div>
 
         {formFactory.createField({
           name: 'salesforceAccount',
