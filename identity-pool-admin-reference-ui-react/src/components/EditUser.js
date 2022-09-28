@@ -25,7 +25,7 @@ export default function EditUserDialog ({open, poolId, payloadSchema, userId, us
     formIsActive: open
   });
 
-  const customFields = processPayloadSchema(payloadSchema);
+  const customFields = processPayloadSchema(payloadSchema).filter(s => s.description !== 'permissions');
 
   const processSubmit = (formData) => {
     handleClose('confirm', {...formData, ...{permissions: userPermissions}});
