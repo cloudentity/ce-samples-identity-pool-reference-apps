@@ -194,7 +194,7 @@ export default function UsersTable({
           given_name: data.firstName,
           family_name: data.lastName,
           name: data.fullName,
-          ...pickBy(f => !!f, omit(['firstName', 'lastName', 'fullName'], data))
+          ...pickBy((f, k) => !!f && !k.includes('permissions['), omit(['firstName', 'lastName', 'fullName'], data))
         }
       };
       api.updateUser(poolId, selectedUser[0], payload)
