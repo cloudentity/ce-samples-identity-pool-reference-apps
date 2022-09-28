@@ -99,7 +99,14 @@ export default function Users ({org, identityRole}) {
   const isSuperadmin = org === authConfig.superadminOrgId;
   const canSeeOwnPoolOnly = identityRole === 'list_users' || identityRole === 'user';
 
-  const identityPools = identityPoolsRes?.pools.filter(p => !isEmpty(p.metadata) || p.id === authConfig.superadminOrgId) || [];
+
+  const isPartOfB2BOrgGroup = org => (
+    !isEmpty(org.metadata)
+    && org.metadata.type === 'b2borganization'
+    && org.metadata.b2borganizationGroupLabel === authConfig.b2borganizationGroupLabel
+  );
+
+  const identityPools = identityPoolsRes?.pools.filter(p => isPartOfB2BOrgGroup(p) || p.id === authConfig.superadminOrgId) || [];
   const filteredPools = identityPools.filter(p => p.id === org || p.metadata?.parentOrg === org);
   const listOwnPoolOnly = identityPools.filter(p => p.id === org);
   const identityPoolOptions = isSuperadmin ? identityPools : (canSeeOwnPoolOnly ? listOwnPoolOnly : filteredPools);
