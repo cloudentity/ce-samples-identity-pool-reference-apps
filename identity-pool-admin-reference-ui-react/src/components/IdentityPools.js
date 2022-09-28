@@ -71,6 +71,7 @@ export default function IdentityPools ({org, identityRole}) {
 
       const payload = {
         ...mainProps,
+        ...(authConfig.simplePoolCreateForm ? {authentication_mechanisms: ['password'], public_registration_allowed: false} : {}),
         payload_schema_id: authConfig.childOrgSchemaId,
         metadata: metadataProps
       };

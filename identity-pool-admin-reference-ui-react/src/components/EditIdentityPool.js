@@ -10,6 +10,8 @@ import {useFormFactory} from './forms/formFactory';
 import {validators} from './forms/validation';
 import { omit } from 'ramda';
 
+import authConfig from '../authConfig';
+
 export default function EditPoolDialog ({open, poolId, rawPoolData, poolData, handleClose, classes}) {
 
   const formFactory = useFormFactory({
@@ -56,28 +58,32 @@ export default function EditPoolDialog ({open, poolId, rawPoolData, poolData, ha
           validate: {},
         })}
 
-        {formFactory.createAutocompleteField({
-          name: 'authentication_mechanisms',
-          label: 'Authentication Mechanisms',
-          options: [
-            'password',
-            'otp',
-          ],
-          multiple: true,
-          optional: false,
-          validate: {
-            notEmpty: validators.notEmpty({
+        {!authConfig.simplePoolCreateForm && (
+          <>
+            {formFactory.createAutocompleteField({
+              name: 'authentication_mechanisms',
               label: 'Authentication Mechanisms',
-            }),
-          },
-        })}
+              options: [
+                'password',
+                'otp',
+              ],
+              multiple: true,
+              optional: false,
+              validate: {
+                notEmpty: validators.notEmpty({
+                  label: 'Authentication Mechanisms',
+                }),
+              },
+            })}
 
-        {formFactory.createCheckBox({
-          name: "public_registration_allowed",
-          label: "Public Registration Allowed",
-        })}
+            {formFactory.createCheckBox({
+              name: "public_registration_allowed",
+              label: "Public Registration Allowed",
+            })}
+          </>
+        )}
 
-        <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: 35}}>
           {formFactory.createFormFooter({
             onCancel: () => handleClose('cancel'),
             onSubmit: processSubmit,

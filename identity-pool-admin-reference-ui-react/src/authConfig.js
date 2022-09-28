@@ -16,6 +16,10 @@
       superadminOrgId: 'demoadmin',
       b2borganizationGroupLabel: 'demogroup',
 
+      // If true, hides 'public_registration_allowed' and 'authentication_mechanisms' fields on 'create pool' dialog, default values of
+      // 'false' for 'public_registration_allowed' and ['password'] for 'authentication_mechanisms' are used when pool is created.
+      simplePoolCreateForm: true,
+
       env: 'dev',
       mockAccessTokenData: {org: 'demoadmin', identity_role: 'superadmin'},
       mockPermissions: ['read', 'write', 'copy', 'delete'],

@@ -65,7 +65,7 @@ export default function EditPoolMetadataDialog ({open, poolId, rawPoolData, pool
           validate: {},
         })}
 
-        <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: 35}}>
           {formFactory.createFormFooter({
             onCancel: () => handleClose('cancel'),
             onSubmit: processSubmit,
