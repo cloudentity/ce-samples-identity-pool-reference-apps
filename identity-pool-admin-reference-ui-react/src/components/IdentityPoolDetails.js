@@ -139,7 +139,7 @@ export default function IdentityPoolDetails ({
     // metadata attributes
     location: poolData?.metadata?.location || '',
     salesforceAccount: poolData?.metadata?.salesforceAccount || '',
-    bp: poolData?.metadata?.bp || '',
+    bp: (Array.isArray(poolData.metadata?.bp) && poolData.metadata?.bp) || [],
     industry: poolData?.metadata?.industry || ''
   };
 

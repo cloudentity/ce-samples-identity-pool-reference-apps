@@ -46,7 +46,7 @@ export default function EditPoolMetadataDialog ({open, poolId, rawPoolData, pool
           validate: {},
         })}
 
-        {formFactory.createField({
+        {formFactory.createChipsField({
           name: 'bp',
           label: 'BP',
           placeholder: 'Enter a BP value...',

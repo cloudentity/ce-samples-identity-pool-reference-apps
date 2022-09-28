@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {validators} from './validation';
 import CommonTextField from './CommonTextField';
+import ChipsField from './ChipsField';
 import AutocompleteField from './AutocompleteField';
 import CheckBox from './CheckBox';
 import SelectField from './SelectField';
@@ -77,6 +78,10 @@ export const useFormFactory = ({
     />
   );
 
+  const createChipsField = props => (
+    <ChipsField id={id} form={form} {...props} disabled={progress || props.disabled} />
+  );
+
   const createFormFooter = (props) => (
     <FormFooter
       id={id}
@@ -97,6 +102,7 @@ export const useFormFactory = ({
     createCheckBox,
     createSelect,
     createRequiredSelect,
+    createChipsField,
     createFormFooter
   };
 };
