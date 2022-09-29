@@ -19,7 +19,7 @@ export default function CreateUserDialog ({open, poolId, payloadSchema, handleCl
     formIsActive: open
   });
 
-  const customFields = processPayloadSchema(payloadSchema);
+  const customFields = processPayloadSchema(payloadSchema).filter(s => s.description !== 'permissions');
 
   const processSubmit = (formData) => {
     handleClose('confirm', formData);
