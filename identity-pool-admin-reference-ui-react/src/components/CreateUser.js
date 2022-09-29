@@ -10,8 +10,9 @@ import Checkbox from '@mui/material/Checkbox';
 import {processPayloadSchema} from './Users';
 import {useFormFactory} from './forms/formFactory';
 import {validators} from './forms/validation';
+import {includes} from 'ramda';
 
-export default function CreateUserDialog ({open, poolId, payloadSchema, handleClose, classes}) {
+export default function CreateUserDialog ({open, poolId, payloadSchema, handleClose, adminIsSuperadmin, classes}) {
 
   const formFactory = useFormFactory({
     id: 'create-user',
@@ -19,7 +20,11 @@ export default function CreateUserDialog ({open, poolId, payloadSchema, handleCl
     formIsActive: open
   });
 
-  const customFields = processPayloadSchema(payloadSchema).filter(s => s.description !== 'permissions');
+  const allCustomFields = processPayloadSchema(payloadSchema);
+  const customFields = allCustomFields.filter(s => s.id !== 'permissions' && s.id !== 'roles');
+
+  const rolesSchema = allCustomFields.find(s => s.id === 'roles');
+  const rolesFieldLabel = rolesSchema?.description ? `${rolesSchema.description[0].toUpperCase()}${rolesSchema.description.substring(1)}` : 'User roles';
 
   const processSubmit = (formData) => {
     handleClose('confirm', formData);
@@ -130,7 +135,24 @@ export default function CreateUserDialog ({open, poolId, payloadSchema, handleCl
           </>
         )}
 
-        <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+        {rolesSchema && (
+          <>
+            {formFactory.createAutocompleteField({
+              name: 'roles',
+              label: rolesFieldLabel,
+              options: (rolesSchema?.items?.enum || []).filter(o => adminIsSuperadmin ? !!o : o !== 'superadmin'),
+              multiple: true,
+              optional: false,
+              validate: {
+                notEmpty: validators.notEmpty({
+                  label: rolesFieldLabel,
+                }),
+              },
+            })}
+          </>
+        )}
+
+        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: 35}}>
           {formFactory.createFormFooter({
             onCancel: () => handleClose('cancel'),
             onSubmit: processSubmit,

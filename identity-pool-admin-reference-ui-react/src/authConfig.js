@@ -21,7 +21,7 @@
       simplePoolCreateForm: true,
 
       env: 'dev',
-      mockAccessTokenData: {org: 'demoadmin', identity_role: 'superadmin'},
+      mockAccessTokenData: {org: 'demoadmin', roles: ['superadmin']},
       mockPermissions: ['read', 'write', 'copy', 'delete'],
       mockLocations: ['california', 'oregon', 'washington', 'outside usa'],
       hierarchicalPoolList: false

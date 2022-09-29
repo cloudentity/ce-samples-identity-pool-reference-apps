@@ -153,6 +153,7 @@ export default function UsersTable({
   isUserDataLoading,
   refreshData,
   handleRefreshList,
+  adminIsSuperadmin,
   style = {}
 }) {
   const classes = useStyles();
@@ -363,6 +364,7 @@ export default function UsersTable({
           handleOpenDeleteUserDialog={handleOpenDeleteUserDialog}
           handleCloseDeleteUserDialog={handleCloseDeleteUserDialog}
           onClose={handleCloseDrawer}
+          adminIsSuperadmin={adminIsSuperadmin}
         />
       </Drawer>
     </div>

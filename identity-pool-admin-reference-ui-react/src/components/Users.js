@@ -12,7 +12,7 @@ import { useQuery } from 'react-query';
 import { api } from '../api/api';
 import jwt_decode from 'jwt-decode';
 import authConfig from '../authConfig';
-import { pick, pickBy, omit, isEmpty } from 'ramda';
+import { pick, pickBy, omit, isEmpty, includes } from 'ramda';
 import Progress from './Progress';
 
 const useStyles = makeStyles((theme) => ({
@@ -79,7 +79,7 @@ export const processPayloadSchema = (schema) => {
   return finalFields;
 };
 
-export default function Users ({org, identityRole}) {
+export default function Users ({org, identityRoles}) {
   const classes = useStyles();
 
   const idToken = window.localStorage.getItem(authConfig.idTokenName);
@@ -108,8 +108,8 @@ export default function Users ({org, identityRole}) {
     }
   });
 
-  const isSuperadmin = org === authConfig.superadminOrgId;
-  const canSeeOwnPoolOnly = identityRole === 'list_users' || identityRole === 'user';
+  const isSuperadmin = org === authConfig.superadminOrgId && includes('superadmin', identityRoles);
+  const canSeeOwnPoolOnly = includes('list_users', identityRoles) || includes('user', identityRoles);
 
 
   const isPartOfB2BOrgGroup = org => (
@@ -260,6 +260,7 @@ export default function Users ({org, identityRole}) {
               isUserDataLoading={isUserDataLoading}
               refreshData={refreshList}
               handleRefreshList={() => initRefreshList(!refreshList)}
+              adminIsSuperadmin={isSuperadmin}
               style={{marginTop: 24, height: 'calc(100% - 332px - 24px'}}
             />
           )}
@@ -272,6 +273,7 @@ export default function Users ({org, identityRole}) {
         poolId={currentPool}
         payloadSchema={payloadSchema}
         handleClose={handleCloseCreateUserDialog}
+        adminIsSuperadmin={isSuperadmin}
         classes={classes}
       />
     </>

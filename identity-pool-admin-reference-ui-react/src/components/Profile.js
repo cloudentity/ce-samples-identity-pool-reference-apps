@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 
 import jwt_decode from 'jwt-decode';
 import authConfig from '../authConfig';
+import { omit } from 'ramda';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,7 +37,7 @@ const Profile = ({auth, handleLogout}) => {
 
   if (authConfig.env === 'dev') {
     const preMockAccessTokenData = accessToken ? jwt_decode(accessToken) : {};
-    accessTokenData = {...preMockAccessTokenData, ...authConfig.mockAccessTokenData};
+    accessTokenData = omit(['identity_role'], {...preMockAccessTokenData, ...authConfig.mockAccessTokenData});
   } else {
     accessTokenData = accessToken ? jwt_decode(accessToken) : {};
   }

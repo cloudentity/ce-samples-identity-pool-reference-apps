@@ -9,7 +9,7 @@ import { useQuery } from 'react-query';
 import { api } from '../api/api';
 import Progress from './Progress';
 import authConfig from '../authConfig';
-import { pick, pickBy, isEmpty } from 'ramda';
+import { pick, pickBy, isEmpty, includes } from 'ramda';
 
 const useStyles = makeStyles((theme) => ({
   filterPoolsInput: {
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function IdentityPools ({org, identityRole}) {
+export default function IdentityPools ({org, identityRoles}) {
   const classes = useStyles();
 
   const [selectedPool, setSelectedPool] = useState([]);
@@ -180,7 +180,7 @@ export default function IdentityPools ({org, identityRole}) {
             variant="outlined"
           />
         </FormControl>
-        {(identityRole === 'superadmin' || identityRole === 'pools_admin') && (
+        {(includes('superadmin', identityRoles) || includes('pools_admin', identityRoles)) && (
           <Button color="primary" onClick={() => setCreatePoolDialogOpen(true)} className={classes.createIdentityPoolButton}>
             Create Organization
           </Button>
@@ -194,7 +194,7 @@ export default function IdentityPools ({org, identityRole}) {
         isPoolDataLoading={isPoolDataLoading}
         refreshData={refreshList}
         handleRefreshList={() => initRefreshList(!refreshList)}
-        identityRole={identityRole}
+        identityRoles={identityRoles}
         style={{marginTop: 24, height: 'calc(100% - 332px - 24px'}}
       />
       <CreateIdentityPoolDialog

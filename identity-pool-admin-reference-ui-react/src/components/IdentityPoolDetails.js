@@ -13,7 +13,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
 // import { processPayloadSchema } from './Users';
-import { omit } from 'ramda';
+import { includes, omit } from 'ramda';
 import Progress from './Progress';
 
 const useStyles = makeStyles((theme) => ({
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function IdentityPoolDetails ({
   isLoading,
-  identityRole,
+  identityRoles,
   payloadSchema,
   poolId,
   poolData,
@@ -173,7 +173,7 @@ export default function IdentityPoolDetails ({
         ))}
       </div>
       <div className={classes.editPoolButtonContainer}>
-        {(identityRole === 'superadmin' || identityRole === 'pools_admin') && (
+        {(includes('superadmin', identityRoles) || includes('pools_admin', identityRoles)) && (
           <>
             <Button
               fullWidth

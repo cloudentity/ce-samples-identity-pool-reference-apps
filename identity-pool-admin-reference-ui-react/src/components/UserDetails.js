@@ -69,7 +69,8 @@ export default function UserDetails ({
   deleteUserDialogOpen,
   handleOpenDeleteUserDialog,
   handleCloseDeleteUserDialog,
-  onClose
+  onClose,
+  adminIsSuperadmin
 }) {
   const classes = useStyles();
 
@@ -108,11 +109,11 @@ export default function UserDetails ({
 
   const customDisplayUserData = userData ? processPayloadSchema(payloadSchema).map(f => ({
     displayName: f.description && f.description.length > 1 && `${f.description[0].toUpperCase()}${f.description.substring(1)}`,
-    value: (userData.payload && userData.payload[f.id]) || ''
+    value: (userData.payload && userData.payload[f.id]) || (f.type === 'array' ? [] : '')
   })).filter(f => f.displayName.toLowerCase() !== 'permissions') : [];
 
   const customEditableUserData = userData && processPayloadSchema(payloadSchema)
-    .map(f => ({ [f.id]: (userData.payload && userData.payload[f.id]) || '' }))
+    .map(f => ({ [f.id]: (userData.payload && userData.payload[f.id]) || (f.type === 'array' ? [] : '') }))
     .reduce((o, i) => ({...o, ...i}), {});
 
   const editableUserDetails = {
@@ -158,7 +159,7 @@ export default function UserDetails ({
                   {d.displayName + ':'}
                 </div>
                 <div className={classes.userDetailsItemValue}>
-                  {d.value}
+                  {Array.isArray(d.value) ? d.value.join(', ') || 'no items' : d.value}
                 </div>
               </div>
             ))}
@@ -254,6 +255,7 @@ export default function UserDetails ({
           payloadSchema={payloadSchema}
           userData={editableUserDetails}
           userPermissions={userPermissions}
+          adminIsSuperadmin={adminIsSuperadmin}
           classes={classes}
         />
         <ManageUserPermissionsDialog

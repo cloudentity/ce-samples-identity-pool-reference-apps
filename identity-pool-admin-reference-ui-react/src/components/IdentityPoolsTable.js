@@ -246,7 +246,7 @@ export default function IdentityPoolsTable({
   isPoolDataLoading,
   refreshData,
   handleRefreshList,
-  identityRole,
+  identityRoles,
   style = {}
 }) {
   const classes = useStyles();
@@ -380,7 +380,7 @@ export default function IdentityPoolsTable({
       >
         <IdentityPoolDetails
           isLoading={isPoolDataLoading}
-          identityRole={identityRole}
+          identityRoles={identityRoles}
           poolId={selectedPool[0]}
           poolData={poolData}
           poolsList={data || []}

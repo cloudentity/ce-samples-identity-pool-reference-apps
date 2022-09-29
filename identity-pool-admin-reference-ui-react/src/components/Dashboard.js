@@ -11,6 +11,7 @@ import { useQuery } from 'react-query';
 import { api } from '../api/api';
 import jwt_decode from 'jwt-decode';
 import authConfig from '../authConfig';
+import { includes, omit } from 'ramda';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,14 +50,16 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
 
   if (authConfig.env === 'dev') {
     const preMockAccessTokenData = accessToken ? jwt_decode(accessToken) : {};
-    accessTokenData = {...preMockAccessTokenData, ...authConfig.mockAccessTokenData};
+    accessTokenData = omit(['identity_role'], {...preMockAccessTokenData, ...authConfig.mockAccessTokenData});
   } else {
     accessTokenData = accessToken ? jwt_decode(accessToken) : {};
   }
 
-  const canViewPoolsList = accessTokenData.identity_role === 'superadmin'
-    || accessTokenData.identity_role === 'pools_admin'
-    || accessTokenData.identity_role === 'pools_read';
+  const adminRoles = (Array.isArray(accessTokenData.roles) && accessTokenData.roles) || [];
+
+  const canViewPoolsList = includes('superadmin', adminRoles)
+    || includes('pools_admin', adminRoles)
+    || includes('pools_read', adminRoles);
 
   // const adminViewEnabled = authConfig.authorizationServerId === 'admin';
   const adminViewEnabled = true;
@@ -81,7 +84,7 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
       <Grid container sx={{ flexDirection: { xs: 'column', sm: 'column', md: 'row'} }} className={classes.root}>
         <Grid item xs={0} sm={0} md={2} lg={1} className={classes.adminNavGrid}>
           <div className={classes.adminNavContainer}>
-            {accessTokenData.org && accessTokenData.identity_role && (
+            {accessTokenData.org && adminRoles.length > 0 && (
               <>
                 {leftNavItems.map((n, i) => (
                   <div style={{display: 'flex'}}>
@@ -101,19 +104,19 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
         </Grid>
         {adminViewEnabled ? (
           <>
-            {accessTokenData.org && accessTokenData.identity_role ? (
+            {accessTokenData.org && adminRoles.length > 0 ? (
               <Grid item xs={0} sm={0} md={10} lg={11} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
                 {currentView === 'pools' && canViewPoolsList && (
-                  <IdentityPools org={accessTokenData.org} identityRole={accessTokenData.identity_role} />
+                  <IdentityPools org={accessTokenData.org} identityRoles={adminRoles} />
                 )}
                 {currentView === 'users' && (
-                  <Users org={accessTokenData.org} identityRole={accessTokenData.identity_role} />
+                  <Users org={accessTokenData.org} identityRoles={adminRoles} />
                 )}
               </Grid>
             ) : (
               <div className={classes.notAdminMessageContainer}>
                 <div className={classes.notAdminMessageHeader}>You must configure ACP to view this demo.</div>
-                <div>Make sure that the attributes <code className={classes.inlineMonospace}>org</code> and <code className={classes.inlineMonospace}>identity_role</code> are mapped in the access token before continuing.</div>
+                <div>Make sure that the attributes <code className={classes.inlineMonospace}>org</code> and <code className={classes.inlineMonospace}>roles</code> are mapped in the access token before continuing.</div>
               </div>
             )}
           </>
