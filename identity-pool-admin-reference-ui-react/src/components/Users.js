@@ -6,6 +6,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
 import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import { api } from '../api/api';
@@ -18,10 +19,20 @@ const useStyles = makeStyles((theme) => ({
   selectPoolInput: {
     width: '100%',
     [theme.breakpoints.up('sm')]: {
-      width: 250,
+      width: 200,
     },
     [theme.breakpoints.up('md')]: {
-      width: 400,
+      width: 300,
+    },
+  },
+  filterUsersInput: {
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: 200,
+      marginLeft: 30,
+    },
+    [theme.breakpoints.up('md')]: {
+      width: 300,
     },
   },
   createUserButton: {
@@ -78,6 +89,7 @@ export default function Users ({org, identityRole}) {
   const [selectedUser, setSelectedUser] = useState([]);
   const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
   const [refreshList, initRefreshList] = useState(false);
+  const [filterInput, updateFilterInput] = useState('');
 
   const handleSelectPool = (event) => {
     setCurrentPool(event.target.value);
@@ -200,20 +212,32 @@ export default function Users ({org, identityRole}) {
   return (
     <>
       <div style={{display: 'flex', justifyContent: 'space-between'}}>
-        <FormControl className={classes.selectPoolInput}>
-          <InputLabel id="select-identity-pool-label">Organizations</InputLabel>
-          <Select
-            labelId="select-identity-pool-label"
-            id="select-identity-pool-input"
-            value={currentPool}
-            label="Organizations"
-            onChange={handleSelectPool}
-          >
-            {identityPoolOptions.map((p, i) => (
-              <MenuItem key={i} value={p.id}>{p.name}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <div>
+          <FormControl className={classes.selectPoolInput}>
+            <InputLabel id="select-identity-pool-label">Organizations</InputLabel>
+            <Select
+              labelId="select-identity-pool-label"
+              id="select-identity-pool-input"
+              value={currentPool}
+              label="Organizations"
+              onChange={handleSelectPool}
+            >
+              {identityPoolOptions.map((p, i) => (
+                <MenuItem key={i} value={p.id}>{p.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl className={classes.filterUsersInput}>
+            <TextField
+              id="filter-identity-pools-input"
+              name="filterpools"
+              type="text"
+              placeholder="Filter users by email"
+              onChange={e => updateFilterInput(e?.target?.value?.trim().toLowerCase() || '')}
+              variant="outlined"
+            />
+          </FormControl>
+        </div>
         {currentPool && (
           <Button color="primary" onClick={() => setCreateUserDialogOpen(true)} className={classes.createUserButton}>
             Create User
@@ -226,7 +250,7 @@ export default function Users ({org, identityRole}) {
             <Progress/>
           ) : (
             <UsersTable
-              data={tableData}
+              data={filterInput ? tableData.filter(p => p.identifiers?.toLowerCase().includes(filterInput)) : tableData}
               poolId={currentPool}
               availablePoolsForPermissions={identityPoolOptions}
               payloadSchema={payloadSchema}

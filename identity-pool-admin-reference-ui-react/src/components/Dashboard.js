@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import makeStyles from '@mui/styles/makeStyles';
 import Grid from '@mui/material/Grid';
+import PersonIcon from '@mui/icons-material/Person';
+import WorkIcon from '@mui/icons-material/Work';
 import IdentityPools from './IdentityPools';
 import Users from './Users';
 import Progress from './Progress';
@@ -13,6 +15,14 @@ import authConfig from '../authConfig';
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100%'
+  },
+  adminNavGrid: {
+    background: '#F7FAFF',
+    borderRight: '1px solid #EAECF1',
+    padding: '16px 40px',
+    [theme.breakpoints.up('lg')]: {
+      padding: '16px 1.5%',
+    },
   },
   adminNavContainer: {
     marginTop: 20
@@ -60,26 +70,29 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
   };
 
   const leftNavItems = canViewPoolsList ? [
-    {id: 'pools', label: 'Organizations'},
-    {id: 'users', label: 'Users'}
+    {id: 'pools', label: 'Orgs', icon: (<WorkIcon />)},
+    {id: 'users', label: 'Users', icon: (<PersonIcon />)}
   ] : [
-    {id: 'users', label: 'Users'}
+    {id: 'users', label: 'Users', icon: (<PersonIcon />)}
   ];
 
   return (
     <>
       <Grid container sx={{ flexDirection: { xs: 'column', sm: 'column', md: 'row'} }} className={classes.root}>
-        <Grid item xs={0} sm={0} md={2} style={{background: '#F7FAFF', padding: '16px 32px', borderRight: '1px solid #EAECF1'}}>
+        <Grid item xs={0} sm={0} md={2} lg={1} className={classes.adminNavGrid}>
           <div className={classes.adminNavContainer}>
             {accessTokenData.org && accessTokenData.identity_role && (
               <>
                 {leftNavItems.map((n, i) => (
-                  <div
-                    key={i}
-                    style={{marginBottom: 20, textDecoration: currentView === n.id ? 'underline' : 'none'}}
-                    onClick={() => updateCurrentView(n.id)}
-                  >
-                   {n.label}
+                  <div style={{display: 'flex'}}>
+                    {n.icon}
+                    <div
+                      key={i}
+                      style={{marginBottom: 20, marginLeft: 10, lineHeight: 1.6, textDecoration: currentView === n.id ? 'underline' : 'none'}}
+                      onClick={() => updateCurrentView(n.id)}
+                    >
+                     {n.label}
+                    </div>
                   </div>
                 ))}
               </>
@@ -89,7 +102,7 @@ export default function Dashboard ({onConnectClick, onDisconnect, onReconnect}) 
         {adminViewEnabled ? (
           <>
             {accessTokenData.org && accessTokenData.identity_role ? (
-              <Grid item xs={0} sm={0} md={10} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
+              <Grid item xs={0} sm={0} md={10} lg={11} style={{background: '#FCFCFF', padding: '32px 32px 16px 32px'}}>
                 {currentView === 'pools' && canViewPoolsList && (
                   <IdentityPools org={accessTokenData.org} identityRole={accessTokenData.identity_role} />
                 )}

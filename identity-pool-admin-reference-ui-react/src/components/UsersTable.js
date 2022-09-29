@@ -22,6 +22,7 @@ export const mapUsersToData = user => createData (
   user.payload?.given_name,
   user.payload?.family_name,
   user.payload?.name,
+  ((Array.isArray(user.identifiers) && user.identifiers) || []).join(', '),
   user.status,
   user.created_at
 );
@@ -31,10 +32,11 @@ function createData (
   firstName,
   lastName,
   fullName,
+  identifiers,
   status,
   createdAt
 ) {
-  return {id, firstName, lastName, fullName, status, createdAt};
+  return {id, firstName, lastName, fullName, identifiers, status, createdAt};
 }
 
 function descendingComparator (a, b, orderBy) {
@@ -68,6 +70,7 @@ const headCells = [
   {id: 'firstName', numeric: false, disablePadding: false, label: 'First name'},
   {id: 'lastName', numeric: false, disablePadding: false, label: 'Last name'},
   {id: 'fullName', numeric: false, disablePadding: false, label: 'Full Name'},
+  {id: 'identifiers', numeric: false, disablePadding: false, label: 'Identifiers'},
   {id: 'status', numeric: false, disablePadding: false, label: 'Status'},
   {id: 'createdAt', numeric: false, disablePadding: false, label: 'Created'},
 ];
@@ -79,7 +82,7 @@ function EnhancedTableHead (props) {
   };
 
   return (
-    <TableHead>
+    <TableHead style={{background: '#ECECEC'}}>
       <TableRow className={'analytics-table-head'}>
         {headCells.map((headCell) => (
           <TableCell
@@ -114,20 +117,11 @@ const useStyles = makeStyles((theme) =>
     },
     paper: {
       width: '100%',
-      height: '100%',
+      height: 'calc(100vh - 200px)',
       position: 'relative'
     },
     table: {
       //minWidth: 750,
-    },
-    tableContainer: {
-      [theme.breakpoints.down('md')]: {
-        marginTop: 70,
-        width: 'calc(100vw - 60px)'
-      },
-      // [theme.breakpoints.down('md')]: {
-      //   width: 'calc(100vw - 80px)'
-      // },
     },
     visuallyHidden: {
       border: 0,
@@ -284,11 +278,8 @@ export default function UsersTable({
           <Table
             className={classes.table}
             aria-labelledby="tableTitle"
-            size={dense ? 'small' : 'medium'}
+            size={'medium'}
             aria-label="enhanced table"
-            sx={{
-              width: 'max-content'
-            }}
           >
             <EnhancedTableHead
               classes={classes}
@@ -324,6 +315,7 @@ export default function UsersTable({
                       <TableCell align="left">{row.firstName}</TableCell>
                       <TableCell align="left">{row.lastName}</TableCell>
                       <TableCell align="left">{row.fullName}</TableCell>
+                      <TableCell align="left">{row.identifiers}</TableCell>
                       <TableCell align="left">{row.status}</TableCell>
                       <TableCell align="left">{row.createdAt}</TableCell>
                     </TableRow>
