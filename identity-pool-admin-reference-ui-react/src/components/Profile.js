@@ -26,6 +26,11 @@ const useStyles = makeStyles((theme) => ({
       padding: '30px 50px',
       width: 'calc(100vw - 300px)',
     }
+  },
+  rawAccessToken: {
+    wordBreak: 'break-all',
+    fontSize: 12,
+    color: '#555'
   }
 }));
 
@@ -54,11 +59,37 @@ const Profile = ({auth, handleLogout}) => {
         <div style={{marginTop: 20}}>
           <Typography>The contents of your OAuth Access token:</Typography>
         </div>
-        <ReactJson style={{marginTop: 20}} src={accessTokenData} />
-        <div style={{marginTop: 20}}>
+        <ReactJson
+          style={{marginTop: 20}}
+          src={accessTokenData}
+          displayDataTypes={false}
+          displayObjectSize={false}
+          quotesOnKeys={false}
+          displayArrayKey={false}
+        />
+        <div style={{marginTop: 15}}>
+          <Typography>Raw access token:</Typography>
+          <code className={classes.rawAccessToken}>
+            {accessToken}
+          </code>
+        </div>
+        <div style={{marginTop: 30}}>
           <Typography>The contents of your OAuth ID token:</Typography>
         </div>
-        <ReactJson style={{marginTop: 20}} src={idTokenData} />
+        <ReactJson
+          style={{marginTop: 20}}
+          src={idTokenData}
+          displayDataTypes={false}
+          displayObjectSize={false}
+          quotesOnKeys={false}
+          displayArrayKey={false}
+        />
+        <div style={{marginTop: 15}}>
+          <Typography>Raw ID token:</Typography>
+          <code className={classes.rawAccessToken}>
+            {idToken}
+          </code>
+        </div>
       </Card>
     </div>
   );
