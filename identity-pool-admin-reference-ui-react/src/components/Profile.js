@@ -66,6 +66,7 @@ const Profile = ({auth, handleLogout}) => {
           displayObjectSize={false}
           quotesOnKeys={false}
           displayArrayKey={false}
+          enableClipboard={false}
         />
         <div style={{marginTop: 15}}>
           <Typography>Raw access token:</Typography>
@@ -83,6 +84,7 @@ const Profile = ({auth, handleLogout}) => {
           displayObjectSize={false}
           quotesOnKeys={false}
           displayArrayKey={false}
+          enableClipboard={false}
         />
         <div style={{marginTop: 15}}>
           <Typography>Raw ID token:</Typography>
