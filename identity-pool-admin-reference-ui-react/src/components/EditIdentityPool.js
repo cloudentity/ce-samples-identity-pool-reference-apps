@@ -83,6 +83,11 @@ export default function EditPoolDialog ({open, poolId, rawPoolData, poolData, ha
           </>
         )}
 
+        {formFactory.createCheckBox({
+          name: "isAuthenticationFederated",
+          label: "Is authentication federated",
+        })}
+
         <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: 35}}>
           {formFactory.createFormFooter({
             onCancel: () => handleClose('cancel'),

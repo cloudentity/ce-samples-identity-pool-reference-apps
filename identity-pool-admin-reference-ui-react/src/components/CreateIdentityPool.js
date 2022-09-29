@@ -18,7 +18,8 @@ export default function CreateIdentityPoolDialog ({open, handleClose, classes}) 
     id: 'create-identity-pool',
     data: {
       authentication_mechanisms: ['password'],
-      public_registration_allowed: false
+      public_registration_allowed: false,
+      isAuthenticationFederated: false
     },
     formIsActive: open
   });
@@ -86,6 +87,11 @@ export default function CreateIdentityPoolDialog ({open, handleClose, classes}) 
             })}
           </>
         )}
+
+        {formFactory.createCheckBox({
+          name: "isAuthenticationFederated",
+          label: "Is authentication federated",
+        })}
 
         <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: 35}}>
           {formFactory.createFormFooter({

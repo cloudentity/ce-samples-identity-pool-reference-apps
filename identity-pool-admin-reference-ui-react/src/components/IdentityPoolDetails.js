@@ -120,6 +120,10 @@ export default function IdentityPoolDetails ({
       value: (poolData.authentication_mechanisms || []).join(', ') || missingInfoPlaceholder
     },
     {
+      displayName: 'Is Authentication Federated',
+      value: poolData.metadata?.isAuthenticationFederated ? 'yes' : 'no'
+    },
+    {
       displayName: 'Tenant ID',
       value: poolData.tenant_id || missingInfoPlaceholder
     },
@@ -140,7 +144,8 @@ export default function IdentityPoolDetails ({
     location: poolData?.metadata?.location || '',
     salesforceAccount: poolData?.metadata?.salesforceAccount || '',
     bp: (Array.isArray(poolData?.metadata?.bp) && poolData.metadata.bp) || [],
-    industry: poolData?.metadata?.industry || ''
+    industry: poolData?.metadata?.industry || '',
+    isAuthenticationFederated: poolData?.metadata?.isAuthenticationFederated || false
   };
 
   if (isLoading) {

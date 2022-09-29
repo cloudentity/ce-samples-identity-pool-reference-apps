@@ -63,7 +63,7 @@ export default function IdentityPools ({org, identityRole}) {
     if (action === 'confirm') {
       const mainProps = pickBy(f => f !== '', pick(['name', 'id', 'description', 'public_registration_allowed', 'authentication_mechanisms'], data));
       const metadataProps = {
-        ...pickBy(f => !!f, pick(['location', 'salesforceAccount', 'bp', 'industry'], data)),
+        ...pickBy(f => !!f || f === false, pick(['location', 'salesforceAccount', 'bp', 'industry', 'isAuthenticationFederated'], data)),
         parentOrg: org,
         type: 'b2borganization',
         b2borganizationGroupLabel: authConfig.b2borganizationGroupLabel

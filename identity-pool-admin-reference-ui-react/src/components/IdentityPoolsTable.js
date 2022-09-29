@@ -273,7 +273,7 @@ export default function IdentityPoolsTable({
     }
     if (action === 'confirm') {
       const mainProps = pickBy(f => f !== '', pick(['name', 'id', 'description', 'public_registration_allowed', 'authentication_mechanisms'], newData));
-      const metadataProps = pickBy(f => !!f, pick(['location', 'salesforceAccount', 'bp', 'industry'], newData));
+      const metadataProps = pickBy(f => !!f || f === false, pick(['location', 'salesforceAccount', 'bp', 'industry', 'isAuthenticationFederated'], newData));
       const updatedMetadata = {...(originalPoolData.metadata || {}), ...metadataProps};
 
       const payload = {
