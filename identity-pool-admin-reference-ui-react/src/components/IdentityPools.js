@@ -64,7 +64,7 @@ export default function IdentityPools ({org, identityRoles}) {
       const mainProps = pickBy(f => f !== '', pick(['name', 'id', 'description', 'public_registration_allowed', 'authentication_mechanisms'], data));
       const metadataProps = {
         ...pickBy(f => !!f || f === false, pick(['location', 'salesforceAccount', 'bp', 'industry', 'isAuthenticationFederated'], data)),
-        parentOrg: org,
+        parentOrg: data.parentOrg || org,
         type: 'b2borganization',
         b2borganizationGroupLabel: authConfig.b2borganizationGroupLabel
       };
@@ -109,7 +109,23 @@ export default function IdentityPools ({org, identityRoles}) {
 
   const identityPools = identityPoolsRes?.pools.filter(p => isPartOfB2BOrgGroup(p) || p.id === authConfig.superadminOrgId) || [];
 
-  const filteredPools = identityPools.filter(p => p.id === org || p.metadata?.parentOrg === org);
+  let filteredPools = identityPools.filter(p => p.id === org);
+
+  const findAllPoolDescendents = (list, parent) => {
+    const topTierParent = list.filter(p => p.id === org)[0]?.id
+    parent = typeof parent !== 'undefined' ? parent : { id: topTierParent };
+
+    const children = list.filter(child => child.metadata?.parentOrg === parent.id);
+
+    if (children.length) {
+      children.forEach(child => {
+        filteredPools.push(child)
+        findAllPoolDescendents(list, child);
+      });
+    }
+  };
+
+  findAllPoolDescendents(identityPools);
 
   const tableData = org === authConfig.superadminOrgId ? identityPools.map(mapPoolsToData) : filteredPools.map(mapPoolsToData);
 
@@ -200,6 +216,7 @@ export default function IdentityPools ({org, identityRoles}) {
       <CreateIdentityPoolDialog
         open={createPoolDialogOpen}
         handleClose={handleChangeCreatePoolDialogState}
+        availableParentOrgs={tableData.map(org => org.id)}
         classes={classes}
       />
     </>

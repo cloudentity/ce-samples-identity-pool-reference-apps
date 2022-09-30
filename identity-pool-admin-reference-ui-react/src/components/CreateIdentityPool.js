@@ -12,7 +12,7 @@ import {validators} from './forms/validation';
 
 import authConfig from '../authConfig';
 
-export default function CreateIdentityPoolDialog ({open, handleClose, classes}) {
+export default function CreateIdentityPoolDialog ({open, handleClose, availableParentOrgs, classes}) {
 
   const formFactory = useFormFactory({
     id: 'create-identity-pool',
@@ -61,6 +61,12 @@ export default function CreateIdentityPoolDialog ({open, handleClose, classes}) 
           label: 'Description',
           placeholder: 'Enter an description...',
           validate: {},
+        })}
+
+        {formFactory.createRequiredSelect({
+          name: 'parentOrg',
+          label: 'Parent Organization',
+          options: availableParentOrgs
         })}
 
         {!authConfig.simplePoolCreateForm && (
