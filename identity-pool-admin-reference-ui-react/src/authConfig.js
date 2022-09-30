@@ -19,6 +19,8 @@
       // If true, hides 'public_registration_allowed' and 'authentication_mechanisms' fields on 'create pool' dialog, default values of
       // 'false' for 'public_registration_allowed' and ['password'] for 'authentication_mechanisms' are used when pool is created.
       simplePoolCreateForm: true,
+      onCreatePoolAddIdentityProviderConnection: true,
+      postAuthScriptId: '9eb8449d06744fdbb3468d74df98e407',
 
       env: 'dev',
       mockAccessTokenData: {org: 'demoadmin', roles: ['superadmin']},

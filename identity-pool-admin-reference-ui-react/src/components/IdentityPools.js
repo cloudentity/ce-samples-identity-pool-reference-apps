@@ -9,6 +9,7 @@ import { useQuery } from 'react-query';
 import { api } from '../api/api';
 import Progress from './Progress';
 import authConfig from '../authConfig';
+import idpMappingsConfig from '../idpMappingsConfig';
 import { pick, pickBy, isEmpty, includes } from 'ramda';
 
 const useStyles = makeStyles((theme) => ({
@@ -77,9 +78,60 @@ export default function IdentityPools ({org, identityRoles}) {
       };
 
       api.createIdentityPool({tenant_id: authConfig.tenantId, ...payload})
-        .then(() => {
-          setCreatePoolDialogOpen(false);
-          initRefreshList(!refreshList);
+        .then(createPoolRes => {
+          if (authConfig.onCreatePoolAddIdentityProviderConnection) {
+            const createIdentityProviderBody = {
+              method: 'identity_pool',
+              name: createPoolRes.name,
+              identity_pool_id: createPoolRes.id
+            };
+
+            api.postCreatePool_CreateIdentityProviderFromPool(createIdentityProviderBody)
+              .then(createIdentityProviderRes => {
+                const updateIdpMappingsBody = {
+                  method: 'identity_pool',
+                  name: createPoolRes.name,
+                  identity_pool_id: createPoolRes.id,
+                  ...idpMappingsConfig
+                };
+
+                api.postCreatePool_ConfigureIdentityProviderMappings(createIdentityProviderRes.id, updateIdpMappingsBody)
+                  .then(() => {
+                    const configurePostAuthScriptBody = {
+                      execution_points: [
+                        {
+                          tenant_id: authConfig.tenantId,
+                          server_id: authConfig.authorizationServerId,
+                          type: 'post_authn_ctx',
+                          target_fk: createIdentityProviderRes.id,
+                          script_id: authConfig.postAuthScriptId
+                        }
+                      ]
+                    };
+
+                    api.postCreatePool_ConfigurePostAuthScript(configurePostAuthScriptBody)
+                      .then(() => {
+                        setCreatePoolDialogOpen(false);
+                        initRefreshList(!refreshList);
+                      })
+                      .catch((err) => {
+                        console.log('API error', err);
+                        window.alert('There was an error running the post-auth script API. Please try again.');
+                      });
+                  })
+                  .catch((err) => {
+                    console.log('API error', err);
+                    window.alert('There was an error setting the IDP mappings configuration. Please try again.');
+                  });
+              })
+              .catch((err) => {
+                console.log('API error', err);
+                window.alert('There was an error creating the identity provider. Please try again.');
+              });
+          } else {
+            setCreatePoolDialogOpen(false);
+            initRefreshList(!refreshList);
+          }
         })
         .catch((err) => {
           console.log('API error', err);
