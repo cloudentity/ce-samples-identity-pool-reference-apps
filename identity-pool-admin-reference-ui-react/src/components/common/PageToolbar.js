@@ -70,6 +70,7 @@ export default function PageToolbar({
   authorizationServerId,
   tenantId,
   tab,
+  adminViewEnabled,
   subHeaderTitle,
   subHeaderButton,
   handleTabChange,
@@ -109,13 +110,15 @@ export default function PageToolbar({
                 aria-label="menu tabs"
                 style={{ height: 64 }}
               >
-                <Tab
-                  label="Admin"
-                  value="admin"
-                  id={'admin-tab'}
-                  style={{ height: 64 }}
-                  onClick={() => handleTabChange('admin')}
-                />
+                {adminViewEnabled && (
+                  <Tab
+                    label="Admin"
+                    value="admin"
+                    id={'admin-tab'}
+                    style={{ height: 64 }}
+                    onClick={() => handleTabChange('admin')}
+                  />
+                )}
                 <Tab
                   label="My Token Data"
                   value="profile"
