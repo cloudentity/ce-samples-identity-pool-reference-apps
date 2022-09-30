@@ -246,6 +246,7 @@ export default function IdentityPoolsTable({
   isPoolDataLoading,
   refreshData,
   handleRefreshList,
+  adminOrg,
   identityRoles,
   style = {}
 }) {
@@ -380,6 +381,7 @@ export default function IdentityPoolsTable({
       >
         <IdentityPoolDetails
           isLoading={isPoolDataLoading}
+          adminOrg={adminOrg}
           identityRoles={identityRoles}
           poolId={selectedPool[0]}
           poolData={poolData}

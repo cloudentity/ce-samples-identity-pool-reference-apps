@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function IdentityPoolDetails ({
   isLoading,
+  adminOrg,
   identityRoles,
   payloadSchema,
   poolId,
@@ -173,7 +174,7 @@ export default function IdentityPoolDetails ({
         ))}
       </div>
       <div className={classes.editPoolButtonContainer}>
-        {(includes('superadmin', identityRoles) || includes('pools_admin', identityRoles)) && (
+        {(includes('superadmin', identityRoles) || (includes('pools_admin', identityRoles) && poolData?.id !== adminOrg)) && (
           <>
             <Button
               fullWidth

@@ -263,6 +263,7 @@ export default function IdentityPools ({org, identityRoles}) {
         isPoolDataLoading={isPoolDataLoading}
         refreshData={refreshList}
         handleRefreshList={() => initRefreshList(!refreshList)}
+        adminOrg={org}
         identityRoles={identityRoles}
         style={{marginTop: 24, height: 'calc(100% - 332px - 24px'}}
       />
