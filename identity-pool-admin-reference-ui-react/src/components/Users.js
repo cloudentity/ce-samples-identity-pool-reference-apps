@@ -119,8 +119,27 @@ export default function Users ({org, identityRoles}) {
   );
 
   const identityPools = identityPoolsRes?.pools.filter(p => isPartOfB2BOrgGroup(p) || p.id === authConfig.superadminOrgId) || [];
-  const filteredPools = identityPools.filter(p => p.id === org || p.metadata?.parentOrg === org);
+
+  let filteredPools = identityPools.filter(p => p.id === org);
+
+  const findAllPoolDescendents = (list, parent) => {
+    const topTierParent = list.filter(p => p.id === org)[0]?.id
+    parent = typeof parent !== 'undefined' ? parent : { id: topTierParent };
+
+    const children = list.filter(child => child.metadata?.parentOrg === parent.id);
+
+    if (children.length) {
+      children.forEach(child => {
+        filteredPools.push(child)
+        findAllPoolDescendents(list, child);
+      });
+    }
+  };
+
+  findAllPoolDescendents(identityPools);
+
   const listOwnPoolOnly = identityPools.filter(p => p.id === org);
+
   const identityPoolOptions = isSuperadmin ? identityPools : (canSeeOwnPoolOnly ? listOwnPoolOnly : filteredPools);
 
   const isPoolListLoading = fetchIdentityPoolsProgress;
