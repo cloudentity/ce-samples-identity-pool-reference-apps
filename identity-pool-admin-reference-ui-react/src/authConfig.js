@@ -16,9 +16,10 @@
       superadminOrgId: 'demoadmin',
       b2borganizationGroupLabel: 'demogroup',
 
-      // If true, hides 'public_registration_allowed' and 'authentication_mechanisms' fields on 'create pool' dialog, default values of
-      // 'false' for 'public_registration_allowed' and ['password'] for 'authentication_mechanisms' are used when pool is created.
+      // If true, 'simplePoolCreateForm' hides 'public_registration_allowed' and 'authentication_mechanisms' fields on 'create pool' dialog, and
+      // default values of 'false' for 'public_registration_allowed' and ['password'] for 'authentication_mechanisms' are used when pool is created.
       simplePoolCreateForm: true,
+      defaultPasswordPolicy: {strength:'any', capital_letters: 0, digits: 0, min_length: 8, not_used_since:0, special_characters: 0},
       onCreatePoolAddIdentityProviderConnection: true,
       postAuthScriptId: '9eb8449d06744fdbb3468d74df98e407',
 
