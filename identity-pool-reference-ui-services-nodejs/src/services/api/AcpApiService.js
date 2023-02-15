@@ -65,6 +65,22 @@ class AcpApiService {
     return axios(options);
   }
 
+  createUser (serverToken, data) {
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${serverToken}`
+      },
+      data: data,
+      url: `${acpBaseUrl}${acpIpSystemApiPrefix}/pools/${ipId}/users`,
+    };
+
+    console.log(options);
+
+    return axios(options);
+  }
+
   getUser (serverToken, userId) {
     const options = {
       method: 'GET',
