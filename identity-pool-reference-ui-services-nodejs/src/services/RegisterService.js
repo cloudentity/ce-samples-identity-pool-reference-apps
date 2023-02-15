@@ -8,9 +8,26 @@ class RegisterService {
   registerUser (serverToken, data) {
     return AcpApiService.createUser(serverToken, data)
       .then(registerUserRes => {
-        return Promise.resolve(registerUserRes?.data);
+
+        if (!registerUserRes?.data?.id) {
+          return Promise.reject({
+            status_code: 400,
+            error: 'bad request',
+            details: 'User identifier not found'
+          });
+        }
+
+        const sendActivationMessagePayload = {
+          address: data?.identifiers[0]?.identifier
+        };
+
+        return AcpApiService.sendActivationMessage(serverToken, registerUserRes?.data?.id, sendActivationMessagePayload)
+          .then(sendActivationMessageRes => {
+            return Promise.resolve(sendActivationMessageRes?.data);
+          })
+          .catch(sendActivationMessageErr => ErrorService.handleAcpApiError(sendActivationMessageErr));
       })
-      .catch(err => ErrorService.handleAcpApiError(err));
+      .catch(registerUserErr => ErrorService.handleAcpApiError(registerUserErr));
   }
 }
 

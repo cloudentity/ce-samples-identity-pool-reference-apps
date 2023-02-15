@@ -76,8 +76,6 @@ class AcpApiService {
       url: `${acpBaseUrl}${acpIpSystemApiPrefix}/pools/${ipId}/users`,
     };
 
-    console.log(options);
-
     return axios(options);
   }
 
@@ -116,6 +114,20 @@ class AcpApiService {
       },
       data: data,
       url: `${acpBaseUrl}${acpIpSystemApiPrefix}/pools/${ipId}/users/${userId}/change_password`,
+    };
+
+    return axios(options);
+  }
+
+  sendActivationMessage (serverToken, userId, data) {
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${serverToken}`
+      },
+      data: data,
+      url: `${acpBaseUrl}${acpIpSystemApiPrefix}/pools/${ipId}/users/${userId}/activation/send`,
     };
 
     return axios(options);

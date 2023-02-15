@@ -7,8 +7,6 @@ const RegisterService = require('../services/RegisterService');
 const ErrorService = require('../services/utils/ErrorService');
 
 router.post('/', (req, res) => {
-  console.log('req.body')
-  console.log(req.body);
   RegisterService.registerUser(ServerAuth.getServerSystemAccessToken(), req.body)
     .then(registerUserRes => {
       res.status(201);
