@@ -10,6 +10,7 @@ export const api = {
 
   // Must be called if custom IDP/login page being used
   identifierPasswordLogin: (body) => nodeAppBase.post({url: '/authenticate/identifierpassword', body}),
+  selfRegisterUser: (body) => nodeAppBase.post({url: '/register', body}),
   fetchProfileSchema: () => nodeAppBase.get({url: '/userschema'}),
   fetchProfileCustomIdp: () => nodeAppBase.get({url: '/self/profile'}),
   updateProfileCustomIdp: (body) => nodeAppBase.put({url: '/self/profile', body}),

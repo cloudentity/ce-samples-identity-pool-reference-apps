@@ -90,15 +90,15 @@ const authConfig = {
 
 #### Custom Identity provider using Identity pool APIs as Authn provider
 
-As mentioned before we will use Backend for frontent(BFF) design pattern to talk to Identity Pool APIs. The Node.js backend app `identity-pool-reference-ui-services-nodejs` will act as an intermediary between the Reactjs app and Identity Pool API.
+As mentioned before we will use Backend for frontend (BFF) design pattern to talk to Identity Pool APIs. The Node.js backend app `identity-pool-reference-ui-services-nodejs` will act as an intermediary between the React.js app and Identity Pool API.
 
 Some of the Identity Pool APIs needs a trusted backend to initiate a secure communication channel and retrieve user information on behalf of the authenticated user. Later in the article, we will see couple of configurations to enable this.
 
 Let's take a sequence of activities that are relevant to this entire call flow
-* User clicks "Login" on the user auth React app, which initiates an OAuth authorize flow in Cloudentity and is redirected to the "Custom IDP login page" 
+* User clicks "Login" on the user auth React app, which initiates an OAuth authorize flow in Cloudentity and is redirected to the "Custom IDP login page"
 * User enters their identifier and password
 * Backend application calls the Identity Pool [Verify Password](https://developer.cloudentity.com/api/identity/#tag/Users/operation/verifyPassword) API
-    * If verification is successful, it calls the ACP System [Accept Login](https://docs.authorization.cloudentity.com/api/system/#tag/logins/operation/acceptLoginRequest) API, passing the user's UUID (which was returned in the Verify Password response) 
+    * If verification is successful, it calls the ACP System [Accept Login](https://docs.authorization.cloudentity.com/api/system/#tag/logins/operation/acceptLoginRequest) API, passing the user's UUID (which was returned in the Verify Password response)
 * Accept Login response contains a redirect URL to Cloudentity as a callback and the application must redirect to this URL
 * Cloudentity returns and OAuth authorization code and the authentication application can now exchange it for  idToken & accessToken
 * Now the react authentication application can store the access & idTokens to represent an authenticated user
@@ -106,7 +106,7 @@ Let's take a sequence of activities that are relevant to this entire call flow
 #### Cloudentity Identity pool identity provider as Authn provider
 
 Let's take a sequence of activities that are relevant to this entire call flow
-* User clicks "Login" on the user auth React app, which initiates an OAuth authorize flow in Cloudentity and is redirected to the "Cloudentity identity pool" identity provide authentication page 
+* User clicks "Login" on the user auth React app, which initiates an OAuth authorize flow in Cloudentity and is redirected to the "Cloudentity identity pool" identity provide authentication page
 * User enters their identifier and password
 * Cloudentity returns  OAuth authorization code and the authentication application can now exchange it for  idToken & accessToken
 * Now the react authentication application can store the access & idTokens to represent an authenticated user
@@ -117,7 +117,7 @@ Irrespective of the mechanism through which user authentication, user can now ma
 
 Above flow authenticated the user, and to allow the user to update their profile or change password etc, they need to present the accessToken to the backend app which internally proxies the calls to Cloudentity backends
 for the user represented within the accessToken using following APIs
-* [Get User details](https://developer.cloudentity.com/api/identity/#tag/Users/operation/getUser) API 
+* [Get User details](https://developer.cloudentity.com/api/identity/#tag/Users/operation/getUser) API
 * [Update User details](https://docs.authorization.cloudentity.com/api/identity/#tag/Users/operation/updateUser) API
 * [Change Password](https://docs.authorization.cloudentity.com/api/identity/#tag/Users/operation/changePassword) API
 
@@ -125,7 +125,15 @@ For the backend Nodejs application to call Cloudentity APIs, it needs to be a tr
 identity itself by obtaining an access Token. We will use OAuth client credentials flow to obtains these tokens
 for this backed to call aboe APIs. The backend app will keep track of token expiry and refresh as required.
 
-Eventhough this tutorial uses a frontend and backend pattern, this could also be used for fully server side rendedered applications.
+Even though this tutorial uses a frontend and backend pattern, this could also be used for fully server side rendered applications.
+
+#### Custom user self-registration page
+
+This demo app additionally features an example of how to set up a user registration page that uses the same BFF design to call the Identity Pool system Create User API, and subsequently the Send Activation Message API, when the new user fills out a registration form and submits it.
+
+This approach allows complete control of styling and form inputs on your custom registration page, as long as the form data is mapped into a payload that the Identity Pool API is able to process, and your user schema is configured to support any custom fields. (See the docs on the system [Create User](https://cloudentity.com/developers/api/identity_apis/identity-system-api/#tag/Users/operation/systemCreateUser) API, the [Send Activation Message](https://cloudentity.com/developers/api/identity_apis/identity-system-api/#tag/Users/operation/selfSendActivationMessage) API, and on [configuring a custom User schema](https://cloudentity.com/developers/howtos/tenant-configuration/configuring-identity-pools/)).
+
+In this scenario, be aware that configuring the option to enable self-registration in ACP does not matter, as your application is bypassing this functionality by using your own custom application and calling the underlying system API directly to create the user and send the activation message.
 
 ## Optional steps for enhanced customization use cases
 

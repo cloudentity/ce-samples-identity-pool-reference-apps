@@ -84,7 +84,7 @@ class ServerAuth {
       }
     }
     if (currentSystemAccessToken) {
-      const decodedSystemToken = jwt_decode(currentAdminAccessToken);
+      const decodedSystemToken = jwt_decode(currentSystemAccessToken);
       if (decodedSystemToken.exp && expiresWithinSeconds(decodedSystemToken.exp, 180)) {
         this.setServerSystemAccessToken();
       }

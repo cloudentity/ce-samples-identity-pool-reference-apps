@@ -6,6 +6,7 @@ const R = require('ramda');
 require('dotenv').config();
 const ServerAuth = require('./services/utils/ServerAuth');
 const authenticationRoute = require('./routes/Authentication');
+const registerRoute = require('./routes/Register');
 const schemaRoute = require('./routes/Schema');
 const profileRoute = require('./routes/Profile');
 const passwordRoute = require('./routes/Password');
@@ -33,6 +34,7 @@ const checkServerAuth = setInterval(() => {
 }, 60000);
 
 app.use(apiPrefix + '/authenticate', authenticationRoute);
+app.use(apiPrefix + '/register', registerRoute);
 app.use(apiPrefix + '/userschema', schemaRoute);
 app.use(apiPrefix + '/self/profile', profileRoute);
 app.use(apiPrefix + '/self/password', passwordRoute);

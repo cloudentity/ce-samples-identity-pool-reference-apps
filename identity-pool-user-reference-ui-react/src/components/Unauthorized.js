@@ -1,4 +1,5 @@
-import { Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import makeStyles from '@mui/styles/makeStyles';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
@@ -55,11 +56,19 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       color: theme.palette.primary.main,
     }
+  },
+  registerPromptText: {
+    marginTop: 30
+  },
+  registerPromptLink: {
+    color: theme.palette.primary.main
   }
 }));
 
-const Unauthorized = ({className, auth, handleLogin}) => {
+const Unauthorized = ({className, auth, role, handleLogin}) => {
   const classes = useStyles();
+
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const queryParams = Object.fromEntries((new URLSearchParams(window.location.search)).entries());
   const loginRedirect = !!(
@@ -96,6 +105,42 @@ const Unauthorized = ({className, auth, handleLogin}) => {
       });
   };
 
+  const handleSubmitRegister = (formData) => {
+    const payload = {
+      identifiers: [
+        {
+          identifier: formData.identifier,
+          type: 'email'
+        }
+      ],
+      payload: {
+        given_name: formData.firstName,
+        family_name: formData.lastName,
+        name: `${formData.firstName} ${formData.lastName}`
+      },
+      verifiable_addresses: [
+        {
+          address: formData.identifier,
+          status: 'active',
+          type: 'email',
+          verified: false
+        }
+      ],
+      metadata: null,
+      status: 'new',
+      credentials: []
+    };
+
+    api.selfRegisterUser(payload)
+      .then(() => {
+        setRegistrationSuccess(true);
+      })
+      .catch((err) => {
+        console.log('Register error', err);
+        window.alert('There was a problem registering. Please try again.');
+      });
+  };
+
   return (
     <div style={{ position: 'relative' }}>
       <PageToolbar
@@ -111,41 +156,101 @@ const Unauthorized = ({className, auth, handleLogin}) => {
             <Card className={classes.loginCard}>
               <div className={classes.subContainer}>
                 <div className={`${classes.subContainer} ${classes.textColor}`}>
-                  <Typography variant="h5" component="h2">Welcome!</Typography>
-                  <Typography>Log in to manage your account.</Typography>
+                  <Typography variant="h5" component="h2">
+                    {role === 'register'
+                      ? (registrationSuccess ? 'Check your email' : 'Let\'s get started')
+                      : 'Welcome!'
+                    }
+                  </Typography>
+                  <Typography>
+                    {role === 'register'
+                      ? (registrationSuccess ? 'An activation link has been sent to the email you provided.' : 'You\'re just a couple steps from creating your account.')
+                      : 'Log in to manage your account.'
+                    }
+                  </Typography>
                 </div>
-                {loginRedirect ? (
-                  <div className={classes.loginInputsWrapper}>
-                    {formFactory.createRequiredField({
-                      name: 'identifier',
-                      label: 'Email',
-                      validate: {
-                        validEmail: validators.validEmail({ label: 'Input' }),
-                      },
-                      className: classes.loginInputs
-                    })}
-                    {formFactory.createRequiredField({
-                      name: 'password',
-                      label: 'Password',
-                      toggleVisibility: true,
-                      defaultVisibility: false,
-                      validate: {},
-                      className: classes.loginInputs
-                    })}
+                {role === 'register' ? (
+                  <>
+                    {registrationSuccess ? (
+                      <Button color="primary" onClick={handleLogin} className={classes.loginButton}>
+                        Back to Login
+                      </Button>
+                    ) : (
+                      <div className={classes.loginInputsWrapper}>
+                        {formFactory.createRequiredField({
+                          name: 'firstName',
+                          label: 'First Name',
+                          validate: {},
+                          className: classes.loginInputs,
+                          type: 'text'
+                        })}
+                        {formFactory.createRequiredField({
+                          name: 'lastName',
+                          label: 'Last Name',
+                          validate: {},
+                          className: classes.loginInputs,
+                          type: 'text'
+                        })}
+                        {formFactory.createRequiredField({
+                          name: 'identifier',
+                          label: 'Email',
+                          validate: {
+                            validEmail: validators.validEmail({ label: 'Input' }),
+                          },
+                          className: classes.loginInputs
+                        })}
 
-                    <div style={{marginBottom: 20}}>
-                      {formFactory.createFormFooter({
-                        onSubmit: handleSubmitLogin,
-                        submitText: 'Login',
-                        align: 'center',
-                        className: classes.loginInputSubmit
-                      })}
-                    </div>
-                  </div>
+                        <div style={{marginBottom: 20}}>
+                          {formFactory.createFormFooter({
+                            onSubmit: handleSubmitRegister,
+                            submitText: 'Submit',
+                            align: 'center',
+                            className: classes.loginInputSubmit
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
-                  <Button color="primary" onClick={handleLogin} className={classes.loginButton}>
-                    Continue
-                  </Button>
+                  <>
+                    {loginRedirect ? (
+                      <div className={classes.loginInputsWrapper}>
+                        {formFactory.createRequiredField({
+                          name: 'identifier',
+                          label: 'Email',
+                          validate: {
+                            validEmail: validators.validEmail({ label: 'Input' }),
+                          },
+                          className: classes.loginInputs
+                        })}
+                        {formFactory.createRequiredField({
+                          name: 'password',
+                          label: 'Password',
+                          toggleVisibility: true,
+                          defaultVisibility: false,
+                          validate: {},
+                          className: classes.loginInputs
+                        })}
+
+                        <div style={{marginBottom: 20}}>
+                          {formFactory.createFormFooter({
+                            onSubmit: handleSubmitLogin,
+                            submitText: 'Login',
+                            align: 'center',
+                            className: classes.loginInputSubmit
+                          })}
+                        </div>
+                        <div className={classes.registerPromptText}>
+                          <span>No account? </span>
+                          <Link className={classes.registerPromptLink} to={'/register'} reloadDocument>Sign up here</Link>
+                        </div>
+                      </div>
+                    ) : (
+                      <Button color="primary" onClick={handleLogin} className={classes.loginButton}>
+                        Continue
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             </Card>
